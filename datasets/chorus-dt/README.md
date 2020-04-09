@@ -1,15 +1,3 @@
-INSEE CODES : https://www.data.gouv.fr/en/datasets/base-officielle-des-codes-postaux/
-LISTE DES GARES : https://ressources.data.sncf.com/explore/dataset/liste-des-gares/table
-
-TODO:
-- Get trip distance using gmap api
-- Use geopy to compute distance (geopy.distance.distance)
-- Tester navitia
-- S'il y a un liaison TGV ou TER -> Dataset
-  - TGV ou TER
-      - Si TGV -> on a l'émission
-      - Si Ter -> on récupère la données simple
-
 # Usage
 ## Requirements
 - Virtualenv
@@ -51,3 +39,15 @@ You can resolve the places:
 python scipts/resolve_places.py
 ```
 This will create / replaces `trips.csv` and `places.csv` in `data/clean`.
+
+You can also run a small dashboard to see names resolution:
+```
+python dash_dashboard.py
+```
+It will run a small web app available on the port specified in the `dash` section of the `config.ini` file.
+
+# TODO
+- Use geopy to compute distance (geopy.distance.distance)
+- Compute places.csv / trips.csv for `T`, `TC`... trips types
+- Test if it is possible to know if we have a TGV or TER trip
+- We didn't check at the `lieu étape` column, so maybe we are missing something important here
