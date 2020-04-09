@@ -1,5 +1,7 @@
 pandas
+dash
 tqdm
+geopy
 requests
 dill
 ipython
