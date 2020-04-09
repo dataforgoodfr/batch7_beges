@@ -4,9 +4,6 @@
 - virtualenvwrapper
 
 ## Setup
-### Data
-Get the following data from the drive and put them in `./data/raw`:
-- datasets/chorus-dt/avion-train.csv
 
 ### Config file
 ```
