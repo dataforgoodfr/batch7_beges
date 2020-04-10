@@ -29,40 +29,29 @@ def get_map_figure(active_row=None, active_column=None):
             + "<br>Lon: %{customdata[1]}"
             + "<br>Lat: %{customdata[2]}",
             mode="markers",
-            marker=dict(size=np.maximum(10, (places['total'] / 100)), color='green', opacity=0.2),
+            marker=dict(size=np.maximum(10, (places['total'] / 100)), color='yellow', opacity=0.2),
         )]
     if active_row is not None:
-        colors = {'trip_place_0': 'blue', 'trip_place_1': 'blue'}
-        if active_column == 'trip_place_0':
-            colors['trip_place_0'] = 'red'
-        elif active_column == 'trip_place_1':
-            colors['trip_place_1'] = 'red'
-        center_lat = (trips.loc[active_row, 'coords_place_0_lat'] + trips.loc[active_row, 'coords_place_1_lat']) / 2.
-        center_lon = (trips.loc[active_row, 'coords_place_0_lon'] + trips.loc[active_row, 'coords_place_1_lon']) / 2.
+        colors = {'trip_place_0': 'green', 'trip_place_1': 'blue', 'trip_place_2': 'red'}
+        opacities = {'trip_place_0': 0.5, 'trip_place_1': 0.5, 'trip_place_2': 0.5}
+        opacities[active_column] = 0.9
+        center_lat = (trips.loc[active_row, 'coords_place_0_lat'] + trips.loc[active_row, 'coords_place_2_lat']) / 2.
+        center_lon = (trips.loc[active_row, 'coords_place_0_lon'] + trips.loc[active_row, 'coords_place_2_lon']) / 2.
         center = {
                 'lat': center_lat,
                 'lon': center_lon,
             }
-        state_data.append(go.Scattermapbox(
-                lat=[trips.loc[active_row, 'coords_place_0_lat']],
-                lon=[trips.loc[active_row, 'coords_place_0_lon']],
-                mode="markers",
-                customdata=trips.loc[[active_row], ['trip_place_0', 'coords_place_0_lon', 'coords_place_0_lat']],
-                hovertemplate="<i>%{customdata[0]}</i>"
-                + "<br>Lon: %{customdata[1]}"
-                + "<br>Lat: %{customdata[2]}",
-                marker=dict(size=20, color=colors['trip_place_0'], opacity=0.5),
-            ))
-        state_data.append(go.Scattermapbox(
-                lat=[trips.loc[active_row, 'coords_place_1_lat']],
-                lon=[trips.loc[active_row, 'coords_place_1_lon']],
-                customdata=trips.loc[[active_row], ['trip_place_1', 'coords_place_1_lon', 'coords_place_1_lat']],
-                hovertemplate="<i>%{customdata[0]}</i>"
-                + "<br>Lon: %{customdata[1]}"
-                + "<br>Lat: %{customdata[2]}",
-                mode="markers",
-                marker=dict(size=20, color=colors['trip_place_1'], opacity=0.5),
-            ))
+        for place_index in [0, 1, 2]:
+            state_data.append(go.Scattermapbox(
+                    lat=[trips.loc[active_row, 'coords_place_%d_lat' % place_index]],
+                    lon=[trips.loc[active_row, 'coords_place_%d_lon' % place_index]],
+                    mode="markers",
+                    customdata=trips.loc[[active_row], ['trip_place_%d' % place_index, 'coords_place_%d_lon' % place_index, 'coords_place_%d_lat' % place_index]],
+                    hovertemplate="<i>%{customdata[0]}</i>"
+                    + "<br>Lon: %{customdata[1]}"
+                    + "<br>Lat: %{customdata[2]}",
+                    marker=dict(size=20, color=colors['trip_place_%d' % place_index], opacity=opacities['trip_place_%d' % place_index]),
+                ))
     print(center)
     layout = dict(
         mapbox=dict(
@@ -79,7 +68,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-columns_to_be_displayed = ['count', 'trip_place_0', 'trip_place_1']
+columns_to_be_displayed = ['count', 'trip_place_0', 'trip_place_1', 'trip_place_2', 'prestation_type']
 app.layout = html.Div(children=[
     html.H1(children='Hello Dash'),
 

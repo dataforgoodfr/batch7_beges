@@ -1,5 +1,4 @@
 import configparser
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-
+CONFIG = configparser.ConfigParser()
+CONFIG.read("config.ini")

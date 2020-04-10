@@ -5,3 +5,7 @@ wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1EFDX
 # Lists of train stations
 wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1zLRRqbHNH4y487JKoBA-GhfPSZt-7GhF' -O ./data/raw/liste-des-gares.csv
 wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1WSAj7khA-HGjTyHpWbAXzZs2JGafNkfD' -O ./data/raw/referentiel-gares-voyageurs.csv
+# Gmap cache
+wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1iw8q0Ve5AMusts11GrI2XzmOAbfKaclM' -O ./data/raw/gmap_responses.pkl
+
+
