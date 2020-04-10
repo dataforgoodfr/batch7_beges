@@ -36,21 +36,30 @@ def get_places_and_trips(data, prestation_types=None):
     lieu_depart_count.columns = ['place', 'src']
     lieu_arrivee_count = current_data['lieu_arrivee'].value_counts().to_frame().reset_index()
     lieu_arrivee_count.columns = ['place', 'dst']
+    lieu_etape_count = current_data['lieu_etape'].value_counts().to_frame().reset_index()
+    lieu_etape_count.columns = ['place', 'stop']
+    print(len(lieu_arrivee_count))
+    print(len(lieu_depart_count))
     places = pd.merge(lieu_depart_count, lieu_arrivee_count, how='outer', on='place')
+    places = pd.merge(places, lieu_etape_count, how='outer', on='place')
     places.fillna(0, inplace=True)
-    places['total'] = places['src'] + places['dst']
+    places['total'] = places['src'] + places['dst'] + places['stop']
 
     all_trips = pd.DataFrame()
-    all_trips['trip_slug'] = current_data[['lieu_depart', 'lieu_arrivee']].apply(lambda x: ' <-> '.join(sorted(x)), axis=1)
-    all_trips['trip_place_0'] = current_data[['lieu_depart', 'lieu_arrivee']].apply(lambda x: sorted(x)[0], axis=1)
-    all_trips['trip_place_1'] = current_data[['lieu_depart', 'lieu_arrivee']].apply(lambda x: sorted(x)[1], axis=1)
-    trips = all_trips.reset_index().groupby(['trip_slug', 'trip_place_0', 'trip_place_1'], as_index=False).count()
-    trips.columns = ['trip_slug', 'trip_place_0', 'trip_place_1', 'count']
+    places_columns = ['lieu_depart', 'lieu_etape', 'lieu_arrivee']
+    all_trips['trip_slug'] = current_data[places_columns].apply(lambda x: ' <-> '.join(x), axis=1)
+    all_trips['trip_place_0'] = current_data['lieu_depart']
+    all_trips['trip_place_1'] = current_data['lieu_etape']
+    all_trips['trip_place_2'] = current_data['lieu_arrivee']
+    all_trips['prestation_type'] = current_data['prestation_type']
+    trips = all_trips.reset_index().groupby(['trip_slug', 'prestation_type', 'trip_place_0', 'trip_place_1', 'trip_place_2'], as_index=False).count()
+    trips.columns = ['trip_slug', 'prestation_type', 'trip_place_0', 'trip_place_1', 'trip_place_2', 'count']
     trips.sort_values(by='count', inplace=True, axis=0, ascending=False)
 
     print("Unique places src: ", len(current_data['lieu_depart'].unique()))
     print("Unique places dst: ", len(current_data['lieu_arrivee'].unique()))
-    print("Unique places: ", len(set(current_data['lieu_depart'].unique()).union(current_data['lieu_arrivee'].unique())))
+    print("Unique places stop: ", len(current_data['lieu_etape'].unique()))
+    print("Unique places: ", places.shape[0])
     print('Unique trips: ', len(all_trips['trip_slug'].unique()))
     return places, trips
 

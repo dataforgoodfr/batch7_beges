@@ -47,11 +47,14 @@ class Resolver():
 
     def resolve(self, x):
         name = x['name']
-        if name in self._cache:
-            response = self._cache[name]
+        if name is not None and (name != ''):
+            if name in self._cache:
+                response = self._cache[name]
+            else:
+                response = self.geocode_with_delay(name)
+                self._cache[name] = response
         else:
-            response = self.geocode_with_delay(name)
-            self._cache[name] = response
+            response = None
 
         if response is not None:
             x['lon'] = response.longitude
@@ -191,15 +194,12 @@ if __name__ == "__main__":
     places['lon'] = places['lon'].astype(float)
     places_dict = places.set_index('place').to_dict()
 
-    trips['coords_place_0_lat'] = trips['trip_place_0'].apply(lambda x: places_dict['lat'][x])
-    trips['coords_place_0_lon'] = trips['trip_place_0'].apply(lambda x: places_dict['lon'][x])
-    trips['coords_place_1_lat'] = trips['trip_place_1'].apply(lambda x: places_dict['lat'][x])
-    trips['coords_place_1_lon'] = trips['trip_place_1'].apply(lambda x: places_dict['lon'][x])
-    trips['place_0_count'] = trips['trip_place_1'].apply(lambda x: places_dict['total'][x])
-    trips['place_1_count'] = trips['trip_place_1'].apply(lambda x: places_dict['total'][x])
-    trips['distance'] = trips.apply(compute_distance, axis=1)
-    trips['coords_place_0'] = trips[ 'coords_place_0_lon'].astype(str) + ';' + trips[ 'coords_place_0_lat'].astype(str)
-    trips['coords_place_1'] = trips[ 'coords_place_1_lon'].astype(str) + ';' + trips[ 'coords_place_1_lat'].astype(str)
+    for place_index in [0, 1, 2]:
+        trips['coords_place_%d_lat' % place_index] = trips['trip_place_%d' % place_index].apply(lambda x: places_dict['lat'][x])
+        trips['coords_place_%d_lon' % place_index] = trips['trip_place_%d' % place_index].apply(lambda x: places_dict['lon'][x])
+        trips['coords_place_%d' % place_index] = trips[ 'coords_place_%d_lon' % place_index].astype(str) + ';' + trips[ 'coords_place_%d_lat' % place_index].astype(str)
+        trips['place_%d_count' % place_index] = trips['trip_place_%d' % place_index].apply(lambda x: places_dict['total'][x])
 
+    trips['distance'] = trips.apply(compute_distance, axis=1)
     places.to_csv('./data/clean/places.csv', index=False)
     trips.to_csv('./data/clean/trips.csv', index=False)
