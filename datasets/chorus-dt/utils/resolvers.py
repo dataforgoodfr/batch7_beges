@@ -68,6 +68,7 @@ class HardcodesResolver:
         self.insee_codes = self.load_codes("./data/prepared/insee_codes.pkl")
         self.tvs_codes = self.load_codes("./data/prepared/tvs_codes.pkl")
         self.uic_codes = self.load_codes("./data/prepared/uic_codes.pkl")
+        self.iata_codes = self.load_codes("./data/prepared/iata_codes.pkl")
 
     def load_codes(self, path):
         with open(path, "rb") as file_id:
@@ -85,6 +86,11 @@ class HardcodesResolver:
             x["lat"] = self.insee_codes["lat"][x["code_1"]]
             x["resolved"] = True
             x["resolved_through_insee_code"] = True
+        elif x["code_1"].str[-3:] in self.iata_codes["lon"]:
+            x["lon"] = self.iata_codes["lon"][x["code_1"]]
+            x["lat"] = self.iata_codes["lat"][x["code_1"]]
+            x["resolved"] = True
+            x["resolved_through_iata_code"] = True
         elif x["place"] == '-75056': # Hard exception...
             x["name"] = 'Paris'
         # elif x['code_1'] in TVS_CODES['lon']:

@@ -75,7 +75,7 @@ def prepare_tvs():
     tvs_codes = tvs_codes.to_dict()
     with open("./data/prepared/tvs_codes.pkl", "wb") as file_id:
         dill.dump(tvs_codes, file_id)
-
+        
 def prepare_iata():
     """
     Get the IATA codes available here:
@@ -85,7 +85,7 @@ def prepare_iata():
     
     """
 
-    iata_codes = pd.read_csv("./data/raw/airports.csv")
+    iata_codes = pd.read_csv("./data/raw/airports.csv").set_index("iata_code")
     iata_codes = iata_codes.loc[~iata_codes.latitude_deg.isna() & ~iata_codes.longitude_deg.isna()]
     iata_codes[["lat", "lon"]] = iata_codes[['latitude_deg','longitude_deg']]
     iata_codes = iata_codes.to_dict()
