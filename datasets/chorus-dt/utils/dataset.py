@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 
 def load_data(data_path):
     columns_mapping = {
