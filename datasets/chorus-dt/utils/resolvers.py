@@ -88,7 +88,8 @@ class HardcodesResolver:
                 x["lat"] = self.insee_codes["lat"][x["code_1"]]
                 x["resolved"] = True
                 x["resolved_through_insee_code"] = True
-            elif str(x["code_1"][-3:]) in self.iata_codes["lon"]:                
+            elif ((str(x["code_1"][-3:]) in self.iata_codes["lon"]) and
+                 (str(x["code_1"][:2]) == 'IA')):                
                 x["lon"] = self.iata_codes["lon"][x["code_1"][-3:]]
                 x["lat"] = self.iata_codes["lat"][x["code_1"][-3:]]
                 x["resolved"] = True
