@@ -23,6 +23,7 @@ pip install -r requirements.txt
 Download the raw data using the `dowload_data.sh` script:
 `sh scripts/download_data.sh`
 
+If you are on Windows launch `download_data_win.ps1` via PowerShell.
 
 ## Usage
 You can prepare the different datasets used for places resolution:

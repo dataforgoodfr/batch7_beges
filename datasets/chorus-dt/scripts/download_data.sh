@@ -7,5 +7,6 @@ curl --insecure 'https://docs.google.com/uc?export=download&id=1zLRRqbHNH4y487JK
 curl --insecure 'https://docs.google.com/uc?export=download&id=1WSAj7khA-HGjTyHpWbAXzZs2JGafNkfD' -O ./data/raw/referentiel-gares-voyageurs.csv
 # Gmap cache
 curl --insecure 'https://docs.google.com/uc?export=download&id=1iw8q0Ve5AMusts11GrI2XzmOAbfKaclM' -O ./data/raw/gmap_responses.pkl
-
+# List of airpots
+curl --insecure 'https://ourairports.com/data/airports.csv' -O './data/raw/airports.csv'
 
