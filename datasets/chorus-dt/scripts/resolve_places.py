@@ -16,25 +16,37 @@ from utils.resolvers import HardcodesResolver, GeocodingApiResolver
 tqdm.pandas()
 
 
-def compute_distance(x):
-    lon1 = x["coords_place_0_lon"]
-    lat1 = x["coords_place_0_lat"]
-    lon2 = x["coords_place_1_lon"]
-    lat2 = x["coords_place_1_lat"]
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+def compute_distance(df, n):
+    
+    coord_lon_str = 'coords_place_'+str(n)+'_lon'
+    coord_lat_str = 'coords_place_'+str(n)+'_lat'
+    coord_lon_p_str = 'coords_place_'+str(n-1)+'_lon'
+    coord_lat_p_str = 'coords_place_'+str(n-1)+'_lat'
+    
+    lon0 = df[coord_lon_str]
+    lat0 = df[coord_lat_str]
+    lon1 = df[coord_lon_p_str]
+    lat1 = df[coord_lat_p_str]
+        
+    lon0 = np.deg2rad(lon0)
+    lon1 = np.deg2rad(lon1)
+    lat0 = np.deg2rad(lat0)
+    lat1 = np.deg2rad(lat1)
 
     # haversine formula
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-    c = 2 * asin(sqrt(a))
+    dlon = lon1 - lon0
+    dlat = lat1 - lat0
+    a = np.sin((lat1 - lat0)/2) ** 2 + np.cos(lat1) * np.cos(lat0) * np.sin((lon1 - lon0)/ 2)** 2
+    
+    c = 2 * np.arcsin(np.sqrt(a))
     r = 6371  # Radius of earth in miles. Use 6371 for kilometers
-    return c * r
+    
+    return c*r
 
 
 if __name__ == "__main__":
-    data = dataset.load_data("./data/raw/avion-train.csv")
-    places, trips = dataset.get_places_and_trips(data, ["T", "TC", "TCA", "TCM", "TU"])
+    data = dataset.load_data("./data/raw/sample-avion-train.csv")
+    places, trips = dataset.get_places_and_trips(data, ["T"])
 
     # Splitting codes / name
     places[["code_1", "name", "temp", "code_2"]] = places["place"].str.extract(
@@ -46,6 +58,7 @@ if __name__ == "__main__":
     places["resolved_through_uic_code"] = False
     places["resolved_through_insee_code"] = False
     places["resolved_through_tvs_code"] = False
+    places["resolved_through_iata_code"] = False
     places["resolved_through_gmap_api"] = False
     places["lon"] = None
     places["address"] = ""
@@ -87,6 +100,9 @@ if __name__ == "__main__":
             "trip_place_%d" % place_index
         ].apply(lambda x: places_dict["total"][x])
 
-    trips["distance"] = trips.apply(compute_distance, axis=1)
+    trips["distance_1"] = compute_distance(trips, 1)
+    trips["distance_2"] = compute_distance(trips, 2)
+    trips["distance"] = trips["distance_1"] + trips["distance_2"]
+
     places.to_csv("./data/clean/places.csv", index=False)
     trips.to_csv("./data/clean/trips.csv", index=False)
