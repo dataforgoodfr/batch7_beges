@@ -84,6 +84,10 @@ if __name__ == "__main__":
     places["lon"] = places["lon"].astype(float)
     places_dict = places.set_index("place").to_dict()
 
+    # when analyzing plane trips, doesn't work if
+    # 'no stop' in trips columns. (ie. always since we programed
+    # plane trips this way.)
+
     for place_index in [0, 1, 2]:
         trips["coords_place_%d_lat" % place_index] = trips[
             "trip_place_%d" % place_index
