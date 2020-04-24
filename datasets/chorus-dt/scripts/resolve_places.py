@@ -36,7 +36,7 @@ def compute_distance(df, n):
     # haversine formula
     dlon = lon1 - lon0
     dlat = lat1 - lat0
-    a = np.sin((lat1 - lat0)/2) ** 2 + np.cos(lat1) * np.cos(lat0) * np.sin((lon1 - lon0)/ 2)** 2
+    a = np.sin((dlat)/2) ** 2 + np.cos(lat1) * np.cos(lat0) * np.sin((dlon)/ 2)** 2
     
     c = 2 * np.arcsin(np.sqrt(a))
     r = 6371  # Radius of earth in miles. Use 6371 for kilometers
