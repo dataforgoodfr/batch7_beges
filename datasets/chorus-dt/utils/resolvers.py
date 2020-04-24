@@ -105,7 +105,8 @@ class HardcodesResolver:
                 x["lon"] = None
                 x["lat"] = None
                 
-        except:
+        except Exception as e:
+            print(e)
             print(x["code_1"])
         return x
 
