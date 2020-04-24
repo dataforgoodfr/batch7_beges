@@ -68,7 +68,12 @@ def get_places_and_trips(data, prestation_types=None):
     all_trips_w_etape = pd.DataFrame()
     current_data_w_etape = current_data[~current_data['lieu_etape'].isna()]
 
-    if not current_data_w_etape.empty:
+all_trips["trip_place_0"] = current_data["lieu_depart"] 
+all_trips["trip_place_1"] = current_data["lieu_etape"]
+all_trips["trip_place_2"] = current_data["lieu_arrivee"]
+         
+all_trips.loc[current_data["lieu_etape"].isna(), "trip_place_1"] = current_data["lieu_arrivee"]
+all_trips.loc[current_data["lieu_etape"].isna(), "trip_place_2"] = "No stop"
 
         places_columns = ["lieu_depart", "lieu_etape", "lieu_arrivee"]
         all_trips_w_etape["trip_slug"] = current_data_w_etape[places_columns].apply(
