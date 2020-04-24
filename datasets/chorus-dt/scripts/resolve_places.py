@@ -7,6 +7,7 @@ import requests
 import dill
 import urllib.parse
 import pandas as pd
+import pandas.api.types as ptypes
 from tqdm import tqdm
 from utils.config import CONFIG
 
@@ -16,17 +17,27 @@ from utils.resolvers import HardcodesResolver, GeocodingApiResolver
 tqdm.pandas()
 
 
-def compute_distance(df, n):
+def compute_distance(df:pandas.DataFrame):
+
+    """
     
-    coord_lon_str = 'coords_place_'+str(n)+'_lon'
-    coord_lat_str = 'coords_place_'+str(n)+'_lat'
-    coord_lon_p_str = 'coords_place_'+str(n-1)+'_lon'
-    coord_lat_p_str = 'coords_place_'+str(n-1)+'_lat'
+    Takes as input lat/lon positions of travel steps. Expects two 
+    columns, each composed of str that encompasses the lat/long coordinates.
+
+    Returns pandas Series of distances in km.
+
+    """
+
+    assert len(df.columns) == 2
+    assert all(ptypes.is_string_dtype(df[col]) for col in df.columns)
+
+    first_coord = df.iloc[:, 0]
+    second_coord = df.iloc[:, 1]
     
-    lon0 = df[coord_lon_str]
-    lat0 = df[coord_lat_str]
-    lon1 = df[coord_lon_p_str]
-    lat1 = df[coord_lat_p_str]
+    lon0 = first_coord.str.split(';', expand = True).iloc[:, 0].astype(float)
+    lat0 = first_coord.str.split(';', expand = True).iloc[:, 1].astype(float)
+    lon1 = second_coord.str.split(';', expand = True).iloc[:, 0].astype(float)
+    lat1 = second_coord.str.split(';', expand = True).iloc[:, 1].astype(float)
         
     lon0 = np.deg2rad(lon0)
     lon1 = np.deg2rad(lon1)
