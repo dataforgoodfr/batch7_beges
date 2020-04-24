@@ -104,7 +104,8 @@ if __name__ == "__main__":
             "trip_place_%d" % place_index
         ].apply(lambda x: places_dict["total"][x])
 
-    trips["distance_1"] = compute_distance(trips, 1)
+    trips["distance_1"] = trips[['place_0_coords', 'place_1_coords']].apply(compute_distance, axis=1)
+        trips["distance_2"] = trips[['place_1_coords', 'place_2_coords']].apply(compute_distance, axis=1)
     trips["distance_2"] = compute_distance(trips, 2)
     trips["distance"] = trips["distance_1"] + trips["distance_2"]
 
