@@ -1,14 +1,14 @@
 import glob
+import os
 import pandas as pd
 import numpy as np
 
 
 def load_data(dir_path):
     datas = []
-    for filename in glob.glob(dir_path / 'Reportings_*.csv'):
-        print(filename)
-        datas.append(load_dataset(os.path.join(dir_path, filename)))
-    return pd.concat(datas)
+    for filepath in glob.glob(dir_path + '/Reportings_*.csv'):
+        datas.append(load_dataset(filepath))
+    return pd.concat(datas, ignore_index=True)
 
 
 def load_dataset(data_path):
@@ -28,7 +28,7 @@ def load_dataset(data_path):
         "Nombre de jours": "nombre_jours",
         "Coût des prestations": "cout",
     }
-    data = pd.read_csv(data_path, delimiter="\t")
+    data = pd.read_csv(data_path, delimiter=";")
     data.rename(columns=columns_mapping, inplace=True)
     return data[data["status"] == "T - Traité"]
 
@@ -79,6 +79,7 @@ def get_places_and_trips(data, prestation_types=None):
     all_trips["trip_place_0"] = current_data["lieu_depart"]
     all_trips["trip_place_1"] = current_data["lieu_etape"]
     all_trips["trip_place_2"] = current_data["lieu_arrivee"]
+    # return current_data, places, all_trips
 
     all_trips.loc[current_data["lieu_etape"].isna(), "trip_place_1"] = current_data["lieu_arrivee"]
     all_trips.loc[current_data["lieu_etape"].isna(), "trip_place_2"] = "No stop"

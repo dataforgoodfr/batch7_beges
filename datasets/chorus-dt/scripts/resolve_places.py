@@ -5,6 +5,7 @@ import time
 
 import requests
 import dill
+import numpy as np
 import urllib.parse
 import pandas as pd
 from tqdm import tqdm
@@ -17,17 +18,17 @@ tqdm.pandas()
 
 
 def compute_distance(df, n):
-    
+
     coord_lon_str = 'coords_place_'+str(n)+'_lon'
     coord_lat_str = 'coords_place_'+str(n)+'_lat'
     coord_lon_p_str = 'coords_place_'+str(n-1)+'_lon'
     coord_lat_p_str = 'coords_place_'+str(n-1)+'_lat'
-    
+
     lon0 = df[coord_lon_str]
     lat0 = df[coord_lat_str]
     lon1 = df[coord_lon_p_str]
     lat1 = df[coord_lat_p_str]
-        
+
     lon0 = np.deg2rad(lon0)
     lon1 = np.deg2rad(lon1)
     lat0 = np.deg2rad(lat0)
@@ -37,16 +38,16 @@ def compute_distance(df, n):
     dlon = lon1 - lon0
     dlat = lat1 - lat0
     a = np.sin((dlat)/2) ** 2 + np.cos(lat1) * np.cos(lat0) * np.sin((dlon)/ 2)** 2
-    
+
     c = 2 * np.arcsin(np.sqrt(a))
     r = 6371  # Radius of earth in miles. Use 6371 for kilometers
-    
+
     return c*r
 
 
 if __name__ == "__main__":
-    data = dataset.load_data("./data/raw/sample-avion-train.csv")
-    places, trips = dataset.get_places_and_trips(data, ["T"])
+    data = dataset.load_data("./data/raw/")
+    places, trips = dataset.get_places_and_trips(data)
 
     # Splitting codes / name
     places[["code_1", "name", "temp", "code_2"]] = places["place"].str.extract(
@@ -91,10 +92,10 @@ if __name__ == "__main__":
     for place_index in [0, 1, 2]:
         trips["coords_place_%d_lat" % place_index] = trips[
             "trip_place_%d" % place_index
-        ].apply(lambda x: places_dict["lat"][x])
+        ].apply(lambda x: None if x == 'No stop' else places_dict["lat"][x])
         trips["coords_place_%d_lon" % place_index] = trips[
             "trip_place_%d" % place_index
-        ].apply(lambda x: places_dict["lon"][x])
+        ].apply(lambda x: None if x == 'No stop' else places_dict["lon"][x])
         trips["coords_place_%d" % place_index] = (
             trips["coords_place_%d_lon" % place_index].astype(str)
             + ";"
@@ -102,10 +103,9 @@ if __name__ == "__main__":
         )
         trips["place_%d_count" % place_index] = trips[
             "trip_place_%d" % place_index
-        ].apply(lambda x: places_dict["total"][x])
+        ].apply(lambda x: None if x == 'No stop' else places_dict["total"][x])
 
-    trips["distance_1"] = trips[['place_0_coords', 'place_1_coords']].apply(compute_distance, axis=1)
-        trips["distance_2"] = trips[['place_1_coords', 'place_2_coords']].apply(compute_distance, axis=1)
+    trips["distance_1"] = compute_distance(trips, 1)
     trips["distance_2"] = compute_distance(trips, 2)
     trips["distance"] = trips["distance_1"] + trips["distance_2"]
 
