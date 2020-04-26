@@ -1,7 +1,17 @@
+import glob
 import pandas as pd
 import numpy as np
 
-def load_data(data_path):
+
+def load_data(dir_path):
+    datas = []
+    for filename in glob.glob(dir_path / 'Reportings_*.csv'):
+        print(filename)
+        datas.append(load_dataset(os.path.join(dir_path, filename)))
+    return pd.concat(datas)
+
+
+def load_dataset(data_path):
     columns_mapping = {
         "N° de l'OM": "num_om",
         "Mode de réservation (online, offline)": "mode_reservation",
@@ -24,7 +34,7 @@ def load_data(data_path):
 
 
 def get_places_and_trips(data, prestation_types=None):
-    
+
     current_data = data.copy()
     if prestation_types is None:
         prestation_types = ["A", "AM", "AU", "T", "TC", "TCA", "TM", "TU"]
@@ -37,7 +47,7 @@ def get_places_and_trips(data, prestation_types=None):
     current_data["prestation_type"] = current_data["prestation_type"].apply(
         lambda x: x.split(" - ")[0]
     )
-    
+
     #throwaway etape points in airplane trafic
     airplane_filter = "^A"
     current_data.loc[current_data["prestation_type"].str.contains(airplane_filter),
@@ -54,7 +64,7 @@ def get_places_and_trips(data, prestation_types=None):
         current_data["lieu_arrivee"].value_counts().to_frame().reset_index()
     )
     lieu_arrivee_count.columns = ["place", "dst"]
-    
+
     lieu_etape_count = (
         current_data["lieu_etape"].value_counts().to_frame().reset_index()
     )
@@ -64,42 +74,17 @@ def get_places_and_trips(data, prestation_types=None):
     places = pd.merge(places, lieu_etape_count, how="outer", on="place")
     places.fillna(0, inplace=True)
     places["total"] = places["src"] + places["dst"] + places["stop"]
-    
-    all_trips_w_etape = pd.DataFrame()
-    current_data_w_etape = current_data[~current_data['lieu_etape'].isna()]
 
-all_trips["trip_place_0"] = current_data["lieu_depart"] 
-all_trips["trip_place_1"] = current_data["lieu_etape"]
-all_trips["trip_place_2"] = current_data["lieu_arrivee"]
-         
-all_trips.loc[current_data["lieu_etape"].isna(), "trip_place_1"] = current_data["lieu_arrivee"]
-all_trips.loc[current_data["lieu_etape"].isna(), "trip_place_2"] = "No stop"
+    all_trips = pd.DataFrame()
+    all_trips["trip_place_0"] = current_data["lieu_depart"]
+    all_trips["trip_place_1"] = current_data["lieu_etape"]
+    all_trips["trip_place_2"] = current_data["lieu_arrivee"]
 
-        places_columns = ["lieu_depart", "lieu_etape", "lieu_arrivee"]
-        all_trips_w_etape["trip_slug"] = current_data_w_etape[places_columns].apply(
-            lambda x: " <-> ".join(x), axis=1
-        )
-        all_trips_w_etape["trip_place_0"] = current_data_w_etape["lieu_depart"]
-        all_trips_w_etape["trip_place_1"] = current_data_w_etape["lieu_etape"]
-        all_trips_w_etape["trip_place_2"] = current_data_w_etape["lieu_arrivee"]
-        all_trips_w_etape["prestation_type"] = current_data_w_etape["prestation_type"]
+    all_trips.loc[current_data["lieu_etape"].isna(), "trip_place_1"] = current_data["lieu_arrivee"]
+    all_trips.loc[current_data["lieu_etape"].isna(), "trip_place_2"] = "No stop"
+    all_trips["prestation_type"] = current_data["prestation_type"]
+    all_trips["trip_slug"] = all_trips[['trip_place_0', 'trip_place_1', 'trip_place_2']].apply(lambda x: " <-> ".join(x), axis=1)
 
-    all_trips_wo_etape = pd.DataFrame()
-    current_data_wo_etape = current_data[current_data['lieu_etape'].isna()]
-
-    if not current_data_wo_etape.empty:
-
-        places_columns = ["lieu_depart", "lieu_arrivee"]
-        all_trips_wo_etape["trip_slug"] = current_data_wo_etape[places_columns].apply(
-            lambda x: " <-> ".join(x), axis=1
-        )
-        all_trips_wo_etape["trip_place_0"] = current_data_wo_etape["lieu_depart"]
-        all_trips_wo_etape["trip_place_1"] = current_data_wo_etape["lieu_arrivee"]
-        all_trips_wo_etape["trip_place_2"] = "No stop"
-        all_trips_wo_etape["prestation_type"] = current_data_wo_etape["prestation_type"]
-    
-    all_trips = all_trips_w_etape.append(all_trips_wo_etape)
-    
     trips = (
         all_trips.reset_index()
         .groupby(
@@ -129,5 +114,5 @@ all_trips.loc[current_data["lieu_etape"].isna(), "trip_place_2"] = "No stop"
     print("Unique places stop: ", len(current_data["lieu_etape"].unique()))
     print("Unique places: ", places.shape[0])
     print("Unique trips: ", len(all_trips["trip_slug"].unique()))
-    
+
     return places, trips

@@ -1,0 +1,16 @@
+exclude: 'data/'
+- repo: git://github.com/pre-commit/pre-commit-hooks
+  sha: v0.7.1
+  hooks:
+  - id: trailing-whitespace
+  - id: check-yaml
+  - id: end-of-file-fixer
+  - id: flake8
+  - id: check-added-large-files
+    exclude: '^model/'
+- repo: https://github.com/psf/black
+  rev: stable
+  hooks:
+  - id: black
+    language_version: python3.6
+
