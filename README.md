@@ -12,7 +12,7 @@ Copy the `.env-template` file:
 
     cp .env-template .env
 
-Fill the variables needed:
+Fill the variables in the created `.env` file:
 - DATA_DIR: A path on your host where data will be written
 - APP_PORT: The port you want the app to be deployed (default is 5010)
 
@@ -25,12 +25,6 @@ You can start the local server:
     make run-dev-server
 
 If you kept the default `APP_PORT` variable, then you have access to the app on `localhost:5010`.
-
-
-
-
-
-
 
 ## Make commands
 - `build`: will build the app image
