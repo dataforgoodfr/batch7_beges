@@ -4,11 +4,21 @@ import pandas as pd
 import numpy as np
 
 
+def split_code_structure(x):
+    codes = x.split(' - ')
+    code_0 = codes[0]
+    if '-' in code_0:
+        code_0 = code_0.split('-')[0]
+    return code_0
+
+
 def load_data(dir_path):
     datas = []
     for filepath in glob.glob(dir_path + '/Reportings_*.csv'):
         datas.append(load_dataset(filepath))
-    return pd.concat(datas, ignore_index=True)
+    data = pd.concat(datas, ignore_index=True)
+    data['code_structure'] = data['structure'].apply(split_code_structure)
+    return data
 
 
 def load_dataset(data_path):
@@ -48,10 +58,12 @@ def get_places_and_trips(data, prestation_types=None):
         lambda x: x.split(" - ")[0]
     )
 
+
     #throwaway etape points in airplane trafic
     airplane_filter = "^A"
     current_data.loc[current_data["prestation_type"].str.contains(airplane_filter),
                     'lieu_etape'] = np.nan
+
 
     print("Prestation types: ")
     print(current_data["prestation_type"].unique())
@@ -76,6 +88,7 @@ def get_places_and_trips(data, prestation_types=None):
     places["total"] = places["src"] + places["dst"] + places["stop"]
 
     all_trips = pd.DataFrame()
+    all_trips["code_structure"] = current_data["code_structure"]
     all_trips["trip_place_0"] = current_data["lieu_depart"]
     all_trips["trip_place_1"] = current_data["lieu_etape"]
     all_trips["trip_place_2"] = current_data["lieu_arrivee"]
@@ -90,6 +103,7 @@ def get_places_and_trips(data, prestation_types=None):
         all_trips.reset_index()
         .groupby(
             [
+                "code_structure",
                 "trip_slug",
                 "prestation_type",
                 "trip_place_0",
@@ -101,6 +115,7 @@ def get_places_and_trips(data, prestation_types=None):
         .count()
     )
     trips.columns = [
+        "code_structure",
         "trip_slug",
         "prestation_type",
         "trip_place_0",
