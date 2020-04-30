@@ -38,7 +38,7 @@ layout = html.Div(
 )
 
 
-@app.callback(Output("url", "pathname"), [Input("button-to-dataset", "n_clicks")])
+@app.callback(Output("div-url-redirect", "children"), [Input("button-to-dataset", "n_clicks")])
 def on_click_go_to_dataset(n_clicks):
     if n_clicks:
-        return "/datasets"
+        return dcc.Location(id="url-redirect", pathname="/datasets")

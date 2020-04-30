@@ -10,12 +10,14 @@ from app import app
 
 app.layout = html.Div(
     [
+        html.Div(id="div-url-redirect"),
         dcc.Location(id="url", refresh=False),
         html.H1("Outil d'aide à la création de BEGES", style={"text-align": "center", "margin-top": "5%"}),
         html.Hr(),
         html.Div(id="page-content"),
     ]
 )
+flask_app = app.server
 
 # Update the index
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
