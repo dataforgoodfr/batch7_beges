@@ -71,7 +71,7 @@ def form_example():
         electricite = emissions_total[0]
         gaz = emissions_total[1]
         # value = u'Les emissions du service %s dans la region %s est gaz: %s electricite: %s' % (service, region, gaz, electricite)
-        return return_as_html(emissions_total, service_to_code[service][0], region)
+        return return_as_html(emissions_total, SERVICE_TO_CODE[service][0], region)
 
 
 
@@ -106,10 +106,10 @@ def return_as_html(total, nom, region):
 
 
 def get_data_per_building(service, year, region):
-    if service not in service_to_code:
+    if service not in SERVICE_TO_CODE:
         return "Le service indiqué n'a pas ete trouve pour ce region."
-    code = str(service_to_code[service][1])
-    return data[(data["Code bien"].str.contains(code)) & (data["Année"] == year) & (data["Région"] == region)]
+    code = str(SERVICE_TO_CODE[service][1])
+    return DATA[(DATA["Code bien"].str.contains(code)) & (DATA["Année"] == year) & (DATA["Région"] == region)]
 
 
 def calculate_emissions(service, year, region):
@@ -128,7 +128,10 @@ def calculate_emissions(service, year, region):
         if row[1] > 0:
             calcul_par_batiment[idx][1] = row[1] * gaz_emission
         calcul_par_batiment[idx][2] = row[2]
-    transpose = zip(*calcul_par_batiment)
+    transpose = list(zip(*calcul_par_batiment))
     total = np.array([sum(transpose[0]), sum(transpose[1]), "Total"])
     calcul_par_batiment.append(total)
     return calcul_par_batiment
+
+if __name__ == "__main__":
+    app.run()
