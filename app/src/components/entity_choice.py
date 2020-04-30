@@ -3,6 +3,7 @@ import dash_html_components as html
 from dash.dependencies import Output, Input, State
 
 from utils.entity_handler import EntityHandler
+from app import app
 
 eh = EntityHandler()
 
@@ -25,37 +26,37 @@ layout = html.Div(
 )
 
 
-def register_callbacks(app):
-    @app.callback(
-        [
-            Output("dropdown-entity-choice-level-2", "style"),
-            Output("dropdown-entity-choice-level-2", "options"),
-            Output("dropdown-entity-choice-level-2", "value"),
-        ],
-        [Input("dropdown-entity-choice-level-1", "value")],
-        [State("dropdown-entity-choice-level-2", "style")],
-    )
-    def on_dropdown_level_1_value(value_level_1, level_2_style):
-        options = []
-        if value_level_1 is not None:
-            if value_level_1 != "AC":
-                options = eh.get_level_2_dropdown_items(value_level_1)
-                style = level_2_style.copy()
-                level_2_style["display"] = "block"
-            else:
-                level_2_style["display"] = "none"
+@app.callback(
+    [
+        Output("dropdown-entity-choice-level-2", "style"),
+        Output("dropdown-entity-choice-level-2", "options"),
+        Output("dropdown-entity-choice-level-2", "value"),
+    ],
+    [Input("dropdown-entity-choice-level-1", "value")],
+    [State("dropdown-entity-choice-level-2", "style")],
+)
+def on_dropdown_level_1_value(value_level_1, level_2_style):
+    options = []
+    if value_level_1 is not None:
+        if value_level_1 != "AC":
+            options = eh.get_level_2_dropdown_items(value_level_1)
+            style = level_2_style.copy()
+            level_2_style["display"] = "block"
         else:
             level_2_style["display"] = "none"
-        return level_2_style, options, None
+    else:
+        level_2_style["display"] = "none"
+    return level_2_style, options, None
 
-    @app.callback(
-        Output("selected-entity", "children"),
-        [Input("dropdown-entity-choice-level-1", "value"), Input("dropdown-entity-choice-level-2", "value")],
-    )
-    def on_set_value_level_1_level_2(value_level_1, value_level_2):
-        if value_level_1 is not None:
-            if value_level_1 == "AC":
-                return "AC;"
-            if value_level_2 is not None:
-                return ";".join((value_level_1, value_level_2))
-        return None
+
+@app.callback(
+    Output("selected-entity", "children"),
+    [Input("dropdown-entity-choice-level-1", "value"), Input("dropdown-entity-choice-level-2", "value")],
+)
+def on_set_value_level_1_level_2(value_level_1, value_level_2):
+    if value_level_1 is not None:
+        if value_level_1 == "AC":
+            return "AC;"
+        if value_level_2 is not None:
+            return ";".join((value_level_1, value_level_2))
+    return None
