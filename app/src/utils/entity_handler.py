@@ -16,7 +16,6 @@ class EntityHandler:
         with open("/data/entities.tsv") as file_id:
             lines = file_id.readlines()
             for line in lines[1:]:
-                print(line)
                 level_1_label, level_1_code, level_2_label, level_2_code, level_2_chorus_dt_code = line.strip().split(
                     "\t"
                 )

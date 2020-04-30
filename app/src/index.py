@@ -1,6 +1,7 @@
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
+from dash.dependencies import Output, Input, State
 
 from components import home
 from components import datasets
@@ -17,7 +18,7 @@ app.layout = html.Div(
 )
 
 # Update the index
-@app.callback(dash.dependencies.Output("page-content", "children"), [dash.dependencies.Input("url", "pathname")])
+@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def display_page(pathname):
     if pathname == "/":
         return home.layout

@@ -1,4 +1,8 @@
 import dash_html_components as html
+import dash_core_components as dcc
+from dash.dependencies import Output, Input, State
+
+from app import app
 
 layout = html.Div(
     id="div-header",
@@ -24,5 +28,17 @@ layout = html.Div(
             ],
             style={"margin": "auto", "width": "50%"},
         ),
+        html.Hr(),
+        html.Button(
+            "Let's go",
+            id="button-to-dataset",
+            style={"position": "absolute", "left": "50%", "transform": "translate(-50%, 0%)", "width": "20%"},
+        ),
     ],
 )
+
+
+@app.callback(Output("url", "pathname"), [Input("button-to-dataset", "n_clicks")])
+def on_click_go_to_dataset(n_clicks):
+    if n_clicks:
+        return "/datasets"
