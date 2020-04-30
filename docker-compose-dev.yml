@@ -1,0 +1,4 @@
+version: '3'
+services:
+    beges:
+        command: python app.py

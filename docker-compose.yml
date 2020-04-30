@@ -1,0 +1,9 @@
+version: '3'
+services:
+    beges:
+        build: ./app
+        volumes:
+            - ${DATA_DIR}:/data
+            - ./app/src:/app
+        ports:
+            - ${APP_PORT}:80
