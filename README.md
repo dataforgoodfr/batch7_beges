@@ -7,7 +7,7 @@
 
 
 If you want a local dev setup:
-- python 3.6
+- python 3.7
 - `virtualenv` or `virtualenvwrapper`
 
 To setup your local env using virtualenvwrapper
