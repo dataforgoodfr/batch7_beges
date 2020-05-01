@@ -1,5 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input, State
 
 from components import chorus_dt
@@ -9,14 +10,14 @@ from app import app
 layout = html.Div(
     id="div-data-display",
     children=[
-        dcc.Tabs(
+        dbc.Tabs(
             id="tabs-datasets",
-            value="chorus-dt",
             children=[
-                dcc.Tab(label="Déplacements train / avion", value="chorus-dt"),
-                dcc.Tab(label="Déplacements voiture", value="odrive"),
-                dcc.Tab(label="Consommation énergétiques", value="osfi"),
+                dbc.Tab(label="Déplacements train / avion", tab_id="chorus-dt"),
+                dbc.Tab(label="Déplacements voiture", tab_id="odrive"),
+                dbc.Tab(label="Consommation énergétiques", tab_id="osfi"),
             ],
+            active_tab="chorus-dt",
         ),
         html.Div(id="tabs-content"),
     ],
@@ -37,7 +38,7 @@ def on_selected_entity_toggle_tabs(selected_entity, style):
 
 
 @app.callback(
-    Output("tabs-content", "children"), [Input("selected-entity", "children"), Input("tabs-datasets", "value")]
+    Output("tabs-content", "children"), [Input("selected-entity", "children"), Input("tabs-datasets", "active_tab")]
 )
 def on_selected_entity_fill_tabs_data(selected_entity, active_tab):
     if selected_entity is not None:

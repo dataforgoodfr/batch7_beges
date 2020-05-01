@@ -1,13 +1,90 @@
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_bootstrap_components as dbc
+import plotly.graph_objects as go
 from dash.dependencies import Output, Input, State
 
 from app import app
+from utils.chorus_dt_handler import ch
+from components.html_components import build_figure_container
+from components.figures_templates import xaxis_format
 
-layout = html.Div(id="div-data-chorus-dt")
+def make_donut_by_prestation():
+    """
+        Render and update a donut figure to show emissions distribution by prestation type
+    """
+
+    # Load chorus dt data based on chosen code_structure
+    # TODO: improve and standardize data import logic
+    chorus_dt_df = ch.get_structure_data(code_structure=None)
+    prestation_df = chorus_dt_df.groupby(['prestation_type'])['cumulative_distance'].sum().reset_index()
+    fig = go.Figure(
+        data=[go.Pie(labels=prestation_df.prestation_type, values=prestation_df['cumulative_distance'], hole=.3)])
+    fig.update_layout(plot_bgcolor='white', template='plotly_white', margin={'t': 30, 'r': 30, 'l': 30})
+    return fig
+
+def make_emissions_timeseries():
+    """
+        Render and update a barplot figure to show emissions evolution with time
+    """
+
+    # Load chorus dt data based on chosen code_structure
+    # TODO: improve and standardize data import logic
+    chorus_dt_df = ch.get_structure_data(code_structure=None)
+    timeseries_df = chorus_dt_df.groupby(['mission_start_month'], as_index=False)['cumulative_distance'].sum()
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=timeseries_df['mission_start_month'], y=timeseries_df['cumulative_distance'].values, \
+                             mode='lines+markers', line=dict(width=3)))
+    fig.update_layout(plot_bgcolor='white', template='plotly_white', margin={'t': 30, 'r': 30, 'l': 30},\
+                      xaxis=xaxis_format
+                      )
+    return fig
+
+card_indicateur = dbc.Card(dbc.CardBody([
+    html.P("Nombre de trajets"),
+    dbc.Row(html.H3('2 300'))
+]), className='pretty_container')
+
+layout = html.Div([
+    dbc.Row(html.P('', id='values-selected')),
+    # Cards row
+    dbc.Row([
+        dbc.Col(),
+        dbc.Col([
+            dbc.Row(card_indicateur),
+            build_figure_container(title='Évolution temporelles des émissions', id='timeseries-chorus-dt', \
+                                   footer='Explications..'),
+        ], width=8)
+    ]),
+    dbc.Row([
+        dbc.Col([
+            build_figure_container(title='Histogramme ', id='hist-by-distance', \
+                                   footer='Explications..'),
+        ], width=8),
+        dbc.Col([
+            build_figure_container(title='Répartition des émissions par type de déplacement', id='donut-by-prestation', \
+                                   footer='Explications..'),
+        ], width=4),
+
+    ])
+], id="div-data-chorus-dt")
 
 
-@app.callback(Output("div-data-chorus-dt", "children"), [Input("selected-entity", "children")])
+@app.callback(Output("values-selected'", "children"), [Input("selected-entity", "children")])
 def display_graphs(selected_entity):
     organisation, service = selected_entity.split(";")
     return organisation + " / " + service
+
+
+@app.callback(
+    Output("timeseries-chorus-dt", "figure"), [Input("selected-entity", "children")]
+)
+def update_emissions_timeseries(selected_entity):
+    return make_emissions_timeseries()
+
+
+@app.callback(
+    Output("donut-by-prestation", "figure"), [Input("selected-entity", "children")]
+)
+def update_donut_by_prestation(selected_entity):
+    return make_donut_by_prestation()
