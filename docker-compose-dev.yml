@@ -2,3 +2,5 @@ version: '3'
 services:
     beges:
         command: python app.py
+        port:
+            - ${APP_PORT_DEV}:5000
