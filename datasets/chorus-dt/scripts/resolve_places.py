@@ -105,8 +105,8 @@ if __name__ == "__main__":
             "trip_place_%d" % place_index
         ].apply(lambda x: None if x == 'No stop' else places_dict["total"][x])
 
-    trips["distance_1"] = compute_distance(trips, 1)
-    trips["distance_2"] = compute_distance(trips, 2)
+    trips["distance_1"] = compute_distance(trips, 1).fillna(0)
+    trips["distance_2"] = compute_distance(trips, 2).fillna(0)
     trips["distance"] = trips["distance_1"] + trips["distance_2"]
 
     places.to_csv("./data/clean/places.csv", index=False)
