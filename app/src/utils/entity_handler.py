@@ -41,3 +41,6 @@ class EntityHandler:
 
     def get_level_2_label(self, level_2_code):
         return self._level_2_labels[level_2_code]
+
+
+eh = EntityHandler()

@@ -1,6 +1,9 @@
 build:
 	docker-compose build
 
+down:
+	docker-compose down
+
 run-bash:
 	docker-compose -f docker-compose.yml -f docker-compose-dev.yml run --rm --service-ports beges /bin/bash
 

@@ -12,7 +12,7 @@ If you want a local dev setup:
 
 To setup your local env using virtualenvwrapper
 ```
-    mkvirtualenv beges
+    mkvirtualenv beges --python=3.7
     pip install pre-commit black
     pre-commit install
     pip install -r app/src/requirements.txt

@@ -2,10 +2,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Output, Input, State
 
-from utils.entity_handler import EntityHandler
+from utils.entity_handler import eh
 from app import app
 
-eh = EntityHandler()
 
 layout = html.Div(
     id="div-entity-choice",
