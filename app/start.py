@@ -27,23 +27,23 @@ SERVICE_TO_CODE = {
     "6": ["Direction de l'eau", 1000007063],
     "7": ["MEEDDAT \(services centraux\)", 1000006798],
     "8": ["MEEDDAT \(services sociaux\)", 1000006018],
-    "9": [u"MEEDDM \(services déconcentrés\)", 1000006970],
-    "10": [u"Affaires maritimes \(services déconcentrés\)", 1000006765],
-    "11": [u"Éducation routière \(services déconcentrés\)", 1000006002],
-    "12": [u"DIR - Direct. Interdépart. des Routes", 1000055091],
-    "13": [u"DIRM- Direction interrégionale de la mer -DIRM", 1000005889],
+    "9": ["MEEDDM \(services déconcentrés\)", 1000006970],
+    "10": ["Affaires maritimes \(services déconcentrés\)", 1000006765],
+    "11": ["Éducation routière \(services déconcentrés\)", 1000006002],
+    "12": ["DIR - Direct. Interdépart. des Routes", 1000055091],
+    "13": ["DIRM- Direction interrégionale de la mer -DIRM", 1000005889],
     "14": ["DREAL", 1000026692],
     "15": ["DEAL", 1000061412],
     "16": ["DRIEA IDF", 1000055136],
-    "17": [u"SNOI - Service national des oléoducs interallié", 1000005891],
+    "17": ["SNOI - Service national des oléoducs interallié", 1000005891],
     "18": ["TRAPIL", 1000050607],
     "19": ["Culture marine", 1000050192],
-    "20": [u"Domaine remis aux collectivités territ.- Lois de décentralisation", 1000005889],
-    "21": [u"AVIATION CIVILE - Domaine régalien", 1000005888],
-    "22": [u"AVIATION CIVILE - Contrôle et Exploitation Aériens", 1000005907],
+    "20": ["Domaine remis aux collectivités territ.- Lois de décentralisation", 1000005889],
+    "21": ["AVIATION CIVILE - Domaine régalien", 1000005888],
+    "22": ["AVIATION CIVILE - Contrôle et Exploitation Aériens", 1000005907],
     "23": ["Chemins de fer", 1000006831],
-    "24": [u"Foncier d'origine routière en Île de France", 1000007093],
-    "25": [u"Aménagement foncier", 1000007060],
+    "24": ["Foncier d'origine routière en Île de France", 1000007093],
+    "25": ["Aménagement foncier", 1000007060],
     "26": ["MINISTERE ECOLOGIE, DEVELOPPEMENT DURABLE, TRANSPORT ET LOGEMENT", 1000025380],
 }
 
@@ -72,7 +72,6 @@ def form_example():
         gaz = emissions_total[1]
         # value = u'Les emissions du service %s dans la region %s est gaz: %s electricite: %s' % (service, region, gaz, electricite)
         return return_as_html(emissions_total, SERVICE_TO_CODE[service][0], region)
-
 
 
 def return_as_html(total, nom, region):
@@ -132,6 +131,7 @@ def calculate_emissions(service, year, region):
     total = np.array([sum(transpose[0]), sum(transpose[1]), "Total"])
     calcul_par_batiment.append(total)
     return calcul_par_batiment
+
 
 if __name__ == "__main__":
     app.run()
