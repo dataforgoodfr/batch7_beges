@@ -4,6 +4,3 @@ services:
         build: ./app
         volumes:
             - ${DATA_DIR}:/data
-            - ./app/src:/app
-        ports:
-            - ${APP_PORT_PROD}:80
