@@ -4,6 +4,7 @@
 - Docker : [Installation guide](https://docs.docker.com/engine/install/)
 - Docker-compose : [Installation guide](https://docs.docker.com/compose/install/)
 - Pre-commit : [Installation guide](https://pre-commit.com/)
+- Black : Just run `pip install --user black`
 
 
 If you want a local dev setup:
