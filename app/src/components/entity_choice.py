@@ -14,11 +14,13 @@ layout = html.Div(
             id="dropdown-entity-choice-level-1",
             options=eh.get_level_1_dropdown_items(),
             placeholder="Choisissez votre organisation",
+            clearable=True,
             style={"margin": "10px"},
         ),
         dcc.Dropdown(
             id="dropdown-entity-choice-level-2",
             placeholder="Choisissez votre service",
+            clearable=True,
             style={"margin": "10px", "display": "none"},
         ),
         html.Div(id="selected-entity", style={"display": "none"}),
