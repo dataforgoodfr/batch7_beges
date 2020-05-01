@@ -3,10 +3,24 @@
 ## Requirements
 - Docker : [Installation guide](https://docs.docker.com/engine/install/)
 - Docker-compose : [Installation guide](https://docs.docker.com/compose/install/)
+- Pre-commit : [Installation guide](https://pre-commit.com/)
+
 
 If you want a local dev setup:
 - python 3.6
 - `virtualenv` or `virtualenvwrapper`
+
+To setup your local env using virtualenvwrapper
+```
+    mkvirtualenv beges
+    pip install pre-commit black
+    pre-commit install
+    pip install -r app/src/requirements.txt
+```
+
+If you want to go source your virtual env:
+
+    workon beges
 
 ## Getting started
 Copy the `.env-template` file:
@@ -33,4 +47,3 @@ If you kept the default `APP_PORT_DEV` variable, then you have access to the app
 - `run-bash`: will run a bash in the app container
 - `run-prod-server`: will run the app using nginx / uwsgi
 - `run-dev-server`: will run the app in debug mode (file watching and automatic restarts)
-
