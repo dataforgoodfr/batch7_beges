@@ -9,25 +9,30 @@ import numpy as np
 import urllib.parse
 import pandas as pd
 from tqdm import tqdm
-from utils.config import CONFIG
 
-from utils import dataset
-from utils.resolvers import HardcodesResolver, GeocodingApiResolver
+from .utils import dataset
+from .utils.resolvers import HardcodesResolver, GeocodingApiResolver
 
+GMAP_API_KEY = os.getenv("GMAP_API_KEY")
 tqdm.pandas()
 
 
-def compute_distance(df, n):
+def compute_distances(data):
+    data["distance_0"] = np.NaN
+    data["distance_1"] = np.NaN
+    data["distance_2"] = np.NaN
 
-    coord_lon_str = 'coords_place_'+str(n)+'_lon'
-    coord_lat_str = 'coords_place_'+str(n)+'_lat'
-    coord_lon_p_str = 'coords_place_'+str(n-1)+'_lon'
-    coord_lat_p_str = 'coords_place_'+str(n-1)+'_lat'
+    pairs = [("lieu_depart", "lieu_etape"), ("lieu_etape", "lieu_arrivee"), ("lieu_depart", "lieu_arrivee")]
 
-    lon0 = df[coord_lon_str]
-    lat0 = df[coord_lat_str]
-    lon1 = df[coord_lon_p_str]
-    lat1 = df[coord_lat_p_str]
+    for distance_i, (column_0, column_1) in enumerate(pairs):
+        data["distance_%s" % distance_i] = compute_distance_between_points(
+            data["%s_lon" % column_0], data["%s_lat" % column_0], data["%s_lon" % column_1], data["%s_lat" % column_1]
+        )
+
+    return data
+
+
+def compute_distance_between_points(lon0, lat0, lon1, lat1):
 
     lon0 = np.deg2rad(lon0)
     lon1 = np.deg2rad(lon1)
@@ -37,18 +42,16 @@ def compute_distance(df, n):
     # haversine formula
     dlon = lon1 - lon0
     dlat = lat1 - lat0
-    a = np.sin((dlat)/2) ** 2 + np.cos(lat1) * np.cos(lat0) * np.sin((dlon)/ 2)** 2
+    a = np.sin((dlat) / 2) ** 2 + np.cos(lat1) * np.cos(lat0) * np.sin((dlon) / 2) ** 2
 
     c = 2 * np.arcsin(np.sqrt(a))
     r = 6371  # Radius of earth in miles. Use 6371 for kilometers
 
-    return c*r
+    return c * r
 
 
-if __name__ == "__main__":
-    data = dataset.load_data("./data/raw/")
-    places, trips = dataset.get_places_and_trips(data)
-
+def resolve_place(places):
+    places = places.copy()
     # Splitting codes / name
     places[["code_1", "name", "temp", "code_2"]] = places["place"].str.extract(
         "([^-]*)\s-\s([^\[]*)\s?([\[](.*)[\]])?", expand=True
@@ -69,7 +72,6 @@ if __name__ == "__main__":
     places = places.progress_apply(hardcode_resolver.resolve, axis=1)
 
     # Initiate geocoder
-    GMAP_API_KEY = CONFIG["api_keys"]["gmap"]
     geocoding_api_resolver = GeocodingApiResolver(api_name="gmap", api_key=GMAP_API_KEY)
 
     # Apply the geocoder with delay using the rate limiter:
@@ -84,30 +86,33 @@ if __name__ == "__main__":
     places["lat"] = places["lat"].astype(float)
     places["lon"] = places["lon"].astype(float)
     places_dict = places.set_index("place").to_dict()
+    return places, places_dict
+
+
+def main():
+    prestation_types = ["A", "AM", "AU", "T", "TC", "TCA", "TM", "TU"]
+    data = dataset.get_data("/data/raw/chorus-dt", prestation_types)
+    places = dataset.get_places(data)
+    places, places_dict = resolve_place(places)
 
     # when analyzing plane trips, doesn't work if
     # 'no stop' in trips columns. (ie. always since we programed
     # plane trips this way.)
-
-    for place_index in [0, 1, 2]:
-        trips["coords_place_%d_lat" % place_index] = trips[
-            "trip_place_%d" % place_index
-        ].apply(lambda x: None if x == 'No stop' else places_dict["lat"][x])
-        trips["coords_place_%d_lon" % place_index] = trips[
-            "trip_place_%d" % place_index
-        ].apply(lambda x: None if x == 'No stop' else places_dict["lon"][x])
-        trips["coords_place_%d" % place_index] = (
-            trips["coords_place_%d_lon" % place_index].astype(str)
-            + ";"
-            + trips["coords_place_%d_lat" % place_index].astype(str)
+    for column in ["lieu_depart", "lieu_arrivee", "lieu_etape"]:
+        data["%s_resolved" % column] = data[column].apply(lambda x: places_dict["resolved"][x])
+        data["%s_lat" % column] = data[column].apply(
+            lambda x: places_dict["lat"][x] if places_dict["resolved"][x] else np.NaN
         )
-        trips["place_%d_count" % place_index] = trips[
-            "trip_place_%d" % place_index
-        ].apply(lambda x: None if x == 'No stop' else places_dict["total"][x])
+        data["%s_lon" % column] = data[column].apply(
+            lambda x: places_dict["lon"][x] if places_dict["resolved"][x] else np.NaN
+        )
+        data["%s_coords" % column] = data["%s_lon" % column].astype(str) + ";" + data["%s_lat" % column].astype(str)
 
-    trips["distance_1"] = compute_distance(trips, 1)
-    trips["distance_2"] = compute_distance(trips, 2)
-    trips["distance"] = trips["distance_1"] + trips["distance_2"]
+    data = compute_distances(data)
 
-    places.to_csv("./data/clean/places.csv", index=False)
-    trips.to_csv("./data/clean/trips.csv", index=False)
+    places.to_csv("/data/cleaned/places.csv", index=False)
+    data.to_csv("/data/cleaned/data.csv", index=False)
+
+
+if __name__ == "__main__":
+    main()

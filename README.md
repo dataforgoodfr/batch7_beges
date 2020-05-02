@@ -32,6 +32,7 @@ Fill the variables in the created `.env` file:
 - DATA_DIR: A path on your host where data will be written
 - APP_PORT_PROD: The port you want the app to be exposed in prod setup (default is 5010)
 - APP_PORT_DEV: The port you want the app to be exposed in dev setup (default is 5011)
+- GMAP_API_KEY: API_KEY needed to geocode places
 
 Build the docker image:
 
