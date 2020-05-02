@@ -38,6 +38,11 @@ Build the docker image:
 
     make build
 
+Download and prepare the datasets:
+
+    make download-datasets
+    make prepare-datasets
+
 You can start the local server:
 
     make run-dev-server
