@@ -2,7 +2,7 @@ build:
 	docker-compose build
 
 download-datasets:
-	docker-compose -f docker-compose.yml -f docker-compose-dev.yml run --rm beges sh scripts/download_data.sh
+	docker-compose -f docker-compose.yml -f docker-compose-dev.yml run --rm beges sh scripts/download_datasets.sh
 
 prepare-datasets:
 	docker-compose -f docker-compose.yml -f docker-compose-dev.yml run --rm beges python scripts/prepare_datasets.py

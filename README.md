@@ -49,3 +49,5 @@ If you kept the default `APP_PORT_DEV` variable, then you have access to the app
 - `run-bash`: will run a bash in the app container
 - `run-prod-server`: will run the app using nginx / uwsgi
 - `run-dev-server`: will run the app in debug mode (file watching and automatic restarts)
+- `download-datasets`: will download all the necessary files from the drive or the www (just run the `app/src/scripts/download_datasets.sh` script)
+- `prepare-datasets`: will prepare the different datasets (just run the `app/src/scripts/prepare_datasets.sh` script)
