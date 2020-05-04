@@ -111,7 +111,7 @@ def main():
     data = compute_distances(data)
 
     places.to_csv("/data/cleaned/places.csv", index=False)
-    data.to_csv("/data/cleaned/data.csv", index=False)
+    data.to_csv("/data/cleaned/data_chorus_dt.csv", index=False)
 
 
 if __name__ == "__main__":
