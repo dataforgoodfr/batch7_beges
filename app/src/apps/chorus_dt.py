@@ -25,7 +25,7 @@ def get_donut_by_prestation_type(code_structure=None):
     return fig
 
 
-def make_emissions_timeseries():
+def get_emissions_timeseries(code_structure):
     """
         Render and update a barplot figure to show emissions evolution with time
     """
