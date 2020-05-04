@@ -2,5 +2,7 @@ version: '3'
 services:
     beges:
         build: ./app
+        environment:
+            - GMAP_API_KEY=${GMAP_API_KEY}
         volumes:
             - ${DATA_DIR}:/data

@@ -17,17 +17,15 @@ class GeocodingApiResolver:
 
         if api_name == "nominatim":
             geolocator = Nominatim(user_agent="data4good-beges")
-            self.p_raw_cache = "./data/raw/nominatim_responses.pkl"
-            self.p_cache = "./data/prepared/nominatim_responses.pkl"
+            self.p_raw_cache = "/data/raw/chorus-dt/nominatim_responses.pkl"
+            self.p_cache = "/data/prepared/nominatim_responses.pkl"
         elif api_name == "gmap":
             geolocator = GoogleV3(api_key=api_key, domain="maps.google.fr")
-            self.p_raw_cache = "./data/raw/gmap_responses.pkl"
-            self.p_cache = "./data/prepared/gmap_responses.pkl"
+            self.p_raw_cache = "/data/raw/chorus-dt/gmap_responses.pkl"
+            self.p_cache = "/data/prepared/gmap_responses.pkl"
         else:
             raise ValueError
-        self.geocode_with_delay = RateLimiter(
-            geolocator.geocode, min_delay_seconds=1, max_retries=10
-        )
+        self.geocode_with_delay = RateLimiter(geolocator.geocode, min_delay_seconds=1, max_retries=10)
         self._cache = self.load_cache()
 
     def resolve(self, x):
@@ -65,10 +63,10 @@ class GeocodingApiResolver:
 
 class HardcodesResolver:
     def __init__(self):
-        self.insee_codes = self.load_codes("./data/prepared/insee_codes.pkl")
-        self.tvs_codes = self.load_codes("./data/prepared/tvs_codes.pkl")
-        self.uic_codes = self.load_codes("./data/prepared/uic_codes.pkl")
-        self.iata_codes = self.load_codes("./data/prepared/iata_codes.pkl")
+        self.insee_codes = self.load_codes("/data/prepared/insee_codes.pkl")
+        self.tvs_codes = self.load_codes("/data/prepared/tvs_codes.pkl")
+        self.uic_codes = self.load_codes("/data/prepared/uic_codes.pkl")
+        self.iata_codes = self.load_codes("/data/prepared/iata_codes.pkl")
 
     def load_codes(self, path):
         with open(path, "rb") as file_id:
@@ -88,9 +86,7 @@ class HardcodesResolver:
                 x["lat"] = self.insee_codes["lat"][x["code_1"]]
                 x["resolved"] = True
                 x["resolved_through_insee_code"] = True
-            elif (str(x["code_1"][-3:]) in self.iata_codes["lon"]) and (
-                str(x["code_1"][:2]) == "IA"
-            ):
+            elif (str(x["code_1"][-3:]) in self.iata_codes["lon"]) and (str(x["code_1"][:2]) == "IA"):
                 x["lon"] = self.iata_codes["lon"][x["code_1"][-3:]]
                 x["lat"] = self.iata_codes["lat"][x["code_1"][-3:]]
                 x["resolved"] = True
