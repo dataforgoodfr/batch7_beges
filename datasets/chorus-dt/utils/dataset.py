@@ -12,16 +12,19 @@ def split_code_structure(x):
     return code_0
 
 
-def load_data(dir_path):
+def load_data(dir_path:str):
     datas = []
-    for filepath in glob.glob(dir_path + '/Reportings_*.csv'):
+    for filepath in glob.glob(dir_path):
         datas.append(load_dataset(filepath))
     data = pd.concat(datas, ignore_index=True)
     data['code_structure'] = data['structure'].apply(split_code_structure)
     return data
 
 
-def load_dataset(data_path):
+def load_dataset(data_path:str):
+
+    print(data_path)
+
     columns_mapping = {
         "N° de l'OM": "num_om",
         "Mode de réservation (online, offline)": "mode_reservation",
@@ -38,12 +41,14 @@ def load_dataset(data_path):
         "Nombre de jours": "nombre_jours",
         "Coût des prestations": "cout",
     }
-    data = pd.read_csv(data_path, delimiter=";")
+    data = pd.read_csv(data_path, delimiter= "	")
     data.rename(columns=columns_mapping, inplace=True)
+    
     return data[data["status"] == "T - Traité"]
 
 
-def get_places_and_trips(data, prestation_types=None):
+def get_places_and_trips(data:pd.DataFrame, 
+                         prestation_types=None):
 
     current_data = data.copy()
     if prestation_types is None:

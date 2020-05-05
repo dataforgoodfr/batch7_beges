@@ -3,9 +3,10 @@ from math import radians, cos, sin, asin, sqrt
 import sys
 import time
 
+import numpy as np
+
 import requests
 import dill
-import numpy as np
 import urllib.parse
 import pandas as pd
 from tqdm import tqdm
@@ -46,7 +47,7 @@ def compute_distance(df, n):
 
 
 if __name__ == "__main__":
-    data = dataset.load_data("./data/raw/")
+    data = dataset.load_data("./data/raw")
     places, trips = dataset.get_places_and_trips(data)
 
     # Splitting codes / name
