@@ -1,0 +1,8 @@
+version: '3'
+services:
+    beges:
+        command: python index.py
+        volumes:
+            - ./app/src:/app
+        ports:
+            - ${APP_PORT_DEV}:80

@@ -1,0 +1,5 @@
+version: '3'
+services:
+    beges:
+        ports:
+            - ${APP_PORT_PROD}:80
