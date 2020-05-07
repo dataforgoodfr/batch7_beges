@@ -6,7 +6,7 @@ from dash.dependencies import Output, Input, State
 
 from app import app
 from utils.chorus_dt_handler import ch
-from components.html_components import build_figure_container
+from components.html_components import build_figure_container, build_card_indicateur
 from components.figures_templates import xaxis_format
 
 # TODO: move make figure function to chorus_dt_components.py in components
@@ -16,28 +16,27 @@ def get_donut_by_prestation_type(code_structure=None):
     """
     # Load chorus dt data based on chosen code_structure
     # TODO: improve and standardize data import logic
-    chorus_dt_df = ch.get_structure_data(code_structure=None)
-    prestation_df = chorus_dt_df.groupby(["prestation_type"])["cumulative_distance"].sum().reset_index()
-    fig = go.Figure(
-        data=[go.Pie(labels=prestation_df.prestation_type, values=prestation_df["cumulative_distance"], hole=0.3)]
-    )
+    chorus_dt_df = ch.get_structure_data(code_structure)
+    prestation_df = chorus_dt_df.groupby(["prestation_type"])["distance"].sum().reset_index()
+    fig = go.Figure(data=[go.Pie(labels=prestation_df.prestation_type, values=prestation_df["distance"], hole=0.3)])
     fig.update_layout(plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30})
     return fig
 
 
-def get_emissions_timeseries(code_structure):
+def get_emissions_timeseries(code_structure=None):
     """
         Render and update a barplot figure to show emissions evolution with time
     """
     # Load chorus dt data based on chosen code_structure
     # TODO: improve and standardize data import logic
-    chorus_dt_df = ch.get_structure_data(code_structure=None)
-    timeseries_df = chorus_dt_df.groupby(["mission_start_month"], as_index=False)["cumulative_distance"].sum()
+    chorus_dt_df = ch.get_structure_data(code_structure)
+    chorus_dt_df["year_month"] = chorus_dt_df["date_debut_mission"].dt.to_period("M")
+    timeseries_df = chorus_dt_df.groupby(["year_month"])["distance"].sum().reset_index()
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
-            x=timeseries_df["mission_start_month"],
-            y=timeseries_df["cumulative_distance"].values,
+            x=timeseries_df["year_month"].astype(str),
+            y=timeseries_df["distance"].values,
             mode="lines+markers",
             line=dict(width=3),
         )
@@ -55,16 +54,12 @@ select_prestation_type = dcc.Dropdown(
 card_indicateur = dbc.Card(dbc.CardBody([html.H3("Nombre de trajets"), html.H3("2 300")]), className="pretty_container")
 
 
-def make_card_indicateur(title, value):
-    return dbc.Card(dbc.CardBody([html.P(title), html.H3(value)]), className="pretty_container")
-
-
 cards = dbc.CardDeck(
     [
-        make_card_indicateur("Nombre de trajets", "2 300"),
-        make_card_indicateur("Emissions (eCO2)", "2M"),
-        make_card_indicateur("Indicateur X", "XX"),
-        make_card_indicateur("Indicateur Y", "YY"),
+        build_card_indicateur("Nombre de trajets", "2 300"),
+        build_card_indicateur("Emissions (eCO2)", "2M"),
+        build_card_indicateur("Indicateur X", "XX"),
+        build_card_indicateur("Indicateur Y", "YY"),
     ]
 )
 
@@ -100,8 +95,8 @@ layout = html.Div(
                     [
                         cards,
                         build_figure_container(
-                            title="Évolution temporelles des émissions",
-                            id="timeseries-chorus-dt",
+                            title="Répartition des émissions par type de déplacement",
+                            id="donut-by-prestation",
                             footer="Explications..",
                         ),
                     ],
@@ -112,19 +107,15 @@ layout = html.Div(
         dbc.Row(
             [
                 dbc.Col(
-                    [build_figure_container(title="Histogramme ", id="hist-by-distance", footer="Explications.."),],
-                    width=8,
-                ),
-                dbc.Col(
                     [
                         build_figure_container(
-                            title="Répartition des émissions par type de déplacement",
-                            id="donut-by-prestation",
+                            title="Évolution temporelles des émissions",
+                            id="timeseries-chorus-dt",
                             footer="Explications..",
-                        ),
+                        )
                     ],
-                    width=4,
-                ),
+                    width=12,
+                )
             ]
         ),
     ],
@@ -149,9 +140,11 @@ def display_graphs(selected_entity):
 
 @app.callback(Output("timeseries-chorus-dt", "figure"), [Input("selected-entity", "children")])
 def update_emissions_timeseries(selected_entity):
-    return make_emissions_timeseries()
+    organisation, service = selected_entity.split(";")
+    return get_emissions_timeseries(service)
 
 
 @app.callback(Output("donut-by-prestation", "figure"), [Input("selected-entity", "children")])
 def update_donut_by_prestation(selected_entity):
-    return make_donut_by_prestation()
+    organisation, service = selected_entity.split(";")
+    return get_donut_by_prestation_type(service)

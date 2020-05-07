@@ -7,11 +7,12 @@ class ChorusDtHandler:
     """
 
     def __init__(self):
-        self.data = pd.read_csv('/data/trips_with_month.csv')
-        self.add_columns()
+        self.data = pd.read_csv("/data/cleaned/data_chorus_dt.csv")
+        self.clean_data()
 
-    def add_columns(self):
-        self.data['cumulative_distance'] = self.data['count']*self.data['distance']
+    def clean_data(self):
+        self.data["date_debut_mission"] = pd.to_datetime(self.data["date_debut_mission"])
+        self.data["date_fin_mission"] = pd.to_datetime(self.data["date_fin_mission"])
 
     def get_structure_data(self, code_structure=None):
         """"
