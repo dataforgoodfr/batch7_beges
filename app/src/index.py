@@ -6,19 +6,13 @@ from dash.dependencies import Output, Input, State
 
 from apps import home
 from apps import datasets
+from apps import back_office_entities
 
 from app import app
 
 
 navbar = dbc.Navbar(
-    [
-        dbc.Row(
-            [
-                dbc.Col(dbc.NavbarBrand("Outil d'aide à la création de BEGES", className="ml-2"))
-            ]
-        )
-    ],
-    className="nav_bar"
+    [dbc.Row([dbc.Col(dbc.NavbarBrand("Outil d'aide à la création de BEGES", className="ml-2"))])], className="nav_bar"
 )
 
 app.layout = dbc.Container(
@@ -26,12 +20,12 @@ app.layout = dbc.Container(
         html.Div(id="div-url-redirect"),
         dcc.Location(id="url", refresh=False),
         navbar,
-        #html.H1("Outil d'aide à la création de BEGES", style={"text-align": "center", "margin-top": "5%"}),
-        #html.Hr(),
+        # html.H1("Outil d'aide à la création de BEGES", style={"text-align": "center", "margin-top": "5%"}),
+        # html.Hr(),
         html.Br(),
         html.Div(id="page-content"),
     ],
-    fluid=True
+    fluid=True,
 )
 flask_app = app.server
 
@@ -42,6 +36,8 @@ def display_page(pathname):
         return home.layout
     elif pathname == "/datasets":
         return datasets.layout
+    elif pathname == "/back-office-entities":
+        return back_office_entities.layout
 
 
 if __name__ == "__main__":
