@@ -22,23 +22,21 @@ layout = html.Div(
     [
         # dbc.Row([dbc.Col([html.B("", id="osfi-selected-entity-show"),]),]),
         dbc.Row(
-            [
-                dbc.Col(
-                    build_figure_container(
-                        title="Emission electricité par batiment",
-                        id="emission-electricity-pie",
-                        footer="Explications...",
-                    ),
-                    width=6,
+            dbc.Col(
+                build_figure_container(
+                    title="Emission electricité par batiment", id="emission-electricity-pie", footer="Explications..."
                 ),
-                dbc.Col(
-                    build_figure_container(
-                        title="Emission gaz par batiment", id="emission-gas-pie", footer="Explications..."
-                    ),
-                    width=6,
+                width=12,
+            )
+        ),
+        dbc.Row(
+            dbc.Col(
+                build_figure_container(
+                    title="Emission gaz par batiment", id="emission-gas-pie", footer="Explications..."
                 ),
-            ]
-        )
+                width=12,
+            )
+        ),
     ]
 )
 
