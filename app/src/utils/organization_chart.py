@@ -1,57 +1,57 @@
-import dill
 import csv
 
+import dill
+from anytree import NodeMixin, RenderTree
+from anytree.search import find as find_tree
 
-class Entity:
-    def __init__(self, id, label, id_chorus=None, id_osfi=None, id_odrive=None, parent=None, children=[]):
+
+class Entity(NodeMixin):
+    def __init__(self, id, label, code_chorus=None, code_osfi=None, code_odrive=None, parent=None, children=None):
         self.id = id
         self.label = label
-        self.id_chorus = id_chorus
-        self.id_osfi = id_osfi
-        self.id_odrive = id_odrive
+        self.code_chorus = code_chorus
+        self.code_osfi = code_osfi
+        self.code_odrive = code_odrive
 
         self.parent = parent
-        self.children = children
+        if children:
+            self.children = children
 
-    def __str__(self):
-        return_str = self.id
-        return_str = "\n  - ".join((self.id, self.label, self.parent))
-        if len(self.children) > 0:
-            return_str = "  - children:"
-            for children in self.children:
-                return_str = "\n    - ".join((self.id, self.label, self.parent))
-        return return_str
+    def __repr__(self):
+        return_string = "%s: %s" % (self.id, self.label)
+        return_string += "(%s, %s, %s)" % (self.code_chorus, self.code_osfi, self.code_odrive)
+        return return_string
 
 
 class OrganizationChart:
     def __init__(self, data_path):
         self.data_path = data_path
         self._root = Entity(id="root", label="root")
-        self._entities = []
-
         self.load()
 
     def load(self):
+        entities = {}
+        entities["root"] = self._root
         with open(self.data_path, "r") as file_id:
-            reader = csv.DictReader(file_id)
+            reader = csv.DictReader(file_id, delimiter="\t")
             for entity_dict in reader:
-                print(entity_dict)
+                entity_dict["parent"] = entities[entity_dict["parent"]]
                 entity = Entity(**entity_dict)
-                print(entity)
-                if entity.parent:
-                    pass
-                    # parent = self.get_node_by_id(entity.parent)
-                    # parent.children.append(entity)
-                else:
-                    entity.parent = self._root
-                    self._root.children.append(self.entity)
-                self._entities.append(entity)
+                entities[entity.id] = entity
+        print("Loaded entity tree")
+        print(RenderTree(self._root))
 
-    def get_node_by_id(self, node_id):
-        return None
+    def get_entity_by_id(self, id):
+        return find_tree(self._root, lambda entity: entity.id == id)
 
-    def get_nodes(self):
-        return self.nodes
+    def get_level_1_dropdown_items(self):
+        return self.get_children_dropdown_items()
 
-    def get_edges(self):
-        return self.nodes
+    def get_level_2_dropdown_items(self, level_1_id):
+        return self.get_children_dropdown_items(level_1_id)
+
+    def get_children_dropdown_items(self, entity_id="root"):
+        return [{"value": entity.id, "label": entity.label} for entity in self.get_entity_by_id(entity_id).children]
+
+
+oc = OrganizationChart("/data/entities.tsv")
