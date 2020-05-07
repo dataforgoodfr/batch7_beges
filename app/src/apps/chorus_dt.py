@@ -51,8 +51,6 @@ select_prestation_type = dcc.Dropdown(
     id="select-prestation_type", options=[{"label": "Train", "value": "T"}, {"label": "Avion", "value": "A"}]
 )
 
-card_indicateur = dbc.Card(dbc.CardBody([html.H3("Nombre de trajets"), html.H3("2 300")]), className="pretty_container")
-
 
 cards = dbc.CardDeck(
     [
