@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input, State
 
 from apps import chorus_dt
+from apps import osfi
 
 from app import app
 
@@ -48,6 +49,6 @@ def on_selected_entity_fill_tabs_data(selected_entity, active_tab):
         elif active_tab == "odrive":
             return "ODRIVE, on going : (organisation : " + organisation + ", service : " + service + ")"
         elif active_tab == "osfi":
-            return "OSFI, integration on going : (organisation : " + organisation + ", service : " + service + ")"
+            return osfi.layout
     else:
         return "empty"
