@@ -6,7 +6,6 @@ from dash.dependencies import Output, Input, State
 
 from apps import home
 from apps import datasets
-from apps import back_office_entities
 
 from app import app
 
@@ -36,8 +35,6 @@ def display_page(pathname):
         return home.layout
     elif pathname == "/datasets":
         return datasets.layout
-    elif pathname == "/back-office-entities":
-        return back_office_entities.layout
 
 
 if __name__ == "__main__":
