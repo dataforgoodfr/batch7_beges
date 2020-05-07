@@ -19,12 +19,9 @@ app.layout = dbc.Container(
         html.Div(id="div-url-redirect"),
         dcc.Location(id="url", refresh=False),
         navbar,
-        # html.H1("Outil d'aide à la création de BEGES", style={"text-align": "center", "margin-top": "5%"}),
-        # html.Hr(),
         html.Br(),
         html.Div(id="page-content"),
-    ],
-    fluid=True,
+    ]
 )
 flask_app = app.server
 
