@@ -39,12 +39,9 @@ layout = html.Div(
 def on_dropdown_level_1_value(value_level_1, level_2_style):
     options = []
     if value_level_1 is not None:
-        if value_level_1 != "AC":
-            options = oc.get_level_2_dropdown_items(value_level_1)
-            style = level_2_style.copy()
-            level_2_style["display"] = "block"
-        else:
-            level_2_style["display"] = "none"
+        options = oc.get_level_2_dropdown_items(value_level_1)
+        style = level_2_style.copy()
+        level_2_style["display"] = "block"
     else:
         level_2_style["display"] = "none"
     return level_2_style, options, None
@@ -56,8 +53,6 @@ def on_dropdown_level_1_value(value_level_1, level_2_style):
 )
 def on_set_value_level_1_level_2(value_level_1, value_level_2):
     if value_level_1 is not None:
-        if value_level_1 == "AC":
-            return "AC;"
         if value_level_2 is not None:
             return ";".join((value_level_1, value_level_2))
     return None

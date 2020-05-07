@@ -14,7 +14,7 @@ class EntityHandler:
         entities = {}
         level_1_labels = {}
         level_2_labels = {}
-        with open("/data/entities.tsv") as file_id:
+        with open("/data/entities_tree.tsv") as file_id:
             reader = csv.DictReader(file_id, delimiter="\t")
             for entity in reader:
                 print(entity)

@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from dash.dependencies import Output, Input, State
 
 from app import app
+from utils.organization_chart import oc
 from utils.chorus_dt_handler import ch
 from components.html_components import build_figure_container, build_card_indicateur
 from components.figures_templates import xaxis_format
@@ -124,25 +125,19 @@ layout = html.Div(
 @app.callback(Output("selected-entity-show", "children"), [Input("selected-entity", "children")])
 def on_selected_entity_fill_tabs_data(selected_entity):
     if selected_entity is not None:
-        organisation, service = selected_entity.split(";")
-        return "Organisation : " + organisation + ", Service : " + service
+        organization, service = oc.get_organization_service(selected_entity)
+        return "Organisation : " + organization.label + ", Service : " + service.label
     else:
         return "empty"
 
 
-@app.callback(Output("values-selected'", "children"), [Input("selected-entity", "children")])
-def display_graphs(selected_entity):
-    organisation, service = selected_entity.split(";")
-    return organisation + " / " + service
-
-
 @app.callback(Output("timeseries-chorus-dt", "figure"), [Input("selected-entity", "children")])
 def update_emissions_timeseries(selected_entity):
-    organisation, service = selected_entity.split(";")
-    return get_emissions_timeseries(service)
+    organization, service = oc.get_organization_service(selected_entity)
+    return get_emissions_timeseries(service.code_chorus)
 
 
 @app.callback(Output("donut-by-prestation", "figure"), [Input("selected-entity", "children")])
 def update_donut_by_prestation(selected_entity):
-    organisation, service = selected_entity.split(";")
-    return get_donut_by_prestation_type(service)
+    organization, service = oc.get_organization_service(selected_entity)
+    return get_donut_by_prestation_type(service.code_chorus)

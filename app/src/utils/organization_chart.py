@@ -53,5 +53,9 @@ class OrganizationChart:
     def get_children_dropdown_items(self, entity_id="root"):
         return [{"value": entity.id, "label": entity.label} for entity in self.get_entity_by_id(entity_id).children]
 
+    def get_organization_service(self, selected_entity):
+        organization_id, service_id = selected_entity.split(";")
+        return self.get_entity_by_id(organization_id), self.get_entity_by_id(service_id)
 
-oc = OrganizationChart("/data/entities.tsv")
+
+oc = OrganizationChart("/data/entities_tree.tsv")
