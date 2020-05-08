@@ -41,15 +41,6 @@ layout = html.Div(
 )
 
 
-@app.callback(Output("osfi-selected-entity-show", "children"), [Input("selected-entity", "children")])
-def on_selected_entity_fill_tabs_data(lntity):
-    if selected_entity is not None:
-        organization, service = oc.get_organization_service(selected_entity)
-        return "Organisation : " + organization.label + ", Service : " + service.label
-    else:
-        return "empty"
-
-
 @app.callback(
     [Output("emission-electricity-pie", "figure"), Output("emission-gas-pie", "figure")],
     [Input("selected-entity", "children")],
@@ -57,7 +48,6 @@ def on_selected_entity_fill_tabs_data(lntity):
 def update_graphs(selected_entity):
     organization, service = oc.get_organization_service(selected_entity)
     data = oh.get_structure_data(service.code_osfi)
-    print(data)
     electricity_pie_graph = get_pie(data, "emission_electricity")
     gas_pie_graph = get_pie(data, "emission_gaz")
     return electricity_pie_graph, gas_pie_graph
