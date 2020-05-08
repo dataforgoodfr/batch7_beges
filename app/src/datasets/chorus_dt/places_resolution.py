@@ -122,7 +122,7 @@ def main():
     data = dataset.get_data("/data/raw/chorus-dt", prestation_types)
     places = dataset.get_places(data)
     places, places_dict = resolve_place(places)
-    CO2_conversion_table = pandas.read_csv()
+    CO2_conversion_table = pd.read_csv("/data/CO2_conversion_table.csv")
 
     # when analyzing plane trips, doesn't work if
     # 'no stop' in trips columns. (ie. always since we programed
@@ -138,6 +138,8 @@ def main():
         data["%s_coords" % column] = data["%s_lon" % column].astype(str) + ";" + data["%s_lat" % column].astype(str)
 
     data = compute_distances(data)
+
+    data = calc_CO2(data, CO2_conversion_table)
 
     places.to_csv("/data/cleaned/places.csv", index=False)
     data.to_csv("/data/cleaned/data_chorus_dt.csv", index=False)

@@ -17,7 +17,7 @@ wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1c
 
 # CO2 conversion table
 OUTPUT_PATH=/data
-wget -c --no-check-certificate PATH-TO-FILL -O $OUTPUT_PATH/CO2_conversion_table.csv
+wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1EfqW3boI4sHnjeTQy1O6VH-8rodhH11y' -O $OUTPUT_PATH/CO2_conversion_table.csv
 
 
 #############
