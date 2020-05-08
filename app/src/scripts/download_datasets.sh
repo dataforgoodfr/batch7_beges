@@ -6,6 +6,14 @@ mkdir -p /data/prepared
 mkdir -p /data/cleaned
 
 #############
+#  Globals  #
+#############
+# Tree Entities
+OUTPUT_PATH=/data
+wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1cHu-2yP1m0F2bugR50D_s8YvdfdDZppY' -O $OUTPUT_PATH/entities_tree.tsv
+
+
+#############
 # Chorus DT #
 #############
 # Avion train sample
