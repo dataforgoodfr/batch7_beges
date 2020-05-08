@@ -16,9 +16,6 @@ from .utils.resolvers import HardcodesResolver, GeocodingApiResolver
 GMAP_API_KEY = os.getenv("GMAP_API_KEY")
 tqdm.pandas()
 
-
-
-
 def compute_distances(data):
     data["distance_0"] = np.NaN
     data["distance_1"] = np.NaN
@@ -54,8 +51,22 @@ def compute_distance_between_points(lon0, lat0, lon1, lat1):
 
     return c * r
 
-def calc_CO2(trips:pandas.DataFrame,
-             CO2_frame:pandas.DataFrame):
+def calc_CO2(trips:pd.DataFrame,
+             CO2_frame:pd.DataFrame):
+
+    trips.loc[(trips['prestation_type'] == 'T - Train réservé par l\'agence') | 
+            (trips['prestation_type'] == 'TM - Train pris en charge par le ministère') | 
+            (trips['prestation_type'] == 'TU - Train pris en charge par le missionné'), 
+            'prestation'] = 'T'
+
+    trips.loc[(trips['prestation_type'] == 'A - Avion réservé par l\'agence') | 
+            (trips['prestation_type'] == 'AU - Avion pris en charge par le missionn') | 
+            (trips['prestation_type'] == 'AM - Avion pris en charge par le ministère'), 
+            'prestation'] = 'A'
+
+    trips.loc[(trips['prestation_type'] == 'TC - Transport en commun') | 
+            (trips['prestation_type'] == 'TCA - Transport en commun autre qu\'avion, train avec résa ou bat'), 
+            'prestation'] = 'TC'
     
     short_plane = (trips['prestation'] == 'A') & (trips['distance'] <= 1000)
     long_plane = (trips['prestation'] == 'A') & (trips['distance'] > 1000)
@@ -73,6 +84,8 @@ def calc_CO2(trips:pandas.DataFrame,
     
     trips['kgCO2e/passager.km'] = short_plane.astype(int)*CO2_short_plane + long_plane.astype(int)*CO2_long_plane + train.astype(int)*CO2_TGV + commun.astype(int)*CO2_TC
     
+    # Planes pollute an extra 95km
+    trips.loc[trips['prestation'] == 'A', 'distance'] += 95
     trips['CO2e/trip'] = trips['kgCO2e/passager.km']*trips['distance']
         
     return trips
