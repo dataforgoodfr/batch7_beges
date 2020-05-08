@@ -28,6 +28,10 @@ def compute_distances(data):
         data["distance_%s" % distance_i] = compute_distance_between_points(
             data["%s_lon" % column_0], data["%s_lat" % column_0], data["%s_lon" % column_1], data["%s_lat" % column_1]
         )
+    data["distance_0"].fillna(0, inplace=True)
+    data["distance_1"].fillna(0, inplace=True)
+    data["distance_2"].fillna(0, inplace=True)
+    data["distance"] = data["distance_0"] + data["distance_1"]
 
     return data
 
@@ -111,7 +115,7 @@ def main():
     data = compute_distances(data)
 
     places.to_csv("/data/cleaned/places.csv", index=False)
-    data.to_csv("/data/cleaned/data.csv", index=False)
+    data.to_csv("/data/cleaned/data_chorus_dt.csv", index=False)
 
 
 if __name__ == "__main__":

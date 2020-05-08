@@ -2,7 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Output, Input, State
 
-from utils.entity_handler import eh
+from utils.organization_chart import oc
 from app import app
 
 
@@ -11,7 +11,7 @@ layout = html.Div(
     children=[
         dcc.Dropdown(
             id="dropdown-entity-choice-level-1",
-            options=eh.get_level_1_dropdown_items(),
+            options=oc.get_level_1_dropdown_items(),
             placeholder="Choisissez votre organisation",
             clearable=True,
             style={"margin": "10px"},
@@ -39,12 +39,9 @@ layout = html.Div(
 def on_dropdown_level_1_value(value_level_1, level_2_style):
     options = []
     if value_level_1 is not None:
-        if value_level_1 != "AC":
-            options = eh.get_level_2_dropdown_items(value_level_1)
-            style = level_2_style.copy()
-            level_2_style["display"] = "block"
-        else:
-            level_2_style["display"] = "none"
+        options = oc.get_level_2_dropdown_items(value_level_1)
+        style = level_2_style.copy()
+        level_2_style["display"] = "block"
     else:
         level_2_style["display"] = "none"
     return level_2_style, options, None
@@ -56,8 +53,6 @@ def on_dropdown_level_1_value(value_level_1, level_2_style):
 )
 def on_set_value_level_1_level_2(value_level_1, value_level_2):
     if value_level_1 is not None:
-        if value_level_1 == "AC":
-            return "AC;"
         if value_level_2 is not None:
             return ";".join((value_level_1, value_level_2))
     return None
