@@ -17,6 +17,8 @@ GMAP_API_KEY = os.getenv("GMAP_API_KEY")
 tqdm.pandas()
 
 
+
+
 def compute_distances(data):
     data["distance_0"] = np.NaN
     data["distance_1"] = np.NaN
@@ -35,7 +37,6 @@ def compute_distances(data):
 
     return data
 
-
 def compute_distance_between_points(lon0, lat0, lon1, lat1):
 
     lon0 = np.deg2rad(lon0)
@@ -52,6 +53,29 @@ def compute_distance_between_points(lon0, lat0, lon1, lat1):
     r = 6371  # Radius of earth in miles. Use 6371 for kilometers
 
     return c * r
+
+def calc_CO2(trips:pandas.DataFrame,
+             CO2_frame:pandas.DataFrame):
+    
+    short_plane = (trips['prestation'] == 'A') & (trips['distance'] <= 1000)
+    long_plane = (trips['prestation'] == 'A') & (trips['distance'] > 1000)
+    train = (trips['prestation'] == 'T')
+    commun = (trips['prestation'] == 'TC')
+    
+    CO2_short_plane = CO2_frame.loc[(CO2_frame['Prestation'] == 'A') &
+                                    (CO2_frame['filtre'] == '0-1000 km'), 'Total poste non décomposé'].iloc[0]
+    CO2_long_plane = CO2_frame.loc[(CO2_frame['Prestation'] == 'A') &
+                                    (CO2_frame['filtre'] == '> 1000 km'), 'Total poste non décomposé'].iloc[0]
+    CO2_TGV = CO2_frame.loc[(CO2_frame['Prestation'] == 'T') &
+                                   (CO2_frame['filtre'] == 'TGV'), 'Total poste non décomposé'].iloc[0]
+    CO2_TC = CO2_frame.loc[(CO2_frame['Prestation'] == 'TC'), 'Total poste non décomposé'].iloc[0]
+    
+    
+    trips['kgCO2e/passager.km'] = short_plane.astype(int)*CO2_short_plane + long_plane.astype(int)*CO2_long_plane + train.astype(int)*CO2_TGV + commun.astype(int)*CO2_TC
+    
+    trips['CO2e/trip'] = trips['kgCO2e/passager.km']*trips['distance']
+        
+    return trips
 
 
 def resolve_place(places):
@@ -98,6 +122,7 @@ def main():
     data = dataset.get_data("/data/raw/chorus-dt", prestation_types)
     places = dataset.get_places(data)
     places, places_dict = resolve_place(places)
+    CO2_conversion_table = pandas.read_csv()
 
     # when analyzing plane trips, doesn't work if
     # 'no stop' in trips columns. (ie. always since we programed
