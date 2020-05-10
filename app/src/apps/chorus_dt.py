@@ -11,28 +11,21 @@ from components.html_components import build_figure_container, build_card_indica
 from components.figures_templates import xaxis_format
 
 # TODO: move make figure function to chorus_dt_components.py in components
-def get_donut_by_prestation_type(code_structure=None):
+def get_donut_by_prestation_type(df):
     """
         Render and update a donut figure to show emissions distribution by prestation type
     """
-    # Load chorus dt data based on chosen code_structure
-    # TODO: improve and standardize data import logic
-    chorus_dt_df = ch.get_structure_data(code_structure)
-    prestation_df = chorus_dt_df.groupby(["prestation_type"])["distance"].sum().reset_index()
+    prestation_df = df.groupby(["prestation_type"])["distance"].sum().reset_index()
     fig = go.Figure(data=[go.Pie(labels=prestation_df.prestation_type, values=prestation_df["distance"], hole=0.3)])
     fig.update_layout(plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30})
     return fig
 
 
-def get_emissions_timeseries(code_structure=None):
+def get_emissions_timeseries(df):
     """
-        Render and update a barplot figure to show emissions evolution with time
+        Render and update a scatter plot figure to show emissions evolution with time
     """
-    # Load chorus dt data based on chosen code_structure
-    # TODO: improve and standardize data import logic
-    chorus_dt_df = ch.get_structure_data(code_structure)
-    chorus_dt_df["year_month"] = chorus_dt_df["date_debut_mission"].dt.to_period("M")
-    timeseries_df = chorus_dt_df.groupby(["year_month"])["distance"].sum().reset_index()
+    timeseries_df = df.groupby(["year_month"])["distance"].sum().reset_index()
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
@@ -131,13 +124,13 @@ def on_selected_entity_fill_tabs_data(selected_entity):
         return "empty"
 
 
-@app.callback(Output("timeseries-chorus-dt", "figure"), [Input("selected-entity", "children")])
-def update_emissions_timeseries(selected_entity):
+@app.callback(
+    [Output("donut-by-prestation", "figure"), Output("timeseries-chorus-dt", "figure"),],
+    [Input("selected-entity", "children")],
+)
+def update_graphs(selected_entity):
     organization, service = oc.get_organization_service(selected_entity)
-    return get_emissions_timeseries(service.code_chorus)
+    chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
+    chorus_dt_df.loc[:, "year_month"] = chorus_dt_df["date_debut_mission"].dt.to_period("M")
 
-
-@app.callback(Output("donut-by-prestation", "figure"), [Input("selected-entity", "children")])
-def update_donut_by_prestation(selected_entity):
-    organization, service = oc.get_organization_service(selected_entity)
-    return get_donut_by_prestation_type(service.code_chorus)
+    return [get_donut_by_prestation_type(chorus_dt_df), get_emissions_timeseries(chorus_dt_df)]
