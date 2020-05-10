@@ -10,7 +10,7 @@ from utils.odrive_handler import ov
 from components.html_components import build_figure_container, build_card_indicateur
 from components.figures_templates import xaxis_format
 
-# TODO: move make figure function to chorus_dt_components.py in components
+
 def get_donut_by_entity_type(code_structure=None):
     odrive_df = ov.get_structure_data(code_structure)
     prestation_df = odrive_df.groupby(["Entité 3"])["Emissions (g/an)"].sum().reset_index()
@@ -23,7 +23,7 @@ def get_donut_by_entity_type(code_structure=None):
 cards = dbc.CardDeck(
     [
         build_card_indicateur("Nombre de véhicules", "XX"),
-        build_card_indicateur("Emissions (eCO2)", "YY"),
+        build_card_indicateur("Emissions (CO2)", "YY"),
         build_card_indicateur("Indicateur X", "XX"),
         build_card_indicateur("Indicateur Y", "YY"),
     ]
