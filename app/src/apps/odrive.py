@@ -11,13 +11,11 @@ from components.html_components import build_figure_container, build_card_indica
 from components.figures_templates import xaxis_format
 
 # TODO: move make figure function to chorus_dt_components.py in components
-def get_donut_by_prestation_type(code_structure=None):
+def get_donut_by_entity_type(code_structure=None):
     odrive_df = ov.get_structure_data(code_structure)
     prestation_df = odrive_df.groupby(["Entité 3"])["Emissions (g/an)"].sum().reset_index()
     prestation_df.entities = list(set(odrive_df["Entité 3"]))
-    fig = go.Figure(
-        data=[go.Pie(labels=prestation_df.prestation_type, values=prestation_df["Emissions (g/an)"], hole=0.3)]
-    )
+    fig = go.Figure(data=[go.Pie(labels=prestation_df["Entité 3"], values=prestation_df["Emissions (g/an)"], hole=0.3)])
     fig.update_layout(plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30})
     return fig
 
@@ -31,6 +29,16 @@ cards = dbc.CardDeck(
     ]
 )
 
+
+select_odrive_vehicle_type = dcc.Dropdown(
+    id="select_odrive_vehicle_type",
+    options=[
+        {"label": "Electrique", "value": "E"},
+        {"label": "Essence", "value": "F"},
+        {"label": "Diesel", "value": "D"},
+    ],
+)
+
 layout = html.Div(
     [
         dbc.Row(html.P("", id="values-selected")),
@@ -39,11 +47,33 @@ layout = html.Div(
             [
                 dbc.Col(
                     [
+                        html.B("", id="selected-odrive-vehicle_type"),
+                        dbc.Card(
+                            dbc.CardBody(
+                                [
+                                    html.H3("Filtres"),
+                                    html.Br(),
+                                    dbc.FormGroup(
+                                        [dbc.Label("Selectionner Type véhicule"), select_odrive_vehicle_type]
+                                    ),
+                                ]
+                            ),
+                            className="pretty_container",
+                        ),
+                        dbc.Card(
+                            dbc.CardBody(
+                                [html.H3("Exporter les données"), html.Br(), dbc.Button("Export", id="export")]
+                            ),
+                            className="pretty_container",
+                        ),
+                        dbc.Jumbotron("Explications sur les graphiques et leur fonctionnement..."),
+                    ]
+                ),
+                dbc.Col(
+                    [
                         cards,
                         build_figure_container(
-                            title="Répartition des émissions par type de déplacement",
-                            id="donut-by-prestation",
-                            footer="Explications..",
+                            title="Répartition par direction", id="donut-by-entity", footer="Explications..",
                         ),
                     ],
                     width=9,
@@ -51,11 +81,11 @@ layout = html.Div(
             ]
         ),
     ],
-    id="div-data-chorus-dt",
+    id="div-data-odrive",
 )
 
 
-@app.callback(Output("donut-by-prestation", "figure"), [Input("selected-entity", "children")])
+@app.callback(Output("donut-by-entity", "figure"), [Input("selected-entity", "children")])
 def update_donut_by_prestation(selected_entity):
     organization, service = oc.get_organization_service(selected_entity)
-    return get_donut_by_prestation_type(service.code_chorus)
+    return get_donut_by_entity_type(service.code_odrive)
