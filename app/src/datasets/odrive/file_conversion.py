@@ -26,7 +26,7 @@ def clean_date(date_value):
 
 def main():
     data_xls = pd.read_excel("/data/raw/odrive/odrive.xlsx", index_col=None)
-    data_xls["Modèle"] = list(map(clean_modele, data_xls["Modèle"]))
+    data_xls["Modèle"] = data_xls["Modèle"].apply(clean_modele)
     data_xls["Date relevé"] = list(map(clean_date, data_xls["Date relevé"]))
     data_xls["Date 1ère mise en circulation"] = list(map(clean_date, data_xls["Date 1ère mise en circulation"]))
     data_xls["Total années cirulation"] = (data_xls["Date relevé"] - data_xls["Date 1ère mise en circulation"]).astype(
