@@ -45,4 +45,4 @@ wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1v
 #   ODRIVE  #
 #############
 OUTPUT_PATH=/data/raw/odrive
-wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1bD_V0QchPfv5yjxh9FqMEHz3oY3Ga17-&exportFormat=csv&gid=0' -O $OUTPUT_PATH/osfi.csv
+wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1bD_V0QchPfv5yjxh9FqMEHz3oY3Ga17-&exportFormat=csv&gid=0' -O $OUTPUT_PATH/odrive.xlsx
