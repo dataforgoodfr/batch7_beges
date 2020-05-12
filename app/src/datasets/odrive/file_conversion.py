@@ -25,7 +25,7 @@ def clean_date(date_value):
 
 
 def main():
-    data_xls = pd.read_excel("C:/Users/Artus/batch7_beges/data/raw/odrive/odrive.xlsx", index_col=None)
+    data_xls = pd.read_excel("/data/raw/odrive/odrive.xlsx", index_col=None)
     data_xls["Modèle"] = list(map(clean_modele, data_xls["Modèle"]))
     data_xls["Date relevé"] = list(map(clean_date, data_xls["Date relevé"]))
     data_xls["Date 1ère mise en circulation"] = list(map(clean_date, data_xls["Date 1ère mise en circulation"]))
