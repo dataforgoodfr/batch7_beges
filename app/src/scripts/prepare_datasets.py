@@ -3,7 +3,8 @@ from datasets.chorus_dt.places_resolution import main as chorus_dt_resolve_place
 from datasets.odrive.file_conversion import main as odrive_file_conversion
 
 if __name__ == "__main__":
-    # Prepare chorus dt
+    # Prepare Odrive
     odrive_file_conversion()
+    # Prepare chorus dt
     chorus_dt_prepare_codes()
     chorus_dt_resolve_places()
