@@ -21,7 +21,8 @@ app.layout = dbc.Container(
         navbar,
         html.Br(),
         html.Div(id="page-content"),
-    ]
+    ],
+    fluid=True,
 )
 flask_app = app.server
 
