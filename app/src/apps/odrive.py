@@ -41,7 +41,6 @@ select_odrive_vehicle_type = dcc.Dropdown(
 
 layout = html.Div(
     [
-        dbc.Row(html.P("", id="values-selected")),
         # Cards row
         dbc.Row(
             [
