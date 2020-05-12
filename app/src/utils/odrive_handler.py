@@ -7,7 +7,7 @@ class OdriveHandler:
     """
 
     def __init__(self):
-        self.data = pd.read_csv("/data/cleaned/odrive.csv")
+        self.data = pd.read_csv("/data/cleaned/data_odrive.csv")
 
     def get_structure_data(self, code_structure=None):
         if code_structure is not None:

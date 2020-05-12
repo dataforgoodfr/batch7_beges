@@ -3,7 +3,7 @@ import pandas as pd
 import math
 import datetime
 
-names_to_replace = {
+NAMES_TO_REPLACE = {
     "CLIO IV": "CLIO 4",
     "CLIO III": "CLIO 3",
     "MÉGANE": "MEGANE",
@@ -13,8 +13,8 @@ names_to_replace = {
 
 def clean_modele(modele):
     modele = str(modele).upper()
-    if modele in names_to_replace.keys():
-        modele = names_to_replace.get(modele)
+    if modele in NAMES_TO_REPLACE.keys():
+        modele = NAMES_TO_REPLACE.get(modele)
     return modele
 
 
@@ -29,7 +29,7 @@ def main():
     data_xls["Modèle"] = data_xls["Modèle"].apply(clean_modele)
     data_xls["Date relevé"].replace(to_replace="00/01/00", value=None, inplace=True)
     data_xls["Date relevé"].fillna(datetime.datetime.today(), inplace=True)
-    data_xls["Date 1ère mise en circulation"] = list(map(clean_date, data_xls["Date 1ère mise en circulation"]))
+    data_xls["Date 1ère mise en circulation"] = data_xls["Date 1ère mise en circulation"].apply(clean_date)
     data_xls["Total années cirulation"] = (data_xls["Date relevé"] - data_xls["Date 1ère mise en circulation"]).astype(
         "timedelta64[D]"
     ) / 365
