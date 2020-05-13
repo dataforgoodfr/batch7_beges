@@ -8,6 +8,7 @@ from apps import home
 from apps import datasets
 from apps import about
 from apps import methodology
+from apps import footer
 
 from app import app
 
@@ -23,6 +24,7 @@ app.layout = dbc.Container(
         navbar,
         html.Br(),
         html.Div(id="page-content"),
+        footer.layout,
     ],
     fluid=True,
 )
