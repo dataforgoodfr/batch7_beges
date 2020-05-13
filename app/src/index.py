@@ -24,6 +24,7 @@ app.layout = dbc.Container(
         navbar,
         html.Br(),
         html.Div(id="page-content"),
+        html.Br(),
         footer.layout,
     ],
     fluid=True,
