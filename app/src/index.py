@@ -17,18 +17,23 @@ navbar = dbc.Navbar(
     [dbc.Row([dbc.Col(dbc.NavbarBrand("Outil d'aide à la création de BEGES", className="ml-2"))])], className="nav_bar"
 )
 
-app.layout = dbc.Container(
-    [
-        html.Div(id="div-url-redirect"),
-        dcc.Location(id="url", refresh=False),
-        navbar,
-        html.Br(),
-        html.Div(id="page-content"),
-        html.Br(),
+app.layout = html.Div(
+    children=[
+        dbc.Container(
+            [
+                html.Div(id="div-url-redirect"),
+                dcc.Location(id="url", refresh=False),
+                navbar,
+                html.Br(),
+                html.Div(id="page-content"),
+            ],
+            fluid=True,
+        ),
         footer.layout,
-    ],
-    fluid=True,
+    ]
 )
+
+
 flask_app = app.server
 
 # Update the index
