@@ -6,6 +6,8 @@ from dash.dependencies import Output, Input, State
 
 from apps import home
 from apps import datasets
+from apps import about
+from apps import methodology
 
 from app import app
 
@@ -33,6 +35,10 @@ def display_page(pathname):
         return home.layout
     elif pathname == "/datasets":
         return datasets.layout
+    elif pathname == "/a_propos":
+        return about.layout
+    elif pathname == "/methodologie":
+        return methodology.layout
 
 
 if __name__ == "__main__":
