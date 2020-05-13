@@ -1,6 +1,7 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+import dash_table
 
 import plotly.graph_objects as go
 
@@ -9,7 +10,7 @@ from utils.organization_chart import oc
 from utils.osfi_handler import oh
 from dash.dependencies import Input, State, Output
 
-from components.html_components import build_figure_container
+from components.html_components import build_figure_container, build_table_container
 
 
 def get_pie(data, column):
@@ -21,6 +22,14 @@ def get_pie(data, column):
 layout = html.Div(
     [
         # dbc.Row([dbc.Col([html.B("", id="osfi-selected-entity-show"),]),]),
+        dbc.Row(
+            dbc.Col(
+                build_table_container(
+                    title="Toutes les données osfi", id="osfi-all-data-table", footer="Explications..."
+                ),
+                width=12,
+            )
+        ),
         dbc.Row(
             dbc.Col(
                 build_figure_container(
@@ -42,12 +51,19 @@ layout = html.Div(
 
 
 @app.callback(
-    [Output("emission-electricity-pie", "figure"), Output("emission-gas-pie", "figure")],
+    [
+        Output("osfi-all-data-table", "columns"),
+        Output("osfi-all-data-table", "data"),
+        Output("emission-electricity-pie", "figure"),
+        Output("emission-gas-pie", "figure"),
+    ],
     [Input("selected-entity", "children")],
 )
 def update_graphs(selected_entity):
     organization, service = oc.get_organization_service(selected_entity)
     data = oh.get_structure_data(service.code_osfi)
+    columns = [{"name": i, "id": i} for i in data.columns]
+    data_to_return = data.to_dict("records")
     electricity_pie_graph = get_pie(data, "emission_electricity")
     gas_pie_graph = get_pie(data, "emission_gaz")
-    return electricity_pie_graph, gas_pie_graph
+    return columns, data_to_return, electricity_pie_graph, gas_pie_graph
