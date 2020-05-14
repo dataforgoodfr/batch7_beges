@@ -16,8 +16,30 @@ from utils.organization_chart import oc
 layout = html.Div(
     id="div-data-display",
     children=[
+        html.Div(id="dashboard-div-url-redirect-to-entity-choice", style={"display": "none"}),
         html.Div(id="dashboard-selected-entity", style={"display": "none"}),
-        html.Div(id="dashboard-selected-entity-show"),
+        dbc.Row(
+            [
+                dbc.Col(html.Div(id="dashboard-selected-entity-show"), width=10),
+                dbc.Col(
+                    dbc.ButtonGroup(
+                        [
+                            dbc.Button(
+                                "Choisir une autre entité",
+                                id="dashboard-button-to-entity-choice",
+                                color="primary",
+                                className="mr-1",
+                                block=True,
+                            ),
+                            dbc.Button("Exporter les données", color="primary", className="mr-1", block=True),
+                            dbc.Button("Aide", color="primary", className="mr-1", block=True),
+                        ],
+                        vertical=True,
+                    ),
+                    width=2,
+                ),
+            ]
+        ),
         dbc.Tabs(
             id="tabs-datasets",
             children=[
@@ -81,3 +103,12 @@ def on_selected_entity_fill_tabs_data(selected_entity, active_tab):
             return osfi.layout
     else:
         return "empty"
+
+
+@app.callback(
+    Output("dashboard-div-url-redirect-to-entity-choice", "children"),
+    [Input("dashboard-button-to-entity-choice", "n_clicks")],
+)
+def on_click_go_to_entity_choice(n_clicks):
+    if n_clicks:
+        return dcc.Location(id="url-redirect-to-entity-choice", pathname="/selection_entite")

@@ -8,7 +8,7 @@ from app import app
 layout = html.Div(
     id="div-header",
     children=[
-        html.Div(id="div-url-redirect-to-entity-choice", style={"display": "none"}),
+        html.Div(id="home-div-url-redirect-to-entity-choice", style={"display": "none"}),
         dbc.Row(
             dbc.Col(
                 html.Div(
@@ -51,7 +51,9 @@ layout = html.Div(
 )
 
 
-@app.callback(Output("div-url-redirect-to-entity-choice", "children"), [Input("button-to-entity-choice", "n_clicks")])
+@app.callback(
+    Output("home-div-url-redirect-to-entity-choice", "children"), [Input("button-to-entity-choice", "n_clicks")]
+)
 def on_click_go_to_entity_choice(n_clicks):
     if n_clicks:
         return dcc.Location(id="url-redirect-to-entity-choice", pathname="/selection_entite")
