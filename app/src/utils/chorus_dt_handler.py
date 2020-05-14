@@ -2,8 +2,6 @@ import numpy as np
 import pandas as pd
 
 CHORUS_DT_DATA_PATH = "/data/cleaned/data_chorus_dt.csv"
-if __name__ == "__main__":
-    CHORUS_DT_DATA_PATH = "C:/Users/ayoub/Documents/DATA/cleaned/data_chorus_dt.csv"
 
 
 class ChorusDtHandler:
