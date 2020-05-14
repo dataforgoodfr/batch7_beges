@@ -16,6 +16,8 @@ from utils.organization_chart import oc
 layout = html.Div(
     id="div-data-display",
     children=[
+        html.Div(id="dashboard-selected-entity", style={"display": "none"}),
+        html.Div(id="dashboard-selected-entity-show"),
         dbc.Tabs(
             id="tabs-datasets",
             children=[
@@ -25,7 +27,6 @@ layout = html.Div(
             ],
             active_tab="chorus-dt",
         ),
-        html.Div(id="dashboard-selected-entity", style={"display": "none"}),
         html.Div(id="tabs-content"),
     ],
     style={"display": "none"},
@@ -37,6 +38,19 @@ def parse_pathname(pathname):
     # Parsing the pathname which should be tableau_de_bord/{entity_id}
     entity_id = pathname.rsplit("/")[-1]
     return entity_id
+
+
+@app.callback(Output("dashboard-selected-entity-show", "children"), [Input("dashboard-selected-entity", "children")])
+def on_selected_entity_show_selected_entity(selected_entity):
+    if selected_entity is not None:
+        service = oc.get_entity_by_id(selected_entity)
+        return html.Div(
+            [
+                html.H3(service.parent.label, style={"text-align": "center"}),
+                html.Br(),
+                html.H4(service.label, style={"text-align": "center"}),
+            ]
+        )
 
 
 @app.callback(

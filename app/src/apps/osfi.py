@@ -21,7 +21,6 @@ def get_pie(data, column):
 
 layout = html.Div(
     [
-        # dbc.Row([dbc.Col([html.B("", id="osfi-selected-entity-show"),]),]),
         dbc.Row(
             dbc.Col(
                 build_table_container(

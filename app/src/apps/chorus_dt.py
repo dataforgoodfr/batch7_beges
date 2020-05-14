@@ -70,7 +70,6 @@ layout = html.Div(
             [
                 dbc.Col(
                     [
-                        html.B("", id="selected-entity-show"),
                         dbc.Card(
                             dbc.CardBody(
                                 [
@@ -120,15 +119,6 @@ layout = html.Div(
     ],
     id="div-data-chorus-dt",
 )
-
-
-@app.callback(Output("selected-entity-show", "children"), [Input("dashboard-selected-entity", "children")])
-def on_selected_entity_fill_tabs_data(selected_entity):
-    if selected_entity is not None:
-        service = oc.get_entity_by_id(selected_entity)
-        return "Organisation : " + organization.label + ", Service : " + service.label
-    else:
-        return "empty"
 
 
 @app.callback(Output("timeseries-chorus-dt", "figure"), [Input("dashboard-selected-entity", "children")])
