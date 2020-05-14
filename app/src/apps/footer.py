@@ -18,7 +18,7 @@ div_about = html.Div(
 
 div_sources = html.Div(
     [
-        html.P("Sources :"),
+        html.P("Ressources :"),
         html.Ul(
             [
                 html.Li(
