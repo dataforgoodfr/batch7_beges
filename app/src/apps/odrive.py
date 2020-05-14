@@ -72,19 +72,19 @@ layout = html.Div(
                     [
                         cards,
                         build_figure_container(
-                            title="Répartition par direction", id="donut-by-entity", footer="Explications..",
+                            title="Répartition par direction", id="donut-by-entity", footer="Explications.."
                         ),
                     ],
                     width=9,
                 ),
             ]
-        ),
+        )
     ],
     id="div-data-odrive",
 )
 
 
-@app.callback(Output("donut-by-entity", "figure"), [Input("selected-entity", "children")])
+@app.callback(Output("donut-by-entity", "figure"), [Input("dashboard-selected-entity", "children")])
 def update_donut_by_prestation(selected_entity):
-    organization, service = oc.get_organization_service(selected_entity)
+    service = oc.get_entity_by_id(selected_entity)
     return get_donut_by_entity_type(service.code_odrive)

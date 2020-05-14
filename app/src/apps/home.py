@@ -36,7 +36,13 @@ layout = html.Div(
         html.Hr(),
         dbc.Row(
             dbc.Col(
-                dbc.Button("Let's go", id="button-to-dataset", color="primary", className="mr-1", block=True),
+                dbc.Button(
+                    "Selectionnez votre entité",
+                    id="button-to-entity-choice",
+                    color="primary",
+                    className="mr-1",
+                    block=True,
+                ),
                 width={"size": 2, "offset": 5},
             )
         ),
@@ -44,7 +50,7 @@ layout = html.Div(
 )
 
 
-@app.callback(Output("div-url-redirect", "children"), [Input("button-to-dataset", "n_clicks")])
-def on_click_go_to_dataset(n_clicks):
+@app.callback(Output("div-url-redirect-to-entity-choice", "children"), [Input("button-to-entity-choice", "n_clicks")])
+def on_click_go_to_entity_choice(n_clicks):
     if n_clicks:
-        return dcc.Location(id="url-redirect", pathname="/datasets")
+        return dcc.Location(id="url-redirect", pathname="/selection_entite")

@@ -5,7 +5,8 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input, State
 
 from apps import home
-from apps import datasets
+from apps import dashboard
+from apps import entity_choice
 from apps import about
 from apps import methodology
 from apps import footer
@@ -24,7 +25,8 @@ app.layout = html.Div(
     children=[
         dbc.Container(
             [
-                html.Div(id="div-url-redirect"),
+                html.Div(id="div-url-redirect-to-entity-choice"),
+                html.Div(id="div-url-redirect-to-dashboard"),
                 dcc.Location(id="url", refresh=False),
                 navbar,
                 html.Br(),
@@ -44,8 +46,10 @@ flask_app = app.server
 def display_page(pathname):
     if pathname == "/":
         return home.layout
-    elif pathname == "/datasets":
-        return datasets.layout
+    elif pathname == "/selection_entite":
+        return entity_choice.layout
+    elif pathname == "/tableau_de_bord":
+        return dashboard.layout
     elif pathname == "/a_propos":
         return about.layout
     elif pathname == "/methodologie":
