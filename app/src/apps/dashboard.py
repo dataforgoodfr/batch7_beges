@@ -27,7 +27,6 @@ layout = html.Div(
             ],
             active_tab="chorus-dt",
         ),
-        html.Div(id="dashboard-selected-entity", style={"display": "none"}),
         html.Div(id="tabs-content"),
     ],
     style={"display": "none"},
