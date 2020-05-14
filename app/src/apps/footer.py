@@ -7,8 +7,8 @@ div_about = html.Div(
         html.P("En savoir plus :"),
         html.Ul(
             [
-                html.Li(dcc.Link("À propos du projet", href="a_propos")),
-                html.Li(dcc.Link("Méthodologie", href="methodologie")),
+                html.Li(dcc.Link("À propos du projet", href="/a_propos")),
+                html.Li(dcc.Link("Méthodologie", href="/methodologie")),
             ],
             style={"list-style-type": "none"},
         ),
