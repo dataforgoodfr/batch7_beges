@@ -11,6 +11,8 @@ from app import app
 layout = html.Div(
     id="div-entity-choice",
     children=[
+        html.Div(id="div-url-redirect-to-dashboard", style={"display": "none"}),
+        html.Div(id="entity-choice-selected-entity", style={"display": "none"}),
         dcc.Dropdown(
             id="dropdown-entity-choice-level-1",
             options=oc.get_level_1_dropdown_items(),
@@ -37,7 +39,6 @@ layout = html.Div(
                 width={"size": 2, "offset": 5},
             )
         ),
-        html.Div(id="entity-choice-selected-entity", style={"display": "none"}),
     ],
 )
 
@@ -50,8 +51,7 @@ layout = html.Div(
 def on_click_go_to_dashboard(n_clicks, selected_entity):
     if n_clicks:
         organization, service = oc.get_organization_service(selected_entity)
-        search_page = "?entite=%s" % service.id
-        return dcc.Location(id="url-redirect", pathname="/tableau_de_bord", search=search_page)
+        return dcc.Location(id="url-redirect-to-dashboard", pathname="/tableau_de_bord/%s" % service.id)
 
 
 @app.callback(

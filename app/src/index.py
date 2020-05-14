@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
@@ -24,15 +26,7 @@ navbar = dbc.Navbar(
 app.layout = html.Div(
     children=[
         dbc.Container(
-            [
-                html.Div(id="div-url-redirect-to-entity-choice"),
-                html.Div(id="div-url-redirect-to-dashboard"),
-                dcc.Location(id="url", refresh=False),
-                navbar,
-                html.Br(),
-                html.Div(id="page-content"),
-            ],
-            fluid=True,
+            [dcc.Location(id="url", refresh=False), navbar, html.Br(), html.Div(id="page-content")], fluid=True
         ),
         footer.layout,
     ]
@@ -48,12 +42,14 @@ def display_page(pathname):
         return home.layout
     elif pathname == "/selection_entite":
         return entity_choice.layout
-    elif pathname == "/tableau_de_bord":
+    elif isinstance(pathname, str) and pathname.startswith("/tableau_de_bord/"):
         return dashboard.layout
     elif pathname == "/a_propos":
         return about.layout
     elif pathname == "/methodologie":
         return methodology.layout
+    else:
+        return home.layout
 
 
 if __name__ == "__main__":

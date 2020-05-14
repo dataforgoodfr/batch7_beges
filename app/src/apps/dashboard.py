@@ -32,14 +32,11 @@ layout = html.Div(
 )
 
 
-@app.callback(Output("dashboard-selected-entity", "children"), [Input("url", "search")])
-def parse_pathname(search):
-    # Parsing the search parameters which will be of the form ?entite=3
-    search = parse_qs(search.strip("?"))
-    if "entite" not in search:
-        return None
-    else:
-        return search["entite"][0]
+@app.callback(Output("dashboard-selected-entity", "children"), [Input("url", "pathname")])
+def parse_pathname(pathname):
+    # Parsing the pathname which should be tableau_de_bord/{entity_id}
+    entity_id = pathname.rsplit("/")[-1]
+    return entity_id
 
 
 @app.callback(
