@@ -15,8 +15,9 @@ def get_donut_by_prestation_type(df):
     """
         Render and update a donut figure to show emissions distribution by prestation type
     """
-    prestation_df = df.groupby(["prestation_type"])["distance"].sum().reset_index()
-    fig = go.Figure(data=[go.Pie(labels=prestation_df.prestation_type, values=prestation_df["distance"], hole=0.3)])
+    prestation_df = df.groupby(["prestation_type"])["CO2e/trip"].sum().reset_index()
+    print(df.shape)
+    fig = go.Figure(data=[go.Pie(labels=prestation_df.prestation_type, values=prestation_df["CO2e/trip"], hole=0.3)])
     fig.update_layout(plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30})
     return fig
 
@@ -25,12 +26,12 @@ def get_emissions_timeseries(df):
     """
         Render and update a scatter plot figure to show emissions evolution with time
     """
-    timeseries_df = df.groupby(["year_month"])["distance"].sum().reset_index()
+    timeseries_df = df.groupby(["year_month"])["CO2e/trip"].sum().reset_index()
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
             x=timeseries_df["year_month"].astype(str),
-            y=timeseries_df["distance"].values,
+            y=timeseries_df["CO2e/trip"].values,
             mode="lines+markers",
             line=dict(width=3),
         )
@@ -131,6 +132,5 @@ def on_selected_entity_fill_tabs_data(selected_entity):
 def update_graphs(selected_entity):
     organization, service = oc.get_organization_service(selected_entity)
     chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
-    chorus_dt_df.loc[:, "year_month"] = chorus_dt_df["date_debut_mission"].dt.to_period("M")
 
     return [get_donut_by_prestation_type(chorus_dt_df), get_emissions_timeseries(chorus_dt_df)]
