@@ -6,6 +6,9 @@ from dash.dependencies import Output, Input, State
 
 from apps import home
 from apps import datasets
+from apps import about
+from apps import methodology
+from apps import footer
 
 from app import app
 
@@ -14,16 +17,23 @@ navbar = dbc.Navbar(
     [dbc.Row([dbc.Col(dbc.NavbarBrand("Outil d'aide à la création de BEGES", className="ml-2"))])], className="nav_bar"
 )
 
-app.layout = dbc.Container(
-    [
-        html.Div(id="div-url-redirect"),
-        dcc.Location(id="url", refresh=False),
-        navbar,
-        html.Br(),
-        html.Div(id="page-content"),
-    ],
-    fluid=True,
+app.layout = html.Div(
+    children=[
+        dbc.Container(
+            [
+                html.Div(id="div-url-redirect"),
+                dcc.Location(id="url", refresh=False),
+                navbar,
+                html.Br(),
+                html.Div(id="page-content"),
+            ],
+            fluid=True,
+        ),
+        footer.layout,
+    ]
 )
+
+
 flask_app = app.server
 
 # Update the index
@@ -33,6 +43,10 @@ def display_page(pathname):
         return home.layout
     elif pathname == "/datasets":
         return datasets.layout
+    elif pathname == "/a_propos":
+        return about.layout
+    elif pathname == "/methodologie":
+        return methodology.layout
 
 
 if __name__ == "__main__":
