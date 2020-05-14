@@ -13,7 +13,7 @@ div_about = html.Div(
             style={"list-style-type": "none"},
         ),
     ],
-    style={"margin": "20px"},
+    style={"margin-top": "5px"},
 )
 
 div_sources = html.Div(
@@ -36,20 +36,33 @@ div_sources = html.Div(
             ]
         ),
     ],
-    style={"margin": "20px"},
+    style={"margin-top": "5px"},
 )
 layout = html.Footer(
     dbc.Container(
         [
-            dbc.Row([dbc.Col(div_about, width={"size": 4}), dbc.Col(div_sources, width={"size": 4, "offset": 4})]),
+            dbc.Row(
+                [
+                    dbc.Col(div_about, width={"size": 3, "offset": 0}),
+                    dbc.Col(div_sources, width={"size": 3, "offset": 0}),
+                ]
+            ),
             dbc.Row(
                 dbc.Col(
-                    html.P("2020 copyright dataforgood", style={"text-align": "center", "margin": "20px"}),
+                    html.P("2020 copyright dataforgood", style={"text-align": "center", "margin": "1px"}),
                     align="center",
                 )
             ),
         ],
-        style={"background": "lightgrey", "margin": "0px"},
+        style={
+            "background": "lightgrey",
+            "margin": "0px",
+            "position": "fixed",
+            "bottom": "0",
+            "left": "0",
+            "right": "0",
+            "font-size": "12px",
+        },
         fluid=True,
     ),
     # style={"position": "absolute", "bottom": "0"},
