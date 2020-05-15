@@ -11,12 +11,7 @@ from utils.chorus_dt_handler import ch
 from components.html_components import build_figure_container, build_card_indicateur
 from components.figures_templates import xaxis_format
 
-
 # TODO: move get figure function to chorus_dt_components.py in components
-# TODO:
-# - List of top trips based on emissions
-# - Emissions
-# - Nombre des trajets train vs avions
 
 
 def get_kpi_emissions(df):
@@ -33,6 +28,7 @@ def get_kpi_distance(df):
 
 def get_kpi_trips_count(df):
     return "{:,}".format(int(np.round(df["distance"].count(), 0))).replace(",", " ")
+
 
 def get_donut_by_prestation_type(df):
     """
