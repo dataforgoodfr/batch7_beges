@@ -2,7 +2,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
-from dash.dependencies import Output, Input
+from dash.dependencies import Output, Input, State
+import numpy as np
 
 from app import app
 from utils.organization_chart import oc
@@ -11,13 +12,43 @@ from components.html_components import build_figure_container, build_card_indica
 from components.figures_templates import xaxis_format
 
 
-# TODO: move make figure function to chorus_dt_components.py in components
+# TODO: move get figure function to chorus_dt_components.py in components
+
+
+def get_kpi_emissions(df):
+    return "{:,} kg".format(int(np.round(df["CO2e/trip"].sum(), 0))).replace(",", " ")
+
+
+def get_kpi_emissions_example(df, example_ec02=0.11):
+    return "{:,}".format(int(np.round((df["CO2e/trip"].sum() / example_ec02), 0))).replace(",", " ")
+
+
+def get_kpi_distance(df):
+    return "{:,} km".format(int(np.round(df["distance"].sum(), 0))).replace(",", " ")  # In km
+
+
+def get_kpi_trips_count(df):
+    return "{:,}".format(int(np.round(df["distance"].count(), 0))).replace(",", " ")
+
 def get_donut_by_prestation_type(df):
     """
         Render and update a donut figure to show emissions distribution by prestation type
     """
-    prestation_df = df.groupby(["prestation_type"])["distance"].sum().reset_index()
-    fig = go.Figure(data=[go.Pie(labels=prestation_df.prestation_type, values=prestation_df["distance"], hole=0.3)])
+    prestation_df = df.groupby(["prestation"])["CO2e/trip"].sum().reset_index()
+    fig = go.Figure(data=[go.Pie(labels=prestation_df.prestation, values=prestation_df["CO2e/trip"], hole=0.3)])
+    fig.update_layout(plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30})
+    return fig
+
+
+def get_hist_by_distance_group(df):
+    """
+        Render and update a donut figure to show emissions distribution by prestation type
+    """
+    distance_df = df.groupby(["distance_group", "prestation"])["CO2e/trip"].sum().reset_index()
+    distance_df = distance_df.pivot(index="distance_group", columns="prestation", values="CO2e/trip")
+    fig = go.Figure()
+    for col in distance_df.columns:
+        fig.add_trace(go.Bar(x=distance_df.index, y=distance_df[col], name=col))
     fig.update_layout(plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30})
     return fig
 
@@ -26,12 +57,12 @@ def get_emissions_timeseries(df):
     """
         Render and update a barplot figure to show emissions evolution with time
     """
-    timeseries_df = df.groupby(["year_month"])["distance"].sum().reset_index()
+    timeseries_df = df.groupby(["year_month"])["CO2e/trip"].sum().reset_index()
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
             x=timeseries_df["year_month"].astype(str),
-            y=timeseries_df["distance"].values,
+            y=timeseries_df["CO2e/trip"].values,
             mode="lines+markers",
             line=dict(width=3),
         )
@@ -49,10 +80,10 @@ select_prestation_type = dcc.Dropdown(
 
 cards = dbc.CardDeck(
     [
-        build_card_indicateur("Nombre de trajets", "Nombre de trajets", "2 300"),
-        build_card_indicateur("Emissions (eCO2)", "Emissions (eCO2)", "2M"),
-        build_card_indicateur("Indicateur X", "Indicateur X", "XX"),
-        build_card_indicateur("Indicateur Y", "Indicateur Y", "YY"),
+        build_card_indicateur("Emissions (kg eqCO2)", "0", "kpi-emissions"),
+        build_card_indicateur("Emissions (# Tasses de café)", "0", "kpi-emissions-example"),
+        build_card_indicateur("Nombre de trajets", "0", "kpi-trips"),
+        build_card_indicateur("Distance totale (km)", "0", "kpi-distance"),
     ]
 )
 
@@ -86,10 +117,27 @@ layout = html.Div(
                 dbc.Col(
                     [
                         cards,
-                        build_figure_container(
-                            title="Répartition des émissions par type de déplacement",
-                            id="donut-by-prestation",
-                            footer="Explications..",
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [
+                                        build_figure_container(
+                                            title="Répartition des émissions par type de déplacement",
+                                            id="donut-by-prestation",
+                                            footer="Explications..",
+                                        )
+                                    ]
+                                ),
+                                dbc.Col(
+                                    [
+                                        build_figure_container(
+                                            title="Répartition des émissions par distance de trajet",
+                                            id="hist-by-distance",
+                                            footer="Explications..",
+                                        )
+                                    ]
+                                ),
+                            ]
                         ),
                     ],
                     width=9,
@@ -116,12 +164,27 @@ layout = html.Div(
 
 
 @app.callback(
-    [Output("donut-by-prestation", "figure"), Output("timeseries-chorus-dt", "figure"),],
+    [
+        Output("kpi-emissions", "children"),
+        Output("kpi-emissions-example", "children"),
+        Output("kpi-trips", "children"),
+        Output("kpi-distance", "children"),
+        Output("donut-by-prestation", "figure"),
+        Output("hist-by-distance", "figure"),
+        Output("timeseries-chorus-dt", "figure"),
+    ],
     [Input("selected-entity", "children")],
 )
 def update_graphs(selected_entity):
     service = oc.get_entity_by_id(selected_entity)
     chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
-    chorus_dt_df.loc[:, "year_month"] = chorus_dt_df["date_debut_mission"].dt.to_period("M")
 
-    return [get_donut_by_prestation_type(chorus_dt_df), get_emissions_timeseries(chorus_dt_df)]
+    return [
+        get_kpi_emissions(chorus_dt_df),
+        get_kpi_emissions_example(chorus_dt_df),
+        get_kpi_trips_count(chorus_dt_df),
+        get_kpi_distance(chorus_dt_df),
+        get_donut_by_prestation_type(chorus_dt_df),
+        get_hist_by_distance_group(chorus_dt_df),
+        get_emissions_timeseries(chorus_dt_df),
+    ]
