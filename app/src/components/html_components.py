@@ -31,5 +31,5 @@ def build_table_container(title, id, footer):
     return fig_containter
 
 
-def build_card_indicateur(title, value):
-    return dbc.Card(dbc.CardBody([html.P(title), html.H3(value)]), className="pretty_container")
+def build_card_indicateur(title, value, value_id):
+    return dbc.Card(dbc.CardBody([html.P(title), html.H3(value, id=value_id)]), className="pretty_container")
