@@ -15,14 +15,14 @@ mkdir -p /data/CO2_conversion_table
 OUTPUT_PATH=/data
 wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1cHu-2yP1m0F2bugR50D_s8YvdfdDZppY' -O $OUTPUT_PATH/entities_tree.tsv
 
-# CO2 conversion table
-OUTPUT_PATH=/data
-wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1EfqW3boI4sHnjeTQy1O6VH-8rodhH11y' -O $OUTPUT_PATH/CO2_conversion_table.csv
-
-
 #############
 # Chorus DT #
 #############
+
+# CO2 conversion table
+OUTPUT_PATH=/data/raw/chorus-dt
+wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1EfqW3boI4sHnjeTQy1O6VH-8rodhH11y' -O $OUTPUT_PATH/CO2_conversion_table.csv
+
 # Avion train sample
 OUTPUT_PATH=/data/raw/chorus-dt
 wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1l_DE8hWpxKtjCBpHZ_JPIkjNeyw8LQ-c' -O $OUTPUT_PATH/first_semester.zip
