@@ -30,7 +30,7 @@ layout = html.Div(
         dbc.Row(
             dbc.Col(
                 dbc.Button(
-                    "Vers le tableau de bord",
+                    "Afficher les données",
                     id="button-to-dashboard",
                     color="primary",
                     className="mr-1",
