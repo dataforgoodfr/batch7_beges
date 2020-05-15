@@ -13,6 +13,10 @@ from components.figures_templates import xaxis_format
 
 
 # TODO: move get figure function to chorus_dt_components.py in components
+# TODO:
+# - List of top trips based on emissions
+# - Emissions
+# - Nombre des trajets train vs avions
 
 
 def get_kpi_emissions(df):

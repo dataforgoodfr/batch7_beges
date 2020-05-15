@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 def build_figure_container(title, id, footer):
     fig_containter = dbc.Card(
         [
-            dbc.CardHeader(html.H4(title)),
+            dbc.CardHeader(html.H5(title)),
             dbc.CardBody([dbc.Col(dcc.Graph(id=id))]),  # , style={"padding": "0px"}),
             dbc.CardFooter(footer),
         ],
