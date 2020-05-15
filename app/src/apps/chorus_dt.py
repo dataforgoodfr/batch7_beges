@@ -230,6 +230,19 @@ layout = html.Div(
                                 dbc.Col(
                                     [
                                         build_figure_container(
+                                            title="Répartition des émissions par distance de trajet",
+                                            id="hist-by-distance",
+                                            footer="Explications..",
+                                        )
+                                    ]
+                                ),
+                            ]
+                                        )
+                                    ]
+                                ),
+                                dbc.Col(
+                                    [
+                                        build_figure_container(
                                             title="Évolution temporelles des émissions",
                                             id="timeseries-chorus-dt",
                                             footer="Explications..",
