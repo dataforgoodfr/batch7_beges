@@ -177,7 +177,7 @@ layout = html.Div(
         Output("hist-by-distance", "figure"),
         Output("timeseries-chorus-dt", "figure"),
     ],
-    [Input("selected-entity", "children")],
+    [Input("dashboard-selected-entity", "children")],
 )
 def update_graphs(selected_entity):
     service = oc.get_entity_by_id(selected_entity)
