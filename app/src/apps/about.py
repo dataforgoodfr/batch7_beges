@@ -3,6 +3,7 @@ import dash_core_components as dcc
 
 
 text = """
+# À propos
 Cette application a été implémenté dans le cadre de ...
 L'équipe :
 - Personne 1

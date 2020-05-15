@@ -3,19 +3,20 @@ import dash_core_components as dcc
 
 intro = dcc.Markdown(
     """
-# Introduction
+# Méthodologie
+## Introduction
 L'objectif de cette application est de centraliser les données pour les différentes entitées... (on explique qu'on récupère les différents datasets et tout et tout)
 """
 )
 methodology_odrive = dcc.Markdown(
     """
-# Déplacement en voiture
+## Déplacement en voiture
 Et voilà, on a récupéré la base de données Odrive et puis c'est tout.
 """
 )
 methodology_chorus_dt = dcc.Markdown(
     """
-# Déplacement en train / avion
+## Déplacement en train / avion
 On a récupéré la base de données Chorus dt qui centralise tout ca.
 Puis on a résolu les noms d'endroit en utilisant l'API de gmap.
 
@@ -27,7 +28,7 @@ Et on a utilisé les facteurs d'émissions suivants :
 
 methodology_osfi = dcc.Markdown(
     """
-# Dépenses énergétiques
+## Dépenses énergétiques
 On a récupéré la base de données OSFI uniquement en production ici et là.
 
 Et on a utilisé les facteurs d'émissions suivants :

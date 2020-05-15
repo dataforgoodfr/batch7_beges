@@ -48,10 +48,7 @@ layout = html.Footer(
                 ]
             ),
             dbc.Row(
-                dbc.Col(
-                    html.P("2020 copyright dataforgood", style={"text-align": "center", "margin": "1px"}),
-                    align="center",
-                )
+                dbc.Col(html.P("2020 © dataforgood", style={"text-align": "center", "margin": "1px"}), align="center")
             ),
         ],
         style={

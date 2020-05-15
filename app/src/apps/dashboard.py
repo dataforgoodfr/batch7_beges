@@ -16,8 +16,40 @@ from utils.organization_chart import oc
 layout = html.Div(
     id="div-data-display",
     children=[
+        html.Div(id="dashboard-div-url-redirect-to-entity-choice", style={"display": "none"}),
         html.Div(id="dashboard-selected-entity", style={"display": "none"}),
-        html.Div(id="dashboard-selected-entity-show"),
+        dbc.Row(
+            dbc.Col(
+                dbc.Button(
+                    "Choisir une autre entité",
+                    id="dashboard-button-to-entity-choice",
+                    color="primary",
+                    outline=True,
+                    className="mr-1",
+                    block=True,
+                ),
+                width=2,
+            )
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    html.Div(id="dashboard-selected-entity-show", style={"margin": "20px"}),
+                    width={"size": 10, "offset": 1},
+                )
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dbc.Button("Exporter les données", color="primary", className="mr-1", block=True),
+                    width={"size": 2, "offset": 8},
+                ),
+                dbc.Col(
+                    dbc.Button("Aide", color="secondary", className="mr-1", block=True), width={"size": 2, "offset": 0}
+                ),
+            ]
+        ),
         dbc.Tabs(
             id="tabs-datasets",
             children=[
@@ -25,6 +57,7 @@ layout = html.Div(
                 dbc.Tab(label="Déplacements voiture", tab_id="odrive"),
                 dbc.Tab(label="Consommation énergétiques", tab_id="osfi"),
             ],
+            className="nav-fill",
             active_tab="chorus-dt",
         ),
         html.Div(id="tabs-content"),
@@ -81,3 +114,12 @@ def on_selected_entity_fill_tabs_data(selected_entity, active_tab):
             return osfi.layout
     else:
         return "empty"
+
+
+@app.callback(
+    Output("dashboard-div-url-redirect-to-entity-choice", "children"),
+    [Input("dashboard-button-to-entity-choice", "n_clicks")],
+)
+def on_click_go_to_entity_choice(n_clicks):
+    if n_clicks:
+        return dcc.Location(id="url-redirect-to-entity-choice", pathname="/selection_entite")

@@ -11,7 +11,7 @@ from app import app
 layout = html.Div(
     id="div-entity-choice",
     children=[
-        html.Div(id="div-url-redirect-to-dashboard", style={"display": "none"}),
+        html.Div(id="entity-choice-div-url-redirect-to-dashboard", style={"display": "none"}),
         html.Div(id="entity-choice-selected-entity", style={"display": "none"}),
         dcc.Dropdown(
             id="dropdown-entity-choice-level-1",
@@ -30,7 +30,7 @@ layout = html.Div(
         dbc.Row(
             dbc.Col(
                 dbc.Button(
-                    "Vers le tableau de bord",
+                    "Afficher les données",
                     id="button-to-dashboard",
                     color="primary",
                     className="mr-1",
@@ -44,7 +44,7 @@ layout = html.Div(
 
 
 @app.callback(
-    Output("div-url-redirect-to-dashboard", "children"),
+    Output("entity-choice-div-url-redirect-to-dashboard", "children"),
     [Input("button-to-dashboard", "n_clicks")],
     [State("entity-choice-selected-entity", "children")],
 )

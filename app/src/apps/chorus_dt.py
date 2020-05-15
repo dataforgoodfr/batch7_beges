@@ -120,7 +120,6 @@ layout = html.Div(
     id="div-data-chorus-dt",
 )
 
-
 @app.callback(Output("timeseries-chorus-dt", "figure"), [Input("dashboard-selected-entity", "children")])
 def update_emissions_timeseries(selected_entity):
     service = oc.get_entity_by_id(selected_entity)
