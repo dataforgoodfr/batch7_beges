@@ -14,7 +14,10 @@ from app import app
 
 
 navbar = dbc.Navbar(
-    [dbc.Row([dbc.Col(dbc.NavbarBrand("Outil d'aide à la création de BEGES", className="ml-2"))])], className="nav_bar"
+    [dbc.NavbarBrand("Outil d'aide à la réalisation de Bilans d'Émissions de Gaz à Effet de Serre (BEGES)", href="/")],
+    color="dark",
+    dark=True,
+    className="nav_bar",
 )
 
 app.layout = html.Div(
