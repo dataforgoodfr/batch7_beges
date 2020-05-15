@@ -19,24 +19,34 @@ layout = html.Div(
         html.Div(id="dashboard-div-url-redirect-to-entity-choice", style={"display": "none"}),
         html.Div(id="dashboard-selected-entity", style={"display": "none"}),
         dbc.Row(
+            dbc.Col(
+                dbc.Button(
+                    "Choisir une autre entité",
+                    id="dashboard-button-to-entity-choice",
+                    color="primary",
+                    outline=True,
+                    className="mr-1",
+                    block=True,
+                ),
+                width=2,
+            )
+        ),
+        dbc.Row(
             [
-                dbc.Col(html.Div(id="dashboard-selected-entity-show"), width=10),
                 dbc.Col(
-                    dbc.ButtonGroup(
-                        [
-                            dbc.Button(
-                                "Choisir une autre entité",
-                                id="dashboard-button-to-entity-choice",
-                                color="primary",
-                                className="mr-1",
-                                block=True,
-                            ),
-                            dbc.Button("Exporter les données", color="primary", className="mr-1", block=True),
-                            dbc.Button("Aide", color="primary", className="mr-1", block=True),
-                        ],
-                        vertical=True,
-                    ),
-                    width=2,
+                    html.Div(id="dashboard-selected-entity-show", style={"margin": "20px"}),
+                    width={"size": 10, "offset": 1},
+                )
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dbc.Button("Exporter les données", color="primary", className="mr-1", block=True),
+                    width={"size": 2, "offset": 8},
+                ),
+                dbc.Col(
+                    dbc.Button("Aide", color="secondary", className="mr-1", block=True), width={"size": 2, "offset": 0}
                 ),
             ]
         ),
@@ -47,6 +57,7 @@ layout = html.Div(
                 dbc.Tab(label="Déplacements voiture", tab_id="odrive"),
                 dbc.Tab(label="Consommation énergétiques", tab_id="osfi"),
             ],
+            className="nav-fill",
             active_tab="chorus-dt",
         ),
         html.Div(id="tabs-content"),
