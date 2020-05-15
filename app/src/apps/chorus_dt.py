@@ -70,7 +70,6 @@ layout = html.Div(
             [
                 dbc.Col(
                     [
-                        html.B("", id="selected-entity-show"),
                         dbc.Card(
                             dbc.CardBody(
                                 [
@@ -122,22 +121,13 @@ layout = html.Div(
 )
 
 
-@app.callback(Output("selected-entity-show", "children"), [Input("selected-entity", "children")])
-def on_selected_entity_fill_tabs_data(selected_entity):
-    if selected_entity is not None:
-        organization, service = oc.get_organization_service(selected_entity)
-        return "Organisation : " + organization.label + ", Service : " + service.label
-    else:
-        return "empty"
-
-
-@app.callback(Output("timeseries-chorus-dt", "figure"), [Input("selected-entity", "children")])
+@app.callback(Output("timeseries-chorus-dt", "figure"), [Input("dashboard-selected-entity", "children")])
 def update_emissions_timeseries(selected_entity):
-    organization, service = oc.get_organization_service(selected_entity)
+    service = oc.get_entity_by_id(selected_entity)
     return get_emissions_timeseries(service.code_chorus)
 
 
-@app.callback(Output("donut-by-prestation", "figure"), [Input("selected-entity", "children")])
+@app.callback(Output("donut-by-prestation", "figure"), [Input("dashboard-selected-entity", "children")])
 def update_donut_by_prestation(selected_entity):
-    organization, service = oc.get_organization_service(selected_entity)
+    service = oc.get_entity_by_id(selected_entity)
     return get_donut_by_prestation_type(service.code_chorus)

@@ -21,7 +21,6 @@ def get_pie(data, column):
 
 layout = html.Div(
     [
-        # dbc.Row([dbc.Col([html.B("", id="osfi-selected-entity-show"),]),]),
         dbc.Row(
             dbc.Col(
                 build_table_container(
@@ -57,10 +56,10 @@ layout = html.Div(
         Output("emission-electricity-pie", "figure"),
         Output("emission-gas-pie", "figure"),
     ],
-    [Input("selected-entity", "children")],
+    [Input("dashboard-selected-entity", "children")],
 )
 def update_graphs(selected_entity):
-    organization, service = oc.get_organization_service(selected_entity)
+    service = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(service.code_osfi)
     columns = [{"name": i, "id": i} for i in data.columns]
     data_to_return = data.to_dict("records")
