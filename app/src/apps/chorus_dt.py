@@ -59,7 +59,7 @@ def get_hist_by_distance_group(df):
 
 def get_emissions_timeseries(df):
     """
-        Render and update a barplot figure to show emissions evolution with time
+        Render and update a scatter plot figure to show emissions evolution with time
     """
     timeseries_df = df.groupby(["year_month"])["CO2e/trip"].sum().reset_index()
     fig = go.Figure()
