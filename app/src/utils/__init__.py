@@ -36,7 +36,11 @@ class DataExport:
             self.osfi_df.to_excel(writer, sheet_name="data_osfi")
         writer.save()
         xlsx_data = output.getvalue()
+        output.seek(0)
+        return output
 
 
 if __name__ == "__main__":
-    print("OK")
+    de = DataExport("5")
+    xlsx = de.get_file_as_bytes()
+    print(xlsx)

@@ -1,14 +1,17 @@
 import dash_core_components as dcc
+import flask
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input, State
+import pandas as pd
+import io
 
 from apps import chorus_dt
 from apps import odrive
 from apps import osfi
 
 from app import app
-
+import utils
 from utils.organization_chart import oc
 from utils.texts import TEXTS
 
@@ -85,6 +88,27 @@ layout = html.Div(
     ],
     style={"display": "none"},
 )
+
+
+@app.callback(Output("my-link", "href"), [Input("dashboard-selected-entity", "children")])
+def update_link(value):
+    return "/data/urlToDownload?value={}".format(value)
+
+
+@app.server.route("/data/urlToDownload")
+def download_excel():
+    value = flask.request.args.get("value")
+    de = utils.DataExport(value)
+    # create a dynamic csv or file here using `StringIO`
+    # (instead of writing to the file system)
+    strIO = de.get_file_as_bytes()
+    return flask.send_file(
+        strIO,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        attachment_filename="downloadFile.xlsx",
+        as_attachment=True,
+        cache_timeout=0,
+    )  # TODO: Remove cache timeout
 
 
 @app.callback(Output("dashboard-selected-entity", "children"), [Input("url", "pathname")])
