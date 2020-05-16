@@ -31,9 +31,9 @@ class DataExport:
             See https://xlsxwriter.readthedocs.io/working_with_pandas.html#additional-pandas-and-excel-information"""
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-            self.chorus_dt_df.to_excel(writer, sheet_name="data_chorus_dt")
-            self.odrive_df.to_excel(writer, sheet_name="data_odrive")
-            self.osfi_df.to_excel(writer, sheet_name="data_osfi")
+            self.chorus_dt_df.to_excel(writer, sheet_name="data_chorus_dt", index_label="index")
+            self.odrive_df.to_excel(writer, sheet_name="data_odrive", index_label="index")
+            self.osfi_df.to_excel(writer, sheet_name="data_osfi", index_label="index")
         writer.save()
         xlsx_data = output.getvalue()
         output.seek(0)
