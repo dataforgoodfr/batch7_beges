@@ -57,7 +57,7 @@ def download_raw_excel():
     service = flask.request.args.get("service")
     # TODO: Include some security checks on passed value
     de = utils.DataExport(service)
-    strIO = de.get_file_as_bytes()
+    strIO = de.get_file_as_bytes_openpyxl()
     return flask.send_file(
         strIO,
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
