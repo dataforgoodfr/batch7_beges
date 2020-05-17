@@ -15,11 +15,6 @@ def load_data(monthly_data_path, buildings_data_path):
     monthly_data = pd.read_csv(monthly_data_path, delimiter=";")
     buildings = pd.read_csv(buildings_data_path, delimiter=";")
     columns_not_in_monthly = list(buildings.columns.difference(monthly_data.columns)) + ["Code bien"]
-    for c in monthly_data.columns:
-        print(c)
-    print()
-    for c in columns_not_in_monthly:
-        print(c)
     data = monthly_data.merge(buildings[columns_not_in_monthly], how="left", left_on="Code bien", right_on="Code bien")
     return data
 
@@ -49,6 +44,8 @@ def main():
     data = load_data(monthly_data_path, buildings_data_path)
     data = clean_data(data)
     data = add_emission_columns(data)
+    data[["Code Batiment", "Code Structure"]] = data["Code bien"].str.split("_", expand=True)
+    data["id"] = data["Code Structure"] + ";" + data["Région"]
     data.to_csv("/data/cleaned/data_osfi.csv", index=False)
 
 
