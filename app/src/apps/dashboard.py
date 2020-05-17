@@ -90,7 +90,7 @@ layout = html.Div(
 )
 
 
-@app.callback(Output("my-link", "href"), [Input("dashboard-selected-entity", "children")])
+@app.callback(Output("export-data-link", "href"), [Input("dashboard-selected-entity", "children")])
 def update_link(value):
     return "/data/urlToDownload?value={}".format(value)
 
