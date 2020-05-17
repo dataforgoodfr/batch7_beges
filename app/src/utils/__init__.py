@@ -7,18 +7,12 @@ import xlrd
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl import load_workbook
-
-if __name__ == "__main__":
-    import os, sys, inspect
-
-    currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    parentdir = os.path.dirname(currentdir)
-    sys.path.insert(0, parentdir)
-
 from utils.organization_chart import oc
 from utils.chorus_dt_handler import ch
 from utils.odrive_handler import ov
 from utils.osfi_handler import oh
+
+EXCEL_TEMPLATE_PATH = "/data/templates/beges_template.xlsx"
 
 
 class DataExport:
@@ -51,7 +45,7 @@ class DataExport:
         import time
 
         start = time.time()
-        wb = load_workbook("/data/templates/beges_template.xlsx")
+        wb = load_workbook(EXCEL_TEMPLATE_PATH)
         print("INFO: Template file loaded. Time: {}".format(time.time() - start))
         with NamedTemporaryFile() as tmp:
             ws = wb.create_sheet(title="data_chorus_dt")
@@ -64,8 +58,3 @@ class DataExport:
             bytes = tmp.read()
         print("INFO: File created. Time: {}".format(time.time() - start))
         return io.BytesIO(bytes)
-
-
-if __name__ == "__main__":
-    de = DataExport("5")
-    stream = de.get_file_as_bytes_openpyxl()
