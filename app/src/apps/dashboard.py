@@ -1,3 +1,5 @@
+import flask
+from flask import url_for
 import dash_core_components as dcc
 import flask
 import dash_html_components as html
@@ -90,25 +92,9 @@ layout = html.Div(
 )
 
 
-@app.server.route("/data/exportRaw")
-def download_excel():
-    value = flask.request.args.get("value")
-    de = utils.DataExport(value)
-    # create a dynamic csv or file here using `StringIO`
-    # (instead of writing to the file system)
-    strIO = de.get_file_as_bytes()
-    return flask.send_file(
-        strIO,
-        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        attachment_filename="downloadFile.xlsx",
-        as_attachment=True,
-        cache_timeout=0,
-    )  # TODO: Remove cache timeout
-
-
-@app.callback([Output("export-data-button", "href")], [Input("dashboard-selected-entity", "children")])
-def update_link(value):
-    return ["/data/exportRaw?value={}".format(value)]
+@app.callback([Output("export-data-link", "href")], [Input("dashboard-selected-entity", "children")])
+def update_link(service):
+    return [url_for("download_raw_excel", service=service)]
 
 
 @app.callback(Output("dashboard-selected-entity", "children"), [Input("url", "pathname")])

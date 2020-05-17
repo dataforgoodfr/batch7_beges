@@ -1,7 +1,11 @@
 import dash
 import os
 import dash_bootstrap_components as dbc
+import flask
+import io
+from flask import url_for
 from flask_login import LoginManager, UserMixin
+import utils
 
 external_stylesheets = [
     dbc.themes.COSMO,
@@ -45,3 +49,19 @@ ADMINS = {ADMIN_NAME: User(name=ADMIN_NAME, pwd=ADMIN_PWD, email=ADMIN_EMAIL)}
 @login_manager.user_loader
 def load_user(user_id):
     return ADMINS[user_id]
+
+
+@app.server.route("/data/exportRaw")
+def download_raw_excel():
+    """Define route for exporting raw data"""
+    service = flask.request.args.get("service")
+    # TODO: Include some security checks on passed value
+    de = utils.DataExport(service)
+    strIO = de.get_file_as_bytes()
+    return flask.send_file(
+        strIO,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        attachment_filename="export_beges.xlsx",
+        as_attachment=True,
+        cache_timeout=0,
+    )  # TODO: Remove cache timeout
