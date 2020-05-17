@@ -48,15 +48,21 @@ class DataExport:
     def get_file_as_bytes_openpyxl(self):
         """Function returns Excel data as bytes array. It avoids the need to create a file in memory.
             https://openpyxl.readthedocs.io/en/stable/tutorial.html"""
+        import time
+
+        start = time.time()
         wb = load_workbook("/data/templates/beges_template.xlsx")
+        print("INFO: Template file loaded. Time: {}".format(time.time() - start))
         with NamedTemporaryFile() as tmp:
-            ws = wb.create_sheet()
+            ws = wb.create_sheet(title="data_chorus_dt")
             for r in dataframe_to_rows(self.chorus_dt_df, header=True):
                 ws.append(r)
+            print("INFO: Workbook filled. Time: {}".format(time.time() - start))
             wb.save(tmp.name)
+            print("INFO: Workbook saved. Time: {}".format(time.time() - start))
             tmp.seek(0)
             bytes = tmp.read()
-        print("INFO: File loaded")
+        print("INFO: File created. Time: {}".format(time.time() - start))
         return io.BytesIO(bytes)
 
 
