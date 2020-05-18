@@ -94,14 +94,14 @@ def calc_CO2(trips: pd.DataFrame, CO2_frame: pd.DataFrame):
     ].iloc[0]
     CO2_TC = CO2_frame.loc[(CO2_frame["Prestation"] == "TC"), "Total poste non décomposé"].iloc[0]
 
-    trips.loc[short_plane]["kgCO2e/passager.km"] = CO2_short_plane
-    trips.loc[long_plane]["kgCO2e/passager.km"] = CO2_long_plane
-    trips.loc[train]["kgCO2e/passager.km"] = CO2_TGV
-    trips.loc[commun]["kgCO2e/passager.km"] = CO2_TC
+    trips.loc[short_plane, "kgCO2e/passager.km"] = CO2_short_plane
+    trips.loc[long_plane, "kgCO2e/passager.km"] = CO2_long_plane
+    trips.loc[train, "kgCO2e/passager.km"] = CO2_TGV
+    trips.loc[commun, "kgCO2e/passager.km"] = CO2_TC
 
     # Planes pollute an extra 95km
     trips.loc[trips["prestation"] == "A", "distance"] += 95
-    trips["CO2e/trip"] = trips["kgCO2e/passager.km"] * trips["distance_2"]
+    trips["CO2e/trip"] = trips["kgCO2e/passager.km"] * trips["distance"]
 
     return trips
 
