@@ -46,3 +46,10 @@ wget --no-check-certificate 'https://ourairports.com/data/airports.csv' -O $OUTP
 #############
 OUTPUT_PATH=/data/raw/osfi
 wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1vzJKxyAi9ew0238z8IMULfX0ZPFtBqwV' -O $OUTPUT_PATH/osfi.csv
+
+
+#############
+#   ODRIVE  #
+#############
+OUTPUT_PATH=/data/raw/odrive
+wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1bD_V0QchPfv5yjxh9FqMEHz3oY3Ga17-&exportFormat=csv&gid=0' -O $OUTPUT_PATH/odrive.xlsx

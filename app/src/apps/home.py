@@ -1,5 +1,6 @@
 import dash_html_components as html
 import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input, State
 
 from app import app
@@ -7,38 +8,68 @@ from app import app
 layout = html.Div(
     id="div-header",
     children=[
-        html.Div(
-            children=[
-                html.P(
-                    "Cet outil a été créé dans le crade de la saison 7 de data4good afin d'aider les différents services à créer leur Bilans d'émission de gaz à effet de serre (BEGES).",
-                    style={"text-align": "center"},
+        html.Div(id="home-div-url-redirect-to-about", style={"display": "none"}),
+        html.Div(id="home-div-url-redirect-to-entity-choice", style={"display": "none"}),
+        dbc.Row(
+            dbc.Col(
+                html.Div(
+                    children=[
+                        html.P(
+                            "Cet outil a été créé dans le crade de la saison 7 de data4good afin d'aider les différents services à créer leur Bilans d'émission de gaz à effet de serre (BEGES).",
+                            style={"text-align": "center"},
+                        ),
+                        html.P(
+                            "Cette application permet d'exploiter les principaux postes d'émissions de gaz à effet de serre detéctés :",
+                            style={"text-align": "center"},
+                        ),
+                        html.Ul(
+                            [
+                                html.Li("Déplacements en train / avion,"),
+                                html.Li("Déplacements en voiture,"),
+                                html.Li("Dépenses énergétiques des batiments."),
+                            ],
+                            style={"width": "50%", "margin": "auto"},
+                        ),
+                    ]
                 ),
-                html.P(
-                    "Cette application permet d'exploiter les principaux postes d'émissions de gaz à effet de serre detéctés :",
-                    style={"text-align": "center"},
-                ),
-                html.Ul(
-                    [
-                        html.Li("Déplacements en train / avion,"),
-                        html.Li("Déplacements en voiture,"),
-                        html.Li("Dépenses énergétiques des batiments."),
-                    ],
-                    style={"width": "50%", "margin": "auto"},
-                ),
-            ],
-            style={"margin": "auto", "width": "50%"},
+                width={"size": 6, "offset": 3},
+            )
         ),
         html.Hr(),
-        html.Button(
-            "Let's go",
-            id="button-to-dataset",
-            style={"position": "absolute", "left": "50%", "transform": "translate(-50%, 0%)", "width": "20%"},
+        dbc.Row(
+            [
+                dbc.Col(
+                    dbc.Button(
+                        "En savoir plus",
+                        id="button-to-about",
+                        color="primary",
+                        outline=True,
+                        className="mr-1",
+                        block=True,
+                    ),
+                    width={"size": 2, "offset": 4},
+                ),
+                dbc.Col(
+                    dbc.Button(
+                        "C'est parti !", id="button-to-entity-choice", color="primary", className="mr-1", block=True
+                    ),
+                    width={"size": 2, "offset": 0},
+                ),
+            ]
         ),
     ],
 )
 
 
-@app.callback(Output("div-url-redirect", "children"), [Input("button-to-dataset", "n_clicks")])
-def on_click_go_to_dataset(n_clicks):
+@app.callback(
+    Output("home-div-url-redirect-to-entity-choice", "children"), [Input("button-to-entity-choice", "n_clicks")]
+)
+def on_click_go_to_entity_choice(n_clicks):
     if n_clicks:
-        return dcc.Location(id="url-redirect", pathname="/datasets")
+        return dcc.Location(id="url-redirect-to-entity-choice", pathname="/selection_entite")
+
+
+@app.callback(Output("home-div-url-redirect-to-about", "children"), [Input("button-to-about", "n_clicks")])
+def on_click_go_to_entity_choice(n_clicks):
+    if n_clicks:
+        return dcc.Location(id="url-redirect-to-about", pathname="/a_propos")
