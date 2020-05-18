@@ -32,6 +32,9 @@ def compute_distances(data):
     data["distance_1"].fillna(0, inplace=True)
     data["distance_2"].fillna(0, inplace=True)
 
+    # to be modified in later chorus dt fix
+    data["distance"] = data[["distance_0", "distance_1", "distance_2"]].sum(axis=1)
+
     return data
 
 
