@@ -6,10 +6,14 @@ from datasets.osfi.data_preparation import main as osfi_prepare_data
 
 if __name__ == "__main__":
     # Prepare Odrive
+    print("Preparing odrive")
     odrive_file_conversion()
     # Prepare chorus dt
+    print("Preparing chorus codes")
     chorus_dt_prepare_codes()
+    print("Preparing chorus dataset")
     chorus_dt_resolve_places()
 
     # Prepare osfi
+    print("Preparing osfi")
     osfi_prepare_data()

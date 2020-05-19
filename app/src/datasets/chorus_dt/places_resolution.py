@@ -95,8 +95,11 @@ def resolve_place(places):
 
 def main():
     prestation_types = ["A", "AM", "AU", "T", "TC", "TCA", "TM", "TU"]
+    print("Getting data")
     data = dataset.get_data("/data/raw/chorus-dt", prestation_types)
+    print("Getting places")
     places = dataset.get_places(data)
+    print("Getting reslving")
     places, places_dict = resolve_place(places)
 
     # when analyzing plane trips, doesn't work if

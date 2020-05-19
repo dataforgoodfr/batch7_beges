@@ -11,6 +11,7 @@ def add_emission_columns(data):
 
 
 def main():
+    print("Loading data")
     data = pd.read_csv("/data/raw/osfi/osfi.csv")
     data[["code_batiment", "code_structure"]] = data["Code bien"].str.split("_", expand=True)
     data["id"] = data["code_structure"] + ";" + data["Région"]
