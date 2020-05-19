@@ -5,4 +5,4 @@ services:
         volumes:
             - ./app/src:/app
         ports:
-            - ${APP_PORT_DEV}:80
+            - ${APP_PORT_DEV}:${PORT}

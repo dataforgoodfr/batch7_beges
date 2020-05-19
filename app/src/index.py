@@ -1,3 +1,4 @@
+import os
 from urllib.parse import urlparse
 
 import dash
@@ -14,6 +15,8 @@ from apps import methodology
 from apps import footer
 
 from app import app
+
+PORT = os.getenv("PORT", 80)
 
 
 navbar = dbc.Navbar(
@@ -53,4 +56,4 @@ def display_page(pathname):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, host="0.0.0.0", port=80)
+    app.run_server(debug=True, host="0.0.0.0", port=PORT)

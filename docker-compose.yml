@@ -3,6 +3,7 @@ services:
     beges:
         build: ./app
         environment:
+            - PORT=${PORT}
             - GMAP_API_KEY=${GMAP_API_KEY}
         volumes:
             - ${DATA_DIR}:/data
