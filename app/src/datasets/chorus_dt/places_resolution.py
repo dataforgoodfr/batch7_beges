@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 from .utils import dataset
 from .utils.resolvers import HardcodesResolver, GeocodingApiResolver
+from .utils.carbon_emission_counter import carbon_count
 
 GMAP_API_KEY = os.getenv("GMAP_API_KEY")
 tqdm.pandas()
@@ -56,7 +57,7 @@ def compute_distance_between_points(lon0, lat0, lon1, lat1):
     return c * r
 
 
-def calc_CO2(trips: pd.DataFrame, CO2_frame: pd.DataFrame):
+def calc_CO2(trips: pd.DataFrame, carbon: dict):
 
     trips.loc[
         (trips["prestation_type"] == "T - Train réservé par l'agence")
@@ -83,21 +84,10 @@ def calc_CO2(trips: pd.DataFrame, CO2_frame: pd.DataFrame):
     train = trips["prestation"] == "T"
     commun = trips["prestation"] == "TC"
 
-    CO2_short_plane = CO2_frame.loc[
-        (CO2_frame["Prestation"] == "A") & (CO2_frame["filtre"] == "0-1000 km"), "Total poste non décomposé"
-    ].iloc[0]
-    CO2_long_plane = CO2_frame.loc[
-        (CO2_frame["Prestation"] == "A") & (CO2_frame["filtre"] == "> 1000 km"), "Total poste non décomposé"
-    ].iloc[0]
-    CO2_TGV = CO2_frame.loc[
-        (CO2_frame["Prestation"] == "T") & (CO2_frame["filtre"] == "TGV"), "Total poste non décomposé"
-    ].iloc[0]
-    CO2_TC = CO2_frame.loc[(CO2_frame["Prestation"] == "TC"), "Total poste non décomposé"].iloc[0]
-
-    trips.loc[short_plane, "kgCO2e/passager.km"] = CO2_short_plane
-    trips.loc[long_plane, "kgCO2e/passager.km"] = CO2_long_plane
-    trips.loc[train, "kgCO2e/passager.km"] = CO2_TGV
-    trips.loc[commun, "kgCO2e/passager.km"] = CO2_TC
+    trips.loc[short_plane, "kgCO2e/passager.km"] = carbon["CO2_short_plane"]
+    trips.loc[long_plane, "kgCO2e/passager.km"] = carbon["CO2_long_plane"]
+    trips.loc[train, "kgCO2e/passager.km"] = carbon["CO2_TGV"]
+    trips.loc[commun, "kgCO2e/passager.km"] = carbon["CO2_TC"]
 
     # Planes pollute an extra 95km
     trips.loc[trips["prestation"] == "A", "distance"] += 95
@@ -150,7 +140,7 @@ def main():
     data = dataset.get_data("/data/raw/chorus-dt", prestation_types)
     places = dataset.get_places(data)
     places, places_dict = resolve_place(places)
-    CO2_conversion_table = pd.read_csv("/data/CO2_conversion_table.csv")
+    carbon_dict = carbon_count()
 
     # when analyzing plane trips, doesn't work if
     # 'no stop' in trips columns. (ie. always since we programed
@@ -167,7 +157,7 @@ def main():
 
     data = compute_distances(data)
 
-    data = calc_CO2(data, CO2_conversion_table)
+    data = calc_CO2(data, carbon_dict)
 
     places.to_csv("/data/cleaned/places.csv", index=False)
     data.to_csv("/data/cleaned/data_chorus_dt.csv", index=False)
