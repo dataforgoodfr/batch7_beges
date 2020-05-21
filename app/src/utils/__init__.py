@@ -30,7 +30,9 @@ class DataExport:
         """Function returns Excel data as bytes array. It avoids the need to create a file in memory.
             See https://xlsxwriter.readthedocs.io/working_with_pandas.html#additional-pandas-and-excel-information"""
         output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:  # engine="xlsxwriter"
+        with pd.ExcelWriter(
+            output, engine="xlsxwriter"
+        ) as writer:  # https://community.plotly.com/t/allow-users-to-dowload-an-excel-in-a-click/9410
             self.chorus_dt_df.to_excel(writer, sheet_name="data_chorus_dt", index_label="index")
             self.odrive_df.to_excel(writer, sheet_name="data_odrive", index_label="index")
             self.osfi_df.to_excel(writer, sheet_name="data_osfi", index_label="index")
