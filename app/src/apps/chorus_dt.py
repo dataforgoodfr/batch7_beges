@@ -2,6 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
+import plotly.express as px
 from dash.dependencies import Output, Input, State
 import numpy as np
 
@@ -77,6 +78,27 @@ def get_emissions_timeseries(df):
     return fig
 
 
+def get_scatter_by_emission(df):
+    """
+        Render and update a bubble chart figure to show emissions distribution by prestation type/distance
+    """
+    df["slug"] = df["lieu_depart"] + " | " + df["lieu_arrivee"]
+    df["count"] = 1
+    distance_df = df.groupby(["slug", "prestation", "distance"])["CO2e/trip", "count"].sum().reset_index()
+    distance_df["avg_CO2e"] = distance_df["CO2e/trip"] / distance_df["count"]
+    fig = px.scatter(
+        distance_df,
+        x="distance",
+        y="count",
+        size="CO2e/trip",
+        color="prestation",
+        hover_name="slug",
+        log_x=True,
+        size_max=60,
+    )
+    return fig
+
+
 select_prestation_type = dcc.Dropdown(
     id="select-prestation_type", options=[{"label": "Train", "value": "T"}, {"label": "Avion", "value": "A"}]
 )
@@ -135,8 +157,8 @@ layout = html.Div(
                                 dbc.Col(
                                     [
                                         build_figure_container(
-                                            title="Répartition des émissions par distance de trajet",
-                                            id="hist-by-distance",
+                                            title="Évolution temporelles des émissions",
+                                            id="timeseries-chorus-dt",
                                             footer="Explications..",
                                         )
                                     ]
@@ -153,8 +175,8 @@ layout = html.Div(
                 dbc.Col(
                     [
                         build_figure_container(
-                            title="Évolution temporelles des émissions",
-                            id="timeseries-chorus-dt",
+                            title="Répartition des émissions par distance de trajet",
+                            id="scatter-by-emission",
                             footer="Explications..",
                         )
                     ],
@@ -174,7 +196,7 @@ layout = html.Div(
         Output("kpi-trips", "children"),
         Output("kpi-distance", "children"),
         Output("donut-by-prestation", "figure"),
-        Output("hist-by-distance", "figure"),
+        Output("scatter-by-emission", "figure"),
         Output("timeseries-chorus-dt", "figure"),
     ],
     [Input("dashboard-selected-entity", "children")],
@@ -189,6 +211,6 @@ def update_graphs(selected_entity):
         get_kpi_trips_count(chorus_dt_df),
         get_kpi_distance(chorus_dt_df),
         get_donut_by_prestation_type(chorus_dt_df),
-        get_hist_by_distance_group(chorus_dt_df),
+        get_scatter_by_emission(chorus_dt_df),
         get_emissions_timeseries(chorus_dt_df),
     ]
