@@ -16,7 +16,7 @@ from utils.organization_chart_html_wrapper import EntityHtmlWrapper, Organizatio
 from utils.organization_chart import OrganizationChart
 
 # organization_chart = OrganizationChart("/data/entities_tree.tsv")
-organization_chart = OrganizationChart("/data/entities_test_tree.tsv")
+organization_chart = OrganizationChart("/data/entities_tree.tsv")
 
 
 def load_oc_to_json(organization_chart):
