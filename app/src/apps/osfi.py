@@ -65,11 +65,11 @@ def update_graphs(selected_entity):
     service = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(service.code_osfi)
     #columns = [{"name": i, "id": i} for i in data.columns]
-    columns = [{"name": i, "id": i} for i in data.loc[:,["Nom du bien","Année"]]]
+    columns = [{"name": i, "id": i} for i in data.loc[:,["Nom du bien","Date"]]]
     row_selectable = "multi"
     selected_rows=[]
     style_data={'whiteSpace': 'normal','height': 'auto','minWidth': '60px', 'width': '180px', 'maxWidth': '180px'}
-    style_cell_conditional =[{'if': {'column_id': i}, 'textAlign': 'left'} for i in ['Nom du bien','Année']]
+    style_cell_conditional =[{'if': {'column_id': i}, 'textAlign': 'left'} for i in ['Nom du bien','Date']]
     data_to_return = data.to_dict("records")
     return columns, row_selectable, style_data, style_cell_conditional, data_to_return
 
