@@ -11,6 +11,30 @@ from anytree.importer import JsonImporter
 from anytree.importer import DictImporter
 
 
+def load_oc_to_json(organization_chart):
+    root = EntityHtmlWrapper(id="root", label="root")
+    elements = {}
+    elements["root"] = root
+    for entity in PreOrderIter(organization_chart._root):
+        print(entity)
+        if entity.id == "root":
+            continue
+        parent_id = entity.parent.id
+        entity = EntityHtmlWrapper(
+            **{k: v for k, v in entity.__dict__.items() if (("parent" not in k) and ("children" not in k))},
+            expand=False,
+        )
+        # Only displaying first level elements
+
+        entity.parent = elements[parent_id]
+
+        if entity.parent.id == "root":
+            entity.visible = True
+
+        elements[entity.id] = entity
+    return JsonExporter().export(root)
+
+
 class EntityHtmlWrapper(Entity):
     def __init__(
         self,
@@ -67,8 +91,11 @@ class EntityHtmlWrapper(Entity):
             children=[
                 dbc.Row(
                     [
-                        dbc.Col(expand_span, width={"size": 1}),
-                        dbc.Col(html.P(" - " * self.depth + self.label), width={"size": 9}),
+                        dbc.Col(expand_span, width={"size": 1}, className="mx-0"),
+                        dbc.Col(html.P(" -- " * self.depth + self.label), width={"size": 3}),
+                        dbc.Col([html.P("OSFI:\n"), html.P(self.code_osfi)], width=2),
+                        dbc.Col([html.P("Odrive:\n"), html.P(self.code_odrive)], width=2),
+                        dbc.Col([html.P("Chorus:\n"), html.P(self.code_chorus)], width=2),
                         dbc.Col(
                             dbc.FormGroup(
                                 [
@@ -83,7 +110,18 @@ class EntityHtmlWrapper(Entity):
                                     ),
                                 ]
                             ),
-                            width={"size": 2, "offset": 0},
+                            width=1,
+                        ),
+                        dbc.Col(
+                            dbc.Button(
+                                "Modifier",
+                                id={"type": "back-office-entity-button-update", "id": self.id},
+                                block=True,
+                                style={"vertical-align": "middle"},
+                                color="primary",
+                            ),
+                            width=1,
+                            # className="mx-0",
                         ),
                     ]
                 )
