@@ -16,7 +16,6 @@ def load_oc_to_json(organization_chart):
     elements = {}
     elements["root"] = root
     for entity in PreOrderIter(organization_chart._root):
-        print(entity)
         if entity.id == "root":
             continue
         parent_id = entity.parent.id
@@ -115,7 +114,7 @@ class EntityHtmlWrapper(Entity):
                         dbc.Col(
                             dbc.Button(
                                 "Modifier",
-                                id={"type": "back-office-entity-button-update", "id": self.id},
+                                id={"type": "back-office-entity-update-open-button", "id": self.id},
                                 block=True,
                                 style={"vertical-align": "middle"},
                                 color="primary",
@@ -147,25 +146,36 @@ class OrganizationChartHtmlWrapper:
         dict_importer = DictImporter(nodecls=EntityHtmlWrapper)
         self._root = JsonImporter(dict_importer).import_(tree_json)
 
+    def get_parent_options(self, entity_id=None) -> dict:
+        options = []
+        for entity in PreOrderIter(self._root):
+            if entity.id == "root":
+                options.append({"label": "Pas de parent", "value": entity.id})
+            elif entity_id and (entity.id == entity_id):
+                continue
+            else:
+                options.append({"label": entity.label, "value": entity.id})
+        return options
+
     def to_json(self):
         return JsonExporter().export(self._root)
 
-    def get_enitity_by_id(self, id):
+    def get_entity_by_id(self, id) -> Entity:
         return find_tree(self._root, lambda entity: entity.id == id)
 
     def toggle_select(self, id):
         for entity in PreOrderIter(self._root):
             if entity.id != id:
                 entity.selected = False
-        entity = self.get_enitity_by_id(id)
+        entity = self.get_entity_by_id(id)
         entity.selected = not entity.selected
 
     def toggle_activation(self, id):
-        entity = self.get_enitity_by_id(id)
+        entity = self.get_entity_by_id(id)
         entity.activated = not entity.activated
 
     def toggle_expand(self, id):
-        entity = self.get_enitity_by_id(id)
+        entity = self.get_entity_by_id(id)
         if entity.expand == False:
             entity.expand = True
             for child in entity.children:
