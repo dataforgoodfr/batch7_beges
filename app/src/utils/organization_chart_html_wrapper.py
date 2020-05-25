@@ -12,7 +12,7 @@ from anytree.importer import DictImporter
 
 
 def load_oc_to_json(organization_chart):
-    root = EntityHtmlWrapper(id="root", label="root")
+    root = EntityHtmlWrapper(id="root", label="root", activated=True)
     elements = {}
     elements["root"] = root
     for entity in PreOrderIter(organization_chart._root):
@@ -105,17 +105,11 @@ class EntityHtmlWrapper(Entity):
                         dbc.Col([html.P("Chorus:\n"), html.P(self.code_chorus)], width=2),
                         dbc.Col(
                             dbc.FormGroup(
-                                [
-                                    dbc.Checkbox(
-                                        id={"type": "back-office-entity-activated", "id": self.id},
-                                        checked=self.activated,
-                                    ),
-                                    dbc.Label(
-                                        "Active",
-                                        html_for={"type": "back-office-entity-activated", "id": self.id},
-                                        className="form-check-label",
-                                    ),
-                                ]
+                                dbc.Checklist(
+                                    id={"type": "back-office-entity-activated", "id": self.id},
+                                    options=[{"label": "Active", "value": "1", "disabled": not self.parent.activated}],
+                                    value=["1"] if self.activated else [],
+                                )
                             ),
                             width=1,
                         ),
@@ -178,6 +172,10 @@ class OrganizationChartHtmlWrapper:
     def toggle_activation(self, entity_id):
         entity = self.get_entity_by_id(entity_id)
         entity.activated = not entity.activated
+        # Unactivate all descents
+        if not entity.activated:
+            for other_entity in entity.descendants:
+                other_entity.activated = False
 
     def toggle_expand(self, entity_id):
         entity = self.get_entity_by_id(entity_id)

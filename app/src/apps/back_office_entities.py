@@ -73,21 +73,6 @@ entity_modal = dbc.Modal(
     ],
     id="back-office-entity-modal",
 )
-# update_entity_modal = dbc.Modal(
-#     [
-#         dbc.ModalHeader("Mettre à jour entité"),
-#         dbc.ModalBody(
-#             id="back-office-entity-update-modal-body", children=get_modal_body("back-office-entity-update-modal")
-#         ),
-#         dbc.ModalFooter(
-#             [
-#                 dbc.Button("Annuler", id="back-office-entity-update-modal-close-button", outline=True, color="primary"),
-#                 dbc.Button("Valider", id="back-office-entity-update-modal-valid-button", color="primary"),
-#             ],
-#         ),
-#     ],
-#     id="back-office-entity-update-modal",
-# )
 
 
 layout = html.Div(
@@ -95,27 +80,58 @@ layout = html.Div(
         html.Div(id="back-office-entity-tree", children=oc_json, style={"display": "none"}),
         html.Div(id="back-office-entity-selected", style={"display": "none"}),
         dbc.Row(
-            [
-                dbc.Col(
-                    dbc.Button("Charger un organigramme", id="load_organization_chart", color="primary", block=True),
-                    width=5,
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            dbc.Row(dbc.Col(html.H4("Gestion de l'organigramme", className="m-2"), width=12)),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Button(
+                                                "Sauvegarder l'organigramme",
+                                                id="back-office-entities-save-organization_chart",
+                                                color="primary",
+                                                className="m-2",
+                                                block=True,
+                                            ),
+                                            dbc.Tooltip(
+                                                "Sauvegarder l'organigramme et le publier.",
+                                                target="back-office-entities-save-organization_chart",
+                                                placement="bottom",
+                                            ),
+                                        ],
+                                        width=5,
+                                    ),
+                                    dbc.Col(
+                                        dbc.Button(
+                                            "Ajouter une entité",
+                                            color="primary",
+                                            className="m-2",
+                                            id="back-office-entity-new-modal-open-button",
+                                            block=True,
+                                        ),
+                                        width=5,
+                                    ),
+                                    dbc.Col(
+                                        dbc.Button(
+                                            "Aide",
+                                            color="primary",
+                                            className="m-2",
+                                            id="back-office-help-toggle-button",
+                                            outline=True,
+                                            block=True,
+                                        ),
+                                        width=2,
+                                    ),
+                                ]
+                            ),
+                        ]
+                    )
                 ),
-                dbc.Col(dbc.Button("Sauver l'organigramme", color="primary", block=True), width=5),
-                dbc.Col(
-                    dbc.Button("Aide", color="primary", id="back-office-help-toggle-button", outline=True, block=True),
-                    width=2,
-                ),
-                dbc.Col(
-                    dbc.Button(
-                        "Ajouter entité",
-                        color="primary",
-                        id="back-office-entity-new-modal-open-button",
-                        outline=True,
-                        block=True,
-                    ),
-                    width=4,
-                ),
-            ]
+                width=12,
+            )
         ),
         help_modal,
         entity_modal,
@@ -136,21 +152,6 @@ def toggle_help(n1, n2, is_open):
     return is_open
 
 
-"""
-@app.callback(
-    [Output("back-office-pop-up-modal", "is_open"), Output("back-office-pop-up-modal", children)],
-    [Input("back-office-pop-up-modal", "n_clicks"), Input("back-office-pop-up-modal", "n_clicks")],
-    [State("back-office-pop-up-modal", "is_open"), State("back-office-entity-tree", "children")],
-)
-def toggle_new_node(n1, n2, is_open, json_tree):
-    ochw = OrganizationChartHtmlWrapper()
-    ochw.load_json(json_tree)
-    if n1 or n2:
-        return not is_open
-    return is_open
-"""
-
-
 @app.callback(
     [
         Output("back-office-entity-modal", "is_open"),
@@ -161,7 +162,7 @@ def toggle_new_node(n1, n2, is_open, json_tree):
     ],
     [
         Input({"type": "back-office-entity-expand", "id": ALL}, "n_clicks"),
-        Input({"type": "back-office-entity-activated", "id": ALL}, "checked"),
+        Input({"type": "back-office-entity-activated", "id": ALL}, "value"),
         # Modal update entity actions
         Input({"type": "back-office-entity-update-open-button", "id": ALL}, "n_clicks"),
         Input("back-office-entity-new-modal-open-button", "n_clicks"),
@@ -241,6 +242,7 @@ def interact_organigram(
             element_type = element_full_id["type"]
 
             if element_type == "back-office-entity-activated":
+                print(element_full_id)
                 ochw.toggle_activation(element_id)
             elif element_type == "back-office-entity-expand":
                 ochw.toggle_expand(element_id)
