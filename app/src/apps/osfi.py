@@ -99,7 +99,7 @@ def update_graphs(selected_entity):
     service = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(service.code_osfi)
     columns = [{"name": i, "id": i} for i in data.columns]
-    #columns = [{"name": i, "id": i} for i in data.loc[:,["Nom du bien","Date"]]]
+    columns = [{"name": i, "id": i} for i in data.loc[:,["Nom du bien"]]]
     row_selectable = "multi"
     selected_rows=[]
     style_data={'whiteSpace': 'normal','height': 'auto','minWidth': '60px', 'width': '180px', 'maxWidth': '180px'}
@@ -116,10 +116,10 @@ def update_graphs(selected_entity):
         Output("gaz_time_series", "figure"),
     ],
     [
-        Input('osfi-all-data-table', "derived_virtual_data"),
-        Input('osfi-all-data-table', "derived_virtual_selected_rows"),
-        Input('osfi-all-data-table', 'selected_rows'),
-        Input('osfi-all-data-table', 'data'),
+        Input("osfi-all-data-table", "derived_virtual_data"),
+        Input("osfi-all-data-table", "derived_virtual_selected_rows"),
+        Input("osfi-all-data-table", "selected_rows"),
+        Input("osfi-all-data-table", "data"),
     ],
     )
 def update_graphs_selected(derived_virtual_data, derived_virtual_selected_rows, selected_rows,data):
