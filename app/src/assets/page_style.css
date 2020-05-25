@@ -37,3 +37,7 @@ div.back_office_entity:hover {
 div.back_office_entity.selected {
     background-color: darkgray;
 }
+
+div.back-office-entity-expand:hover {
+    background-color: darkgray;
+}

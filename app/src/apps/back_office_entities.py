@@ -18,8 +18,8 @@ from app import app
 from utils.organization_chart_html_wrapper import EntityHtmlWrapper, OrganizationChartHtmlWrapper, load_oc_to_json
 from utils.organization_chart import OrganizationChart
 
-# organization_chart = OrganizationChart("/data/entities_tree.tsv")
-organization_chart = OrganizationChart("/data/entities_test_tree.tsv")
+organization_chart = OrganizationChart("/data/entities_tree.tsv")
+# organization_chart = OrganizationChart("/data/entities_test_tree.tsv")
 
 
 oc_json = load_oc_to_json(organization_chart)
@@ -222,6 +222,8 @@ def interact_organigram(
                 parent = ochw.get_entity_by_id(state_modal_parent_id)
                 entity.parent = parent
                 entity.visible = True
+                entity.expand = False
+                ochw.toggle_entity_visible(entity.id)
             elif state_modal_mode == "update":
                 entity_id = state_modal_entity_id
                 parent_id = state_modal_parent_id
@@ -232,6 +234,7 @@ def interact_organigram(
                 entity.code_chorus = state_modal_code_chorus
                 entity.code_odrive = state_modal_code_odrive
                 entity.code_osfi = state_modal_code_osfi
+                ochw.toggle_entity_visible(entity.id)
         else:
             element_full_id = json.loads(element_full_id)
             element_id = element_full_id["id"]

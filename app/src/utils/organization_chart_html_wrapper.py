@@ -76,12 +76,16 @@ class EntityHtmlWrapper(Entity):
         if (self.expand == True) and self.children:
             expand_span = html.Div(
                 id={"type": "back-office-entity-expand", "id": self.id},
-                children=[html.Span(className="glyphicon glyphicon-menu-up"), html.P("Shrink")],
+                children=[html.I(className="fa fa-chevron-down fa-1x")],
+                style={"height": "100%", "width": "100%"},
+                className="d-flex align-items-center justify-content-center back-office-entity-expand",
             )
         elif (self.expand == False) and self.children:
             expand_span = html.Div(
                 id={"type": "back-office-entity-expand", "id": self.id},
-                children=[html.Span(className="glyphicon glyphicon-menu-down"), html.P("Expand")],
+                children=[html.I(className="fa fa-chevron-right fa-1x")],
+                style={"height": "100%", "width": "100%"},
+                className="d-flex align-items-center justify-content-center back-office-entity-expand",
             )
         else:
             expand_span = html.Div(id={"type": "back-office-entity-expand", "id": self.id}, children=[])
@@ -91,7 +95,11 @@ class EntityHtmlWrapper(Entity):
                 dbc.Row(
                     [
                         dbc.Col(expand_span, width={"size": 1}, className="mx-0"),
-                        dbc.Col(html.P(" -- " * self.depth + self.label), width={"size": 3}),
+                        dbc.Col(
+                            html.P(" -- " * self.depth + self.label),
+                            width={"size": 3},
+                            style={"fontSize": "%spx" % (20 - self.depth)},
+                        ),
                         dbc.Col([html.P("OSFI:\n"), html.P(self.code_osfi)], width=2),
                         dbc.Col([html.P("Odrive:\n"), html.P(self.code_odrive)], width=2),
                         dbc.Col([html.P("Chorus:\n"), html.P(self.code_chorus)], width=2),
@@ -148,34 +156,31 @@ class OrganizationChartHtmlWrapper:
 
     def get_parent_options(self, entity_id=None) -> dict:
         options = []
-        for entity in PreOrderIter(self._root):
-            if entity.id == "root":
-                options.append({"label": "Pas de parent", "value": entity.id})
-            elif entity_id and (entity.id == entity_id):
+        entity = self.get_entity_by_id(entity_id)
+        for other_entity in PreOrderIter(self._root):
+            if other_entity.id == "root":
+                options.append({"label": "Pas de parent", "value": other_entity.id})
+            elif entity_id and (other_entity.id == entity_id):
                 continue
             else:
-                options.append({"label": entity.label, "value": entity.id})
+                if entity is None:
+                    options.append({"label": other_entity.label, "value": other_entity.id})
+                elif other_entity not in entity.descendants:
+                    options.append({"label": other_entity.label, "value": other_entity.id})
         return options
 
     def to_json(self):
         return JsonExporter().export(self._root)
 
-    def get_entity_by_id(self, id) -> Entity:
-        return find_tree(self._root, lambda entity: entity.id == id)
+    def get_entity_by_id(self, entity_id) -> Entity:
+        return find_tree(self._root, lambda entity: entity.id == entity_id)
 
-    def toggle_select(self, id):
-        for entity in PreOrderIter(self._root):
-            if entity.id != id:
-                entity.selected = False
-        entity = self.get_entity_by_id(id)
-        entity.selected = not entity.selected
-
-    def toggle_activation(self, id):
-        entity = self.get_entity_by_id(id)
+    def toggle_activation(self, entity_id):
+        entity = self.get_entity_by_id(entity_id)
         entity.activated = not entity.activated
 
-    def toggle_expand(self, id):
-        entity = self.get_entity_by_id(id)
+    def toggle_expand(self, entity_id):
+        entity = self.get_entity_by_id(entity_id)
         if entity.expand == False:
             entity.expand = True
             for child in entity.children:
@@ -187,6 +192,24 @@ class OrganizationChartHtmlWrapper:
                     continue
                 descendor.visible = False
                 descendor.expand = False
+
+    def toggle_entity_visible(self, entity_id):
+        entity = self.get_entity_by_id(entity_id)
+        entity_ancestors = entity.ancestors
+        for other_entity in PreOrderIter(self._root):
+            if other_entity.id == "root":
+                continue
+            elif other_entity.parent.id == "root":
+                other_entity.visible = True
+                other_entity.expand = False
+            else:
+                other_entity.visible = False
+                other_entity.expand = False
+        for other_entity in entity_ancestors[::-1]:
+            if other_entity.id == "root":
+                continue
+            else:
+                self.toggle_expand(other_entity.id)
 
 
 if __name__ == "__main__":
