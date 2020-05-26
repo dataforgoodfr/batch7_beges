@@ -62,7 +62,34 @@ help_modal = dbc.Modal(
 )
 entity_modal = dbc.Modal(
     [
-        dbc.ModalHeader("Nouvelle entité", id="back-office-entity-modal-header"),
+        dbc.ModalHeader(
+            [
+                dbc.Row(dbc.Col(html.H4(id="back-office-entity-modal-header-title"), width=12)),
+                dbc.Row(
+                    dbc.Col(
+                        [
+                            dbc.Button(
+                                "Supprimer l'entité",
+                                id="back-office-entity-modal-delete-button",
+                                color="danger",
+                                style={"display": "none"},
+                                block=True,
+                            ),
+                            dbc.Tooltip(
+                                "Vous ne pouvez pas supprimer l'entité parce qu'elle possède d'autres entités ratachées à elle.",
+                                id="back-office-entity-modal-delete-button-tooltip",
+                                target="back-office-entity-modal-delete-button",
+                                hide_arrow=True,
+                                style={"display": "none"},
+                                placement="right",
+                            ),
+                        ],
+                        width=12,
+                    )
+                ),
+            ],
+            id="back-office-entity-modal-header",
+        ),
         dbc.ModalBody(id="back-office-entity-modal-body", children=entity_modal_body),
         dbc.ModalFooter(
             [
@@ -117,7 +144,7 @@ layout = html.Div(
                                     dbc.Col(
                                         dbc.Button(
                                             "Aide",
-                                            color="primary",
+                                            color="info",
                                             className="m-2",
                                             id="back-office-help-toggle-button",
                                             outline=True,
@@ -168,6 +195,7 @@ def toggle_help(n1, n2, is_open):
         Input("back-office-entity-new-modal-open-button", "n_clicks"),
         Input("back-office-entity-modal-close-button", "n_clicks"),
         Input("back-office-entity-modal-valid-button", "n_clicks"),
+        Input("back-office-entity-modal-delete-button", "n_clicks"),
     ],
     [
         State("back-office-entity-tree", "children"),
@@ -187,6 +215,7 @@ def interact_organigram(
     new_entity_modal_open_button_n_clicks,
     entity_modal_close_button_n_clicks,
     entity_modal_valid_button_n_clicks,
+    entity_modal_delete_button_n_clicks,
     json_tree,
     state_modal_mode,
     state_modal_entity_id,
@@ -211,8 +240,14 @@ def interact_organigram(
         if element_full_id == "back-office-entity-new-modal-open-button":
             modal_is_open = True
             modal_mode = "new"
+            modal_header_title = "Nouvelle entité"
         elif element_full_id == "back-office-entity-modal-close-button":
             modal_is_open = False
+        elif element_full_id == "back-office-entity-modal-delete-button":
+            entity = ochw.get_entity_by_id(state_modal_entity_id)
+            entity.parent = None
+            modal_is_open = False
+
         elif element_full_id == "back-office-entity-modal-valid-button":
             modal_is_open = False
             if state_modal_mode == "new":
@@ -223,12 +258,7 @@ def interact_organigram(
                 parent = ochw.get_entity_by_id(state_modal_parent_id)
                 entity.parent = parent
                 entity.visible = True
-                entity.expand = False
-                ochw.toggle_entity_visible(entity.id)
-            elif state_modal_mode == "update":
-                entity_id = state_modal_entity_id
-                parent_id = state_modal_parent_id
-                entity = ochw.get_entity_by_id(entity_id)
+                entity.expan_.get_entity_by_id(entity_id)
                 parent = ochw.get_entity_by_id(parent_id)
                 entity.parent = parent
                 entity.label = state_modal_label
@@ -250,6 +280,7 @@ def interact_organigram(
                 entity = ochw.get_entity_by_id(element_id)
                 modal_is_open = True
                 modal_mode = "update"
+                modal_header_title = "Modifier l'entité"
                 modal_entity_id = entity.id
 
     return (modal_is_open, modal_mode, modal_entity_id, ochw.to_json(), ochw.get_html_elements())
@@ -257,6 +288,10 @@ def interact_organigram(
 
 @app.callback(
     [
+        Output("back-office-entity-modal-header-title", "children"),
+        Output("back-office-entity-modal-delete-button", "style"),
+        Output("back-office-entity-modal-delete-button", "disabled"),
+        Output("back-office-entity-modal-delete-button-tooltip", "style"),
         Output("back-office-entity-modal-parent", "options"),
         Output("back-office-entity-modal-label", "value"),
         Output("back-office-entity-modal-code-chorus", "value"),
@@ -279,15 +314,45 @@ def fill_modal_body(modal_is_open, modal_mode, modal_entity_id, json_tree):
         ochw = OrganizationChartHtmlWrapper()
         ochw.load_json(json_tree)
         if modal_mode == "new":
-            return ochw.get_parent_options(), "", "", "", ""
+            return (
+                "Nouvelle entité",
+                {"display": "none"},
+                {"display": "none"},
+                True,
+                ochw.get_parent_options(),
+                "",
+                "",
+                "",
+                "",
+            )
         elif modal_mode == "update":
             entity = ochw.get_entity_by_id(modal_entity_id)
+            modal_header_title = "Modifier l'entité"
+            modal_delete_button_style = {"display": "block"}
+            # The condition to delete an entity is to have no children
+            if entity.children:
+                modal_delete_button_tooltip_style = {"display": "block"}
+                modal_delete_button_disabled = True
+            else:
+                modal_delete_button_tooltip_style = {"display": "none"}
+                modal_delete_button_disabled = False
+
             modal_parent_options = ochw.get_parent_options(entity.id)
             modal_label = entity.label
             modal_code_chorus = entity.code_chorus
             modal_code_odrive = entity.code_odrive
             modal_code_osfi = entity.code_osfi
-            return modal_parent_options, modal_label, modal_code_chorus, modal_code_odrive, modal_code_osfi
+            return (
+                modal_header_title,
+                modal_delete_button_style,
+                modal_delete_button_disabled,
+                modal_delete_button_tooltip_style,
+                modal_parent_options,
+                modal_label,
+                modal_code_chorus,
+                modal_code_odrive,
+                modal_code_osfi,
+            )
     else:
         raise PreventUpdate
 
