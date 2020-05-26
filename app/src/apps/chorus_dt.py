@@ -1,6 +1,7 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+import dash_table
 import plotly.graph_objects as go
 import plotly.express as px
 from dash.dependencies import Output, Input, State
@@ -99,6 +100,38 @@ def get_scatter_by_emission(df):
     return fig
 
 
+def get_dashtable_by_emission(df):
+    """
+    Render a dashtable listing top offending connexions by CO2 emissions
+    """
+    # TODO: Follow instructions in https://stackoverflow.com/questions/58804477/plotly-dash-table-callback
+    table = html.Div(
+        [
+            dash_table.DataTable(
+                id="datatable-row-ids",
+                columns=[
+                    {"name": i, "id": i, "deletable": True}
+                    for i in df.columns
+                    # omit the id column
+                    if i != "id"
+                ],
+                data=df.to_dict("records"),
+                editable=True,
+                filter_action="native",
+                sort_action="native",
+                sort_mode="multi",
+                row_selectable="multi",
+                row_deletable=True,
+                selected_rows=[],
+                page_action="native",
+                page_current=0,
+                page_size=10,
+            )
+        ]
+    )
+    return table
+
+
 select_prestation_type = dcc.Dropdown(
     id="select-prestation_type", options=[{"label": "Train", "value": "T"}, {"label": "Avion", "value": "A"}]
 )
@@ -180,8 +213,38 @@ layout = html.Div(
                             footer="Explications..",
                         )
                     ],
-                    width=12,
-                )
+                    width=8,
+                ),
+                dbc.Col(
+                    [
+                        dbc.Card(
+                            dbc.CardBody(
+                                [
+                                    html.H3("Filtres"),
+                                    html.Br(),
+                                    dbc.FormGroup([dbc.Label("Type de prestation"), select_prestation_type]),
+                                ]
+                            ),
+                            className="pretty_container",
+                        ),
+                    ],
+                    width=4,
+                ),
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        build_figure_container(
+                            title="Histogramme des iasons avec les plus gros volumns d'émissions",
+                            id="hist-by-emission",
+                            footer="Explications..",
+                        )
+                    ],
+                    width=6,
+                ),
+                dbc.Col([html.Div(id="table-by-emission"),], width=6,),
             ]
         ),
     ],
@@ -214,3 +277,14 @@ def update_graphs(selected_entity):
         get_scatter_by_emission(chorus_dt_df),
         get_emissions_timeseries(chorus_dt_df),
     ]
+
+
+@app.callback(
+    [Output("hist-by-emission", "figure"), Output("table-by-emission", "children")],
+    [Input("dashboard-selected-entity", "children")],
+)
+def update_graphs_by_connexion(selected_entity):
+    service = oc.get_entity_by_id(selected_entity)
+    chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
+
+    return [get_scatter_by_emission(chorus_dt_df), get_dashtable_by_emission(chorus_dt_df)]
