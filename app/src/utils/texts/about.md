@@ -1,5 +1,4 @@
-À propos
-========
+# À propos
 
 Cette application a été réalisée dans le cadre de la saison 7 de Data for Good.
 
