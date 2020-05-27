@@ -68,66 +68,67 @@ class EntityHtmlWrapper(Entity):
         to_return_dict["parent"] = self.parent.id
         return json.dumps(to_return_dict, encoding="utf-8")
 
-    def to_html(self):
-        class_name = "back_office_entity"
-        if self.selected:
-            class_name += " selected"
+    def get_expand_element(self):
+        if self.children:
+            if self.expand == True:
+                icon_classname = "fa fa-chevron-down fa-1x"
+            else:
+                icon_classname = "fa fa-chevron-right fa-1x"
 
-        if (self.expand == True) and self.children:
-            expand_span = html.Div(
+            return html.Div(
                 id={"type": "back-office-entity-expand", "id": self.id},
-                children=[html.I(className="fa fa-chevron-down fa-1x")],
-                style={"height": "100%", "width": "100%"},
-                className="d-flex align-items-center justify-content-center back-office-entity-expand",
-            )
-        elif (self.expand == False) and self.children:
-            expand_span = html.Div(
-                id={"type": "back-office-entity-expand", "id": self.id},
-                children=[html.I(className="fa fa-chevron-right fa-1x")],
+                children=[html.I(className=icon_classname)],
                 style={"height": "100%", "width": "100%"},
                 className="d-flex align-items-center justify-content-center back-office-entity-expand",
             )
         else:
-            expand_span = html.Div(id={"type": "back-office-entity-expand", "id": self.id}, children=[])
+            return html.Div()
+
+    def get_title_element(self):
+        return html.P(" -- " * self.depth + self.label)
+
+    def get_active_element(self):
+        return dbc.FormGroup(
+            dbc.Checklist(
+                id={"type": "back-office-entity-activated", "id": self.id},
+                options=[{"label": "Active", "value": "1", "disabled": not self.parent.activated}],
+                value=["1"] if self.activated else [],
+            )
+        )
+
+    def get_update_button_element(self):
+
+        return dbc.Button(
+            "Modifier",
+            id={"type": "back-office-entity-update-open-button", "id": self.id},
+            block=True,
+            style={"vertical-align": "middle"},
+            color="primary",
+        )
+
+    def to_html(self):
+        classname = "back_office_entity"
         return html.Div(
             id={"type": "back-office-entity", "id": self.id},
             children=[
                 dbc.Row(
                     [
-                        dbc.Col(expand_span, width={"size": 1}, className="mx-0"),
-                        dbc.Col(
-                            html.P(" -- " * self.depth + self.label),
-                            width={"size": 3},
-                            style={"fontSize": "%spx" % (20 - self.depth)},
-                        ),
+                        # The expand button
+                        dbc.Col(self.get_expand_element(), width={"size": 1}),
+                        dbc.Col(self.get_title_element(), width={"size": 3}),
                         dbc.Col([html.P("OSFI:\n"), html.P(self.code_osfi)], width=2),
                         dbc.Col([html.P("Odrive:\n"), html.P(self.code_odrive)], width=2),
                         dbc.Col([html.P("Chorus:\n"), html.P(self.code_chorus)], width=2),
+                        dbc.Col(self.get_active_element(), width=1),
                         dbc.Col(
-                            dbc.FormGroup(
-                                dbc.Checklist(
-                                    id={"type": "back-office-entity-activated", "id": self.id},
-                                    options=[{"label": "Active", "value": "1", "disabled": not self.parent.activated}],
-                                    value=["1"] if self.activated else [],
-                                )
-                            ),
-                            width=1,
-                        ),
-                        dbc.Col(
-                            dbc.Button(
-                                "Modifier",
-                                id={"type": "back-office-entity-update-open-button", "id": self.id},
-                                block=True,
-                                style={"vertical-align": "middle"},
-                                color="primary",
-                            ),
+                            self.get_update_button_element(),
                             width=1,
                             # className="mx-0",
                         ),
                     ]
                 )
             ],
-            className=class_name,
+            className=classname,
         )
 
 
