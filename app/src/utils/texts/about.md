@@ -1,4 +1,6 @@
-# À propos
+À propos
+====
+
 Cette application a été réalisée dans le cadre de la saison 7 de Data for Good.
 
 L’*Outil-BEGES* a pour vocation de permettre l’estimation et l’analyse des émissions de gaz à effet de serre d’une organisation. 
@@ -10,11 +12,11 @@ Cette version de l’outil a été développée à partir des bases de données 
 Les estimations de GES sont réalisées en croisant ces données d’activité avec les facteurs d’émissions de la base carbone de l’ADEME.
 
 **L’équipe** : 
-Antoine
-Artus
-Ayoub
-Gustave
-Maria
-Svetlana 
-Tallulah
+- Antoine
+- Artus
+- Ayoub
+- Gustave
+- Maria
+- Svetlana 
+- Tallulah
 
