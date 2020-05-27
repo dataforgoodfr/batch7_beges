@@ -1,6 +1,6 @@
-_Outil BEGES_
+# Outil BEGES
 
-Calcul des émissions liées aux consommations énergétiques des bâtiments et déplacements des agents au sein d’une structure
+_Calcul des émissions liées aux consommations énergétiques des bâtiments et déplacements des agents au sein d’une structure de l'état._
 
 Cet outil a été créé dans le crade de la saison 7 de data4good afin d'aider les différents services de l'état à créer leur Bilans d'émission de gaz à effet de serre (BEGES).
 
