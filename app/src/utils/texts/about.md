@@ -12,11 +12,13 @@ Cette version de l’outil a été développée à partir des bases de données 
 Les estimations de GES sont réalisées en croisant ces données d’activité avec les facteurs d’émissions de la base carbone de l’ADEME.
 
 **L’équipe** : 
+- Anthony
 - Antoine
 - Artus
 - Ayoub
 - Gustave
 - Maria
+- Maxime
 - Svetlana 
 - Tallulah
 
