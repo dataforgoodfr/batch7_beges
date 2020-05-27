@@ -65,13 +65,13 @@ def on_click_go_to_dashboard(n_clicks, selected_entity):
 )
 def on_dropdown_level_1_value(value_level_1, level_2_style):
     options = []
+    style = level_2_style.copy()
     if value_level_1 is not None:
         options = oc.get_level_2_dropdown_items(value_level_1)
-        style = level_2_style.copy()
-        level_2_style["display"] = "block"
+        style["display"] = "block"
     else:
-        level_2_style["display"] = "none"
-    return level_2_style, options, None
+        style["display"] = "none"
+    return style, options, None
 
 
 @app.callback(

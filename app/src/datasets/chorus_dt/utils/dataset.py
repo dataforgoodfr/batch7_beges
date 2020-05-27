@@ -1,7 +1,5 @@
 import glob
-import os
 import pandas as pd
-import numpy as np
 
 COLUMNS_MAPPING = {
     "N° de l'OM": "num_om",

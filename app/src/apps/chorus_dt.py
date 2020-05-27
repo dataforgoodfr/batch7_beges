@@ -2,13 +2,14 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
-from dash.dependencies import Output, Input, State
+from dash.dependencies import Output, Input
 
 from app import app
 from utils.organization_chart import oc
 from utils.chorus_dt_handler import ch
 from components.html_components import build_figure_container, build_card_indicateur
 from components.figures_templates import xaxis_format
+
 
 # TODO: move make figure function to chorus_dt_components.py in components
 def get_donut_by_prestation_type(code_structure=None):
@@ -119,6 +120,7 @@ layout = html.Div(
     ],
     id="div-data-chorus-dt",
 )
+
 
 @app.callback(Output("timeseries-chorus-dt", "figure"), [Input("dashboard-selected-entity", "children")])
 def update_emissions_timeseries(selected_entity):

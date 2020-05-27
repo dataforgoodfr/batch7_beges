@@ -1,7 +1,5 @@
-import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-import dash_table
 import pandas as pd
 
 import plotly.graph_objects as go
@@ -9,7 +7,7 @@ import plotly.graph_objects as go
 from app import app
 from utils.organization_chart import oc
 from utils.osfi_handler import oh
-from dash.dependencies import Input, State, Output
+from dash.dependencies import Input, Output
 
 from components.html_components import build_figure_container, build_table_container
 
