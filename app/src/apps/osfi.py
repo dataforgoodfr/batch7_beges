@@ -116,15 +116,11 @@ def update_graphs(selected_entity):
         Output("gaz_time_series", "figure"),
     ],
     [
-        Input("osfi-all-data-table", "derived_virtual_data"),
-        Input("osfi-all-data-table", "derived_virtual_selected_rows"),
         Input("osfi-all-data-table", "selected_rows"),
         Input("osfi-all-data-table", "data"),
     ],
     )
-def update_graphs_selected(derived_virtual_data, derived_virtual_selected_rows, selected_rows,data):
-    if derived_virtual_selected_rows is None:
-        derived_virtual_selected_rows = []
+def update_graphs_selected(selected_rows, data):
     if selected_rows is None:
         selected_rows = []
     selected_rows = [data[int(i)] for i in selected_rows]
