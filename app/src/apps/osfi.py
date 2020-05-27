@@ -121,19 +121,13 @@ def update_graphs(selected_entity):
     ],
     )
 def update_graphs_selected(selected_rows, data):
-    if selected_rows is None:
-        selected_rows = []
-    selected_rows = [data[int(i)] for i in selected_rows]
-    selected_rows = pd.DataFrame(selected_rows)
-    data = pd.DataFrame(data)
-    if len(selected_rows) > 0:
-        electricity_pie_graph = get_pie(selected_rows, "emission_electricity")
-        gas_pie_graph = get_pie(selected_rows, "emission_gaz")
-        electricity_time_series = get_emissions_timeseries(selected_rows, "emission_electricity")
-        gaz_time_series = get_emissions_timeseries(selected_rows, "emission_gaz")
-    else: 
-        electricity_pie_graph = get_pie(pd.DataFrame(data), "emission_electricity")
-        gas_pie_graph = get_pie(pd.DataFrame(data), "emission_gaz")
-        electricity_time_series = get_emissions_timeseries(data, "emission_electricity")
-        gaz_time_series = get_emissions_timeseries(data, "emission_gaz")
+    if selected_rows is None: 
+        data_to_display = pd.DataFrame(data)
+    else:
+        data_to_display = [data[int(i)] for i in selected_rows]
+        data_to_display = pd.DataFrame(data_to_display)
+    electricity_pie_graph = get_pie(data_to_display, "emission_electricity")
+    gas_pie_graph = get_pie(data_to_display, "emission_gaz")
+    electricity_time_series = get_emissions_timeseries(data_to_display, "emission_electricity")
+    gaz_time_series = get_emissions_timeseries(data_to_display, "emission_gaz")
     return electricity_pie_graph, gas_pie_graph, electricity_time_series, gaz_time_series
