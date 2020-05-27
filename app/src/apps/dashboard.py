@@ -19,35 +19,33 @@ layout = html.Div(
         html.Div(id="dashboard-div-url-redirect-to-entity-choice", style={"display": "none"}),
         html.Div(id="dashboard-selected-entity", style={"display": "none"}),
         dbc.Row(
-            dbc.Col(
-                dbc.Button(
-                    "Choisir une autre entité",
-                    id="dashboard-button-to-entity-choice",
-                    color="primary",
-                    outline=True,
-                    className="mr-1",
-                    block=True,
-                ),
-                width=2,
-            )
-        ),
-        dbc.Row(
             [
                 dbc.Col(
-                    html.Div(id="dashboard-selected-entity-show", style={"margin": "20px"}),
-                    width={"size": 10, "offset": 1},
-                )
+                    dbc.Button(
+                        "Choisir une autre entité",
+                        id="dashboard-button-to-entity-choice",
+                        color="primary",
+                        outline=True,
+                        className="mr-1",
+                        block=True,
+                    ),
+                    width=2,
+                ),
+                dbc.Col(
+                    dbc.Button("Exporter les données", color="primary", className="mr-1", block=True),
+                    width={"size": 2, "offset": 6},
+                ),
+                dbc.Col(
+                    dbc.Button("Aide", color="secondary", className="mr-1", block=True), width={"size": 2, "offset": 0}
+                ),
             ]
         ),
         dbc.Row(
             [
                 dbc.Col(
-                    dbc.Button("Exporter les données", color="primary", className="mr-1", block=True),
-                    width={"size": 2, "offset": 8},
-                ),
-                dbc.Col(
-                    dbc.Button("Aide", color="secondary", className="mr-1", block=True), width={"size": 2, "offset": 0}
-                ),
+                    dbc.Card(html.Div(id="dashboard-selected-entity-show", className="m-2"), className="m-2"),
+                    width={"size": 10, "offset": 1},
+                )
             ]
         ),
         dbc.Tabs(
