@@ -5,7 +5,6 @@ from dash.dependencies import Input, Output, State
 
 from app import app, ADMINS
 from flask_login import login_user
-from werkzeug.security import check_password_hash
 
 username_input = dbc.FormGroup(
     [dbc.Label("Entrer votre nom d'administrateur"), dbc.Input(placeholder="Nom", type="text", id="uname-box")]

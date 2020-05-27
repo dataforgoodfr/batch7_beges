@@ -6,12 +6,7 @@ from dash.exceptions import PreventUpdate
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-import plotly.graph_objects as go
-from dash.dependencies import Output, Input, State, MATCH, ALL
-
-from anytree import LevelGroupOrderIter, PreOrderIter, RenderTree
-from anytree.exporter import JsonExporter
-
+from dash.dependencies import Output, Input, State, ALL
 
 from app import app
 
@@ -240,7 +235,6 @@ def interact_organigram(
         if element_full_id == "back-office-entity-new-modal-open-button":
             modal_is_open = True
             modal_mode = "new"
-            modal_header_title = "Nouvelle entité"
         elif element_full_id == "back-office-entity-modal-close-button":
             modal_is_open = False
         elif element_full_id == "back-office-entity-modal-delete-button":
@@ -257,14 +251,6 @@ def interact_organigram(
                 entity.code_osfi = state_modal_code_osfi
                 parent = ochw.get_entity_by_id(state_modal_parent_id)
                 entity.parent = parent
-                entity.visible = True
-                entity.expan_.get_entity_by_id(entity_id)
-                parent = ochw.get_entity_by_id(parent_id)
-                entity.parent = parent
-                entity.label = state_modal_label
-                entity.code_chorus = state_modal_code_chorus
-                entity.code_odrive = state_modal_code_odrive
-                entity.code_osfi = state_modal_code_osfi
                 ochw.toggle_entity_visible(entity.id)
         else:
             element_full_id = json.loads(element_full_id)
@@ -280,7 +266,6 @@ def interact_organigram(
                 entity = ochw.get_entity_by_id(element_id)
                 modal_is_open = True
                 modal_mode = "update"
-                modal_header_title = "Modifier l'entité"
                 modal_entity_id = entity.id
 
     return (modal_is_open, modal_mode, modal_entity_id, ochw.to_json(), ochw.get_html_elements())
