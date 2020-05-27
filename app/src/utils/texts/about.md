@@ -13,7 +13,7 @@ Les estimations de GES sont réalisées en croisant ces données d’activité a
 
 **L’équipe** : 
 - Anthony
-- Antoine Biard : Data engineer / data scientist ([linkedin](https://www.linkedin.com/in/antoine-biard-02906355/), [github](https://github.com/antoan2))
+- Antoine Biard : Data engineer / data scientist ([linkedin](https://www.linkedin.com/in/antoine-biard-02906355/), [github](https://github.com/antoan2), [email](antoine.biard.10@gmail.com))
 - Artus
 - Ayoub
 - Gustave
