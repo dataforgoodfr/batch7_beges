@@ -98,8 +98,8 @@ layout = html.Div(
 def update_graphs(selected_entity):
     service = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(service.code_osfi)
-    columns = [{"name": i, "id": i} for i in data.columns]
-    columns = [{"name": i, "id": i} for i in data.loc[:,["Nom du bien"]]]
+    columns_to_keep = ["Nom du bien", "Building type", "Adresse", "Code postal", "Ville", "Departement"]
+    columns = [{"name": i, "id": i} for i in columns_to_keep]
     row_selectable = "multi"
     selected_rows=[]
     style_data={'whiteSpace': 'normal','height': 'auto','minWidth': '60px', 'width': '180px', 'maxWidth': '180px'}
@@ -141,4 +141,3 @@ def update_graphs_selected(derived_virtual_data, derived_virtual_selected_rows, 
         electricity_time_series = get_emissions_timeseries(data, "emission_electricity")
         gaz_time_series = get_emissions_timeseries(data, "emission_gaz")
     return electricity_pie_graph, gas_pie_graph, electricity_time_series, gaz_time_series
-
