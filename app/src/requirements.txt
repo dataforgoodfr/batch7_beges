@@ -8,3 +8,4 @@ ipython==7.13.0
 xlrd==1.1.0  # Pandas dependency to read excel files
 dash-bootstrap-components==0.9.2
 anytree==2.8.0
+flask_login==0.4.1

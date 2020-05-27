@@ -106,12 +106,12 @@ layout = html.Div(
     [
         html.Div(id="back-office-entity-tree", children=oc_json, style={"display": "none"}),
         html.Div(id="back-office-entity-selected", style={"display": "none"}),
+        html.H1("Gestion de l'organigramme", className="m-2"),
         dbc.Row(
             dbc.Col(
                 dbc.Card(
                     dbc.CardBody(
                         [
-                            dbc.Row(dbc.Col(html.H4("Gestion de l'organigramme", className="m-2"), width=12)),
                             dbc.Row(
                                 [
                                     dbc.Col(
@@ -153,7 +153,7 @@ layout = html.Div(
                                         width=2,
                                     ),
                                 ]
-                            ),
+                            )
                         ]
                     )
                 ),

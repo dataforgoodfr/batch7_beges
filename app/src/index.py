@@ -3,13 +3,19 @@ import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input
 
+from flask_login import current_user, logout_user
+
 from apps import home
 from apps import dashboard
 from apps import entity_choice
 from apps import about
 from apps import methodology
 from apps import footer
+from apps import back_office_home
 from apps import back_office_entities
+from apps import back_office_upload
+from apps import back_office_login
+from apps import back_office_logout
 
 from app import app
 
@@ -24,7 +30,14 @@ navbar = dbc.Navbar(
 app.layout = html.Div(
     children=[
         dbc.Container(
-            [dcc.Location(id="url", refresh=False), navbar, html.Br(), html.Div(id="page-content"), footer.layout],
+            [
+                html.Div(id="hidden_div_for_redirect_callback"),
+                dcc.Location(id="url", refresh=False),
+                navbar,
+                html.Br(),
+                html.Div(id="page-content"),
+                footer.layout,
+            ],
             fluid=True,
         )
     ]
@@ -34,22 +47,49 @@ app.layout = html.Div(
 flask_app = app.server
 
 # Update the index
-@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
+@app.callback(
+    [Output("page-content", "children"), Output("hidden_div_for_redirect_callback", "children")],
+    [Input("url", "pathname")],
+)
 def display_page(pathname):
+    # This component will be used to redirect to the home in the following situations
+    #   - The url doesn't exists
+    #   - The user is not connected and try to connect to the backoffice
+    #   - The user just logged out
+    home_redirection = dcc.Location(pathname="/", id="someid_doesnt_matter")
+    # Front end of the application
     if pathname == "/":
-        return home.layout
+        return home.layout, ""
     elif pathname == "/selection_entite":
         return entity_choice.layout
     elif isinstance(pathname, str) and pathname.startswith("/tableau_de_bord/"):
-        return dashboard.layout
+        return dashboard.layout, ""
     elif pathname == "/a_propos":
-        return about.layout
+        return about.layout, ""
     elif pathname == "/methodologie":
-        return methodology.layout
-    elif pathname == "/backoffice/entities":
-        return back_office_entities.layout
+        return methodology.layout, ""
+    # Only root to allow login
+    elif pathname == "/beegees":
+        return back_office_login.layout, ""
+    elif isinstance(pathname, str) and pathname.startswith("/backoffice"):
+        if not current_user.is_authenticated:
+            return "", home_redirection
+        # Backend paths
+        elif pathname == "/backoffice":
+            return back_office_home.layout, ""
+        elif pathname == "/backoffice/entities":
+            return back_office_entities.layout, ""
+        elif pathname == "/backoffice/upload_files":
+            return back_office_upload.layout, ""
+        else:
+            return "", home_redirection
+    # Logout path, will automatically redirect to the home page
+    elif pathname == "/logout":
+        if current_user.is_authenticated:
+            logout_user()
+        return "", home_redirection
     else:
-        return home.layout
+        return "", home_redirection
 
 
 if __name__ == "__main__":
