@@ -65,7 +65,7 @@ class OrganizationChart:
 
     def load_current(self):
         with open(ORGANIZATION_CHART_DIR / "current") as file_id:
-            filename = file_id.read()
+            filename = file_id.read().strip()
             self.load_json_file(filename)
 
     def load_tsv(self, tsv_path):
