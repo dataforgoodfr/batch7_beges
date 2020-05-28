@@ -105,29 +105,29 @@ def get_dashtable_by_emission(df):
     Render a dashtable listing top offending connexions by CO2 emissions
     """
     # TODO: Follow instructions in https://stackoverflow.com/questions/58804477/plotly-dash-table-callback
-    table = html.Div(
-        [
-            dash_table.DataTable(
-                id="datatable-row-ids",
-                columns=[
-                    {"name": i, "id": i, "deletable": True}
-                    for i in df.columns
-                    # omit the id column
-                    if i != "id"
-                ],
-                data=df.to_dict("records"),
-                editable=True,
-                filter_action="native",
-                sort_action="native",
-                sort_mode="multi",
-                row_selectable="multi",
-                row_deletable=True,
-                selected_rows=[],
-                page_action="native",
-                page_current=0,
-                page_size=10,
-            )
-        ]
+    df["slug"] = df["lieu_depart"] + " | " + df["lieu_arrivee"]
+    df["count"] = 1
+    distance_df = df.groupby(["slug", "prestation", "distance"])["CO2e/trip", "count"].sum().reset_index()
+    distance_df["avg_CO2e"] = distance_df["CO2e/trip"] / distance_df["count"]
+    table = dash_table.DataTable(
+        id="datatable-row-ids",
+        columns=[
+            {"name": i, "id": i, "deletable": True}
+            for i in distance_df.columns
+            # omit the id column
+            if i != "id"
+        ],
+        data=distance_df.to_dict("rows"),
+        editable=True,
+        filter_action="native",
+        sort_action="native",
+        sort_mode="multi",
+        row_selectable="multi",
+        row_deletable=True,
+        selected_rows=[],
+        page_action="native",
+        page_current=0,
+        page_size=10,
     )
     return table
 
@@ -280,11 +280,34 @@ def update_graphs(selected_entity):
 
 
 @app.callback(
-    [Output("hist-by-emission", "figure"), Output("table-by-emission", "children")],
-    [Input("dashboard-selected-entity", "children")],
+    Output("hist-by-emission", "figure"), [Input("dashboard-selected-entity", "children")],
 )
 def update_graphs_by_connexion(selected_entity):
     service = oc.get_entity_by_id(selected_entity)
     chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
 
-    return [get_scatter_by_emission(chorus_dt_df), get_dashtable_by_emission(chorus_dt_df)]
+    return get_scatter_by_emission(chorus_dt_df)
+
+
+import pandas as pd
+
+df = pd.read_csv(
+    "https://gist.githubusercontent.com/chriddyp/"
+    "c78bf172206ce24f77d6363a2d754b59/raw/"
+    "c353e8ef842413cae56ae3920b8fd78468aa4cb2/"
+    "usa-agricultural-exports-2011.csv"
+)
+
+
+@app.callback(
+    Output("table-by-emission", "children"), [Input("dashboard-selected-entity", "children")],
+)
+def update_graphs_by_connexion(selected_entity):
+    service = oc.get_entity_by_id(selected_entity)
+    chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
+
+    return get_dashtable_by_emission(chorus_dt_df)
+    # dfgb = df.groupby(['state']).sum()
+    # data = df.to_dict('rows')
+    # columns = [{"name": i, "id": i, } for i in (df.columns)]
+    # return dash_table.DataTable(data=data, columns=columns)
