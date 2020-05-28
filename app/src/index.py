@@ -62,7 +62,7 @@ def display_page(pathname):
     if pathname == "/":
         return home.layout, ""
     elif pathname == "/selection_entite":
-        return entity_choice.layout
+        return entity_choice.layout, ""
     elif isinstance(pathname, str) and pathname.startswith("/tableau_de_bord/"):
         return dashboard.layout, ""
     elif pathname == "/a_propos":
