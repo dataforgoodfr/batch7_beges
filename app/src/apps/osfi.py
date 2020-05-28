@@ -95,7 +95,7 @@ layout = html.Div(
     [Input("dashboard-selected-entity", "children")],
 )
 
-def update_graphs(selected_entity):
+def fill_dash_table_with_buildings(selected_entity):
     service = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(service.code_osfi)
     columns_to_keep = ["Nom du bien", "Building type", "Adresse", "Code postal", "Ville", "Departement"]
@@ -104,7 +104,9 @@ def update_graphs(selected_entity):
     selected_rows=[]
     style_data={'whiteSpace': 'normal','height': 'auto','minWidth': '60px', 'width': '180px', 'maxWidth': '180px'}
     style_cell_conditional =[{'if': {'column_id': i}, 'textAlign': 'left'} for i in ['Nom du bien','Date']]
-    data_to_return = data.to_dict("records")
+    buildings = data[columns_to_keep].drop_duplicates()
+    data_to_return = buildings.to_dict("records")
+    #data_to_return = data.to_dict("records")
     return columns, row_selectable, style_data, style_cell_conditional, data_to_return
 
 
@@ -116,16 +118,21 @@ def update_graphs(selected_entity):
         Output("gaz_time_series", "figure"),
     ],
     [
+        Input("dashboard-selected-entity", "children"),
         Input("osfi-all-data-table", "selected_rows"),
         Input("osfi-all-data-table", "data"),
     ],
-    )
-def update_graphs_selected(selected_rows, data):
+)
+def update_graphs_selected(selected_entity, selected_rows, buildings):
+    entity = oc.get_entity_by_id(selected_entity)
+    data = oh.get_structure_data(entity.code_osfi)
     if selected_rows is None: 
         data_to_display = pd.DataFrame(data)
     else:
-        data_to_display = [data[int(i)] for i in selected_rows]
-        data_to_display = pd.DataFrame(data_to_display)
+        biens = [buildings[int(i)] for i in selected_rows]
+        codes = biens['Code bien']
+        data_to_display = data.loc[data['Code bien'].isin(codes)]
+        data_to_display = pd.DataFrame(data)
     electricity_pie_graph = get_pie(data_to_display, "emission_electricity")
     gas_pie_graph = get_pie(data_to_display, "emission_gaz")
     electricity_time_series = get_emissions_timeseries(data_to_display, "emission_electricity")
