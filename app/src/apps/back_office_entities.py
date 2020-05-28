@@ -1,5 +1,6 @@
 import uuid
 import json
+import time
 
 import dash
 from dash.exceptions import PreventUpdate
@@ -9,15 +10,22 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input, State, ALL
 
 from app import app
+from utils.organization_chart import oc
 
-from utils.organization_chart_html_wrapper import EntityHtmlWrapper, OrganizationChartHtmlWrapper, load_oc_to_json
+from utils.organization_chart_html_wrapper import (
+    EntityHtmlWrapper,
+    OrganizationChartHtmlWrapper,
+    oc_to_ochw,
+    ochw_to_oc,
+)
 from utils.organization_chart import OrganizationChart
 
-organization_chart = OrganizationChart("/data/entities_tree.tsv")
-# organization_chart = OrganizationChart("/data/entities_test_tree.tsv")
-
-
-oc_json = load_oc_to_json(organization_chart)
+# organization_chart = OrganizationChart()
+# organization_chart.load_tsv("/data/entities_test_tree.tsv")  # "/data/entities_tree.tsv")
+# # organization_chart.load_tsv("/data/entities_tree.tsv")
+# ochw = oc_to_ochw(organization_chart)
+# ochw = oc_to_ochw(oc)
+# ochw_json = ochw.to_json()
 MODAL_ID_PREFIX = "back-office-entity-modal"
 
 
@@ -99,7 +107,7 @@ entity_modal = dbc.Modal(
 
 layout = html.Div(
     [
-        html.Div(id="back-office-entity-tree", children=oc_json, style={"display": "none"}),
+        html.Div(id="back-office-entity-tree", style={"display": "none"}),
         html.Div(id="back-office-entity-selected", style={"display": "none"}),
         html.H1("Gestion de l'organigramme", className="m-2"),
         dbc.Row(
@@ -113,14 +121,13 @@ layout = html.Div(
                                         [
                                             dbc.Button(
                                                 "Sauvegarder l'organigramme",
-                                                id="back-office-entities-save-organization_chart",
+                                                id="back-office-entities-save-organization-chart",
                                                 color="primary",
-                                                className="m-2",
                                                 block=True,
                                             ),
                                             dbc.Tooltip(
                                                 "Sauvegarder l'organigramme et le publier.",
-                                                target="back-office-entities-save-organization_chart",
+                                                target="back-office-entities-save-organization-chart",
                                                 placement="bottom",
                                             ),
                                         ],
@@ -130,7 +137,6 @@ layout = html.Div(
                                         dbc.Button(
                                             "Ajouter une entité",
                                             color="primary",
-                                            className="m-2",
                                             id="back-office-entity-new-modal-open-button",
                                             block=True,
                                         ),
@@ -140,7 +146,6 @@ layout = html.Div(
                                         dbc.Button(
                                             "Aide",
                                             color="info",
-                                            className="m-2",
                                             id="back-office-help-toggle-button",
                                             outline=True,
                                             block=True,
@@ -148,7 +153,30 @@ layout = html.Div(
                                         width=2,
                                     ),
                                 ]
-                            )
+                            ),
+                            dbc.Row(
+                                dbc.Col(
+                                    [
+                                        dbc.Alert(
+                                            "Une erreur s'est produite, l'organigramme n'a pas pu être sauvegardé !",
+                                            id="back-office-entities-save-organization-chart-error",
+                                            color="danger",
+                                            className="mt-3",
+                                            dismissable=True,
+                                            duration=10000,
+                                        ),
+                                        dbc.Alert(
+                                            "L'organigramme a bien été sauvegardé !",
+                                            id="back-office-entities-save-organization-chart-success",
+                                            color="success",
+                                            className="mt-3",
+                                            dismissable=True,
+                                            duration=10000,
+                                        ),
+                                    ],
+                                    width=12,
+                                )
+                            ),
                         ]
                     )
                 ),
@@ -221,8 +249,13 @@ def interact_organigram(
     state_modal_code_osfi,
 ):
     ctx = dash.callback_context
-    ochw = OrganizationChartHtmlWrapper()
-    ochw.load_json(json_tree)
+    # If the json tree is empty, we will load the tree from the app organization chart
+    # Else we will load this json tree
+    if not json_tree:
+        ochw = oc_to_ochw(oc)
+    else:
+        ochw = OrganizationChartHtmlWrapper()
+        ochw.load_json(json_tree)
 
     modal_is_open = None
     modal_mode = None
@@ -251,9 +284,23 @@ def interact_organigram(
                 entity.code_osfi = state_modal_code_osfi
                 parent = ochw.get_entity_by_id(state_modal_parent_id)
                 entity.parent = parent
+                entity.visible = True
+                entity.expand = False
+                ochw.toggle_entity_visible(entity.id)
+            elif state_modal_mode == "update":
+                entity_id = state_modal_entity_id
+                parent_id = state_modal_parent_id
+                entity = ochw.get_entity_by_id(entity_id)
+                parent = ochw.get_entity_by_id(parent_id)
+                entity.parent = parent
+                entity.label = state_modal_label
+                entity.code_chorus = state_modal_code_chorus
+                entity.code_odrive = state_modal_code_odrive
+                entity.code_osfi = state_modal_code_osfi
                 ochw.toggle_entity_visible(entity.id)
         else:
             element_full_id = json.loads(element_full_id)
+            print(element_full_id)
             element_id = element_full_id["id"]
             element_type = element_full_id["type"]
 
@@ -368,3 +415,28 @@ def fill_modal_dropdown_value(options, is_open, modal_mode, modal_entity_id, jso
             ochw.load_json(json_tree)
             entity = ochw.get_entity_by_id(modal_entity_id)
             return entity.parent.id
+
+
+@app.callback(
+    [
+        Output("back-office-entities-save-organization-chart-error", "is_open"),
+        Output("back-office-entities-save-organization-chart-success", "is_open"),
+    ],
+    [Input("back-office-entities-save-organization-chart", "n_clicks")],
+    [State("back-office-entity-tree", "children")],
+)
+def save_organization_chart_and_publish(n_clicks, json_tree):
+    if n_clicks:
+        try:
+            ochw = OrganizationChartHtmlWrapper()
+            ochw.load_json(json_tree)
+            local_oc = ochw_to_oc(ochw)
+            filename = str(time.time_ns())
+            local_oc.save_json(filename)
+            local_oc.set_current(filename)
+            oc.load_current()
+            return False, True
+        except Exception as e:
+            return True, False
+    else:
+        return False, False

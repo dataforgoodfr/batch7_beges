@@ -57,6 +57,7 @@ def display_page(pathname):
     #   - The user is not connected and try to connect to the backoffice
     #   - The user just logged out
     home_redirection = dcc.Location(pathname="/", id="someid_doesnt_matter")
+    backoffice_redirection = dcc.Location(pathname="/backoffice", id="someid_doesnt_matter")
     # Front end of the application
     if pathname == "/":
         return home.layout, ""
@@ -70,7 +71,10 @@ def display_page(pathname):
         return methodology.layout, ""
     # Only root to allow login
     elif pathname == "/beegees":
-        return back_office_login.layout, ""
+        if not current_user.is_authenticated:
+            return back_office_login.layout, ""
+        else:
+            return "", backoffice_redirection
     elif isinstance(pathname, str) and pathname.startswith("/backoffice"):
         if not current_user.is_authenticated:
             return "", home_redirection

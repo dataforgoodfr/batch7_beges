@@ -11,7 +11,7 @@ from anytree.importer import JsonImporter
 from anytree.importer import DictImporter
 
 
-def load_oc_to_json(organization_chart):
+def oc_to_ochw(organization_chart):
     root = EntityHtmlWrapper(id="root", label="root", activated=True)
     elements = {}
     elements["root"] = root
@@ -31,7 +31,34 @@ def load_oc_to_json(organization_chart):
             entity.visible = True
 
         elements[entity.id] = entity
-    return JsonExporter().export(root)
+    ochw = OrganizationChartHtmlWrapper()
+    ochw._root = root
+    return ochw
+
+
+def ochw_to_oc(organization_chart_html_wrapper):
+
+    root = Entity(id="root", label="root", activated=True)
+    elements = {}
+    elements["root"] = root
+    for entity_wrapper in PreOrderIter(organization_chart_html_wrapper._root):
+        if entity_wrapper.id == "root":
+            continue
+        parent_id = entity_wrapper.parent.id
+        entity = Entity(
+            id=entity_wrapper.id,
+            label=entity_wrapper.label,
+            code_chorus=entity_wrapper.code_chorus,
+            code_osfi=entity_wrapper.code_osfi,
+            code_odrive=entity_wrapper.code_odrive,
+            activated=entity_wrapper.activated,
+        )
+
+        entity.parent = elements[parent_id]
+        elements[entity.id] = entity
+    oc = OrganizationChart()
+    oc._root = root
+    return oc
 
 
 class EntityHtmlWrapper(Entity):
@@ -62,11 +89,6 @@ class EntityHtmlWrapper(Entity):
         self.valid = valid
         self.selected = selected
         self.visible = visible
-
-    def to_json(self):
-        to_return_dict = {k: v for k, v in self.__dict__.items() if (("parent" not in k) and ("children" not in k))}
-        to_return_dict["parent"] = self.parent.id
-        return json.dumps(to_return_dict, encoding="utf-8")
 
     def get_expand_element(self):
         if self.children:
@@ -149,6 +171,9 @@ class OrganizationChartHtmlWrapper:
         dict_importer = DictImporter(nodecls=EntityHtmlWrapper)
         self._root = JsonImporter(dict_importer).import_(tree_json)
 
+    def to_json(self):
+        return JsonExporter().export(self._root)
+
     def get_parent_options(self, entity_id=None) -> dict:
         options = []
         entity = self.get_entity_by_id(entity_id)
@@ -163,9 +188,6 @@ class OrganizationChartHtmlWrapper:
                 elif other_entity not in entity.descendants:
                     options.append({"label": other_entity.label, "value": other_entity.id})
         return options
-
-    def to_json(self):
-        return JsonExporter().export(self._root)
 
     def get_entity_by_id(self, entity_id) -> Entity:
         return find_tree(self._root, lambda entity: entity.id == entity_id)

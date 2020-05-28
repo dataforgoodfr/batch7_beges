@@ -25,7 +25,6 @@ layout = html.Div(
                             id="output-state",
                             color="danger",
                             dismissable=True,
-                            duration=5000,
                         ),
                         username_input,
                         pwd_input,
