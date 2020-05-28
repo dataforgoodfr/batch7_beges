@@ -13,6 +13,7 @@ from app import app
 
 
 def get_dropdown(parent_id="root", depth=1):
+    print(oc.get_children_dropdown_items("root"))
     return dcc.Dropdown(
         id={"type": "entity-choice-dropdown-level", "id": depth},
         options=oc.get_children_dropdown_items(parent_id),
@@ -29,7 +30,7 @@ layout = html.Div(
         html.Div(id="entity-choice-selected-entity", style={"display": "none"}),
         dbc.Row(
             dbc.Col(
-                [html.H1("Choisissez votre entité"), dbc.Form([get_dropdown()], id="entity-choice-dropdowns")],
+                [html.H1("Choisissez votre entité"), dbc.Form([], id="entity-choice-dropdowns")],
                 width={"size": 6, "offset": 3},
             )
         ),
@@ -82,6 +83,10 @@ def add_dropdown(values, dropdowns):
     ctx = dash.callback_context
     ctx_msg = json.dumps({"states": ctx.states, "triggered": ctx.triggered, "inputs": ctx.inputs}, indent=2)
     selected_entity = None
+    # If the dropdowns are empty, we are adding the dropdowns for the first level
+    if not dropdowns:
+        dropdowns = [get_dropdown()]
+        return dropdowns, None
     if not ctx.triggered:
         raise PreventUpdate
     else:
