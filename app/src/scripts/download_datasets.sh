@@ -19,10 +19,6 @@ wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1c
 # Chorus DT #
 #############
 
-# CO2 conversion table
-OUTPUT_PATH=/data/raw/chorus-dt
-wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1EfqW3boI4sHnjeTQy1O6VH-8rodhH11y' -O $OUTPUT_PATH/CO2_conversion_table.csv
-
 # Avion train sample
 OUTPUT_PATH=/data/raw/chorus-dt
 wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1l_DE8hWpxKtjCBpHZ_JPIkjNeyw8LQ-c' -O $OUTPUT_PATH/first_semester.zip
