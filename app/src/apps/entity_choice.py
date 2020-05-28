@@ -13,11 +13,10 @@ from app import app
 
 
 def get_dropdown(parent_id="root", depth=1):
-    print(oc.get_children_dropdown_items("root"))
     return dcc.Dropdown(
         id={"type": "entity-choice-dropdown-level", "id": depth},
         options=oc.get_children_dropdown_items(parent_id),
-        placeholder="Choisissez votre entité de niveau %s" % depth,
+        placeholder="Choisissez votre entitée de niveau %s" % depth,
         className="mb-3",
         clearable=True,
     )
