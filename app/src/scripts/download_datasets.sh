@@ -46,6 +46,8 @@ wget --no-check-certificate 'https://ourairports.com/data/airports.csv' -O $OUTP
 #############
 OUTPUT_PATH=/data/raw/osfi
 wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1vzJKxyAi9ew0238z8IMULfX0ZPFtBqwV' -O $OUTPUT_PATH/osfi.csv
+wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1NtB0Noq2tm_CmhbHcm5U7yOEWVGFKJVM' -O $OUTPUT_PATH/osfi_monthly.csv
+wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1zROhuCgS-znQX68h5YsdmvGP-4zXd8lu' -O $OUTPUT_PATH/osfi_buildings.csv
 
 
 #############
