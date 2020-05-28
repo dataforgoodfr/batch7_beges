@@ -352,8 +352,27 @@ def update_graphs(selected_entity):
 
 
 @app.callback(
-    [Output("hist-by-emission", "figure"), Output("table-by-emission", "children")],
-    [Input("dashboard-selected-entity", "children")],
+    Output("hist-by-emission", "figure"), [Input("dashboard-selected-entity", "children")],
+)
+def update_graphs_by_connexion(selected_entity):
+    service = oc.get_entity_by_id(selected_entity)
+    chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
+
+    return get_scatter_by_emission(chorus_dt_df)
+
+
+import pandas as pd
+
+df = pd.read_csv(
+    "https://gist.githubusercontent.com/chriddyp/"
+    "c78bf172206ce24f77d6363a2d754b59/raw/"
+    "c353e8ef842413cae56ae3920b8fd78468aa4cb2/"
+    "usa-agricultural-exports-2011.csv"
+)
+
+
+@app.callback(
+    Output("table-by-emission", "children"), [Input("dashboard-selected-entity", "children")],
 )
 def update_graphs_by_connexion(selected_entity):
     service = oc.get_entity_by_id(selected_entity)
