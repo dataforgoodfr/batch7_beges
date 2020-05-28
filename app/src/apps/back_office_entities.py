@@ -18,7 +18,10 @@ from utils.organization_chart_html_wrapper import (
     oc_to_ochw,
     ochw_to_oc,
 )
+
 from utils.organization_chart import OrganizationChart
+
+from apps.back_office_home import get_vertical_backoffice_navbar
 
 # organization_chart = OrganizationChart()
 # organization_chart.load_tsv("/data/entities_test_tree.tsv")  # "/data/entities_tree.tsv")
@@ -106,88 +109,96 @@ entity_modal = dbc.Modal(
 
 
 layout = html.Div(
-    [
-        html.Div(id="back-office-entity-tree", style={"display": "none"}),
-        html.Div(id="back-office-entity-selected", style={"display": "none"}),
-        html.H1("Gestion de l'organigramme", className="m-2"),
-        dbc.Row(
+    dbc.Row(
+        [
+            dbc.Col(get_vertical_backoffice_navbar(), width=2),
             dbc.Col(
-                dbc.Card(
-                    dbc.CardBody(
-                        [
-                            dbc.Row(
-                                [
-                                    dbc.Col(
-                                        [
-                                            dbc.Button(
-                                                "Sauvegarder l'organigramme",
-                                                id="back-office-entities-save-organization-chart",
-                                                color="primary",
-                                                block=True,
-                                            ),
-                                            dbc.Tooltip(
-                                                "Sauvegarder l'organigramme et le publier.",
-                                                target="back-office-entities-save-organization-chart",
-                                                placement="bottom",
-                                            ),
-                                        ],
-                                        width=5,
-                                    ),
-                                    dbc.Col(
-                                        dbc.Button(
-                                            "Ajouter une entité",
-                                            color="primary",
-                                            id="back-office-entity-new-modal-open-button",
-                                            block=True,
-                                        ),
-                                        width=5,
-                                    ),
-                                    dbc.Col(
-                                        dbc.Button(
-                                            "Aide",
-                                            color="info",
-                                            id="back-office-help-toggle-button",
-                                            outline=True,
-                                            block=True,
-                                        ),
-                                        width=2,
-                                    ),
-                                ]
-                            ),
-                            dbc.Row(
-                                dbc.Col(
+                [
+                    html.Div(id="back-office-entity-tree", style={"display": "none"}),
+                    html.Div(id="back-office-entity-selected", style={"display": "none"}),
+                    html.H1("Gestion de l'organigramme", className="m-2"),
+                    dbc.Row(
+                        dbc.Col(
+                            dbc.Card(
+                                dbc.CardBody(
                                     [
-                                        dbc.Alert(
-                                            "Une erreur s'est produite, l'organigramme n'a pas pu être sauvegardé !",
-                                            id="back-office-entities-save-organization-chart-error",
-                                            color="danger",
-                                            className="mt-3",
-                                            dismissable=True,
-                                            duration=10000,
+                                        dbc.Row(
+                                            [
+                                                dbc.Col(
+                                                    [
+                                                        dbc.Button(
+                                                            "Sauvegarder l'organigramme",
+                                                            id="back-office-entities-save-organization-chart",
+                                                            color="primary",
+                                                            block=True,
+                                                        ),
+                                                        dbc.Tooltip(
+                                                            "Sauvegarder l'organigramme et le publier.",
+                                                            target="back-office-entities-save-organization-chart",
+                                                            placement="bottom",
+                                                        ),
+                                                    ],
+                                                    width=5,
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Button(
+                                                        "Ajouter une entité",
+                                                        color="primary",
+                                                        id="back-office-entity-new-modal-open-button",
+                                                        block=True,
+                                                    ),
+                                                    width=5,
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Button(
+                                                        "Aide",
+                                                        color="info",
+                                                        id="back-office-help-toggle-button",
+                                                        outline=True,
+                                                        block=True,
+                                                    ),
+                                                    width=2,
+                                                ),
+                                            ]
                                         ),
-                                        dbc.Alert(
-                                            "L'organigramme a bien été sauvegardé !",
-                                            id="back-office-entities-save-organization-chart-success",
-                                            color="success",
-                                            className="mt-3",
-                                            dismissable=True,
-                                            duration=10000,
+                                        dbc.Row(
+                                            dbc.Col(
+                                                [
+                                                    dbc.Alert(
+                                                        "Une erreur s'est produite, l'organigramme n'a pas pu être sauvegardé !",
+                                                        id="back-office-entities-save-organization-chart-error",
+                                                        color="danger",
+                                                        className="mt-3",
+                                                        dismissable=True,
+                                                        duration=10000,
+                                                    ),
+                                                    dbc.Alert(
+                                                        "L'organigramme a bien été sauvegardé !",
+                                                        id="back-office-entities-save-organization-chart-success",
+                                                        color="success",
+                                                        className="mt-3",
+                                                        dismissable=True,
+                                                        duration=10000,
+                                                    ),
+                                                ],
+                                                width=12,
+                                            )
                                         ),
-                                    ],
-                                    width=12,
+                                    ]
                                 )
                             ),
-                        ]
-                    )
-                ),
-                width=12,
-            )
-        ),
-        help_modal,
-        entity_modal,
-        html.Hr(),
-        dbc.Row([dbc.Col(html.Div(id="back-office-entity-tree-display"))]),
-    ]
+                            width=12,
+                        )
+                    ),
+                    help_modal,
+                    entity_modal,
+                    html.Hr(),
+                    dbc.Row([dbc.Col(html.Div(id="back-office-entity-tree-display"))]),
+                ],
+                width=10,
+            ),
+        ]
+    )
 )
 
 
