@@ -20,7 +20,7 @@ layout = html.Div(
             [
                 dbc.Col(
                     dbc.Button(
-                        "Choisir une autre entité",
+                        [html.I(className="fa fa-chevron-left fa-1x mr-1"), "Choisir une autre entité"],
                         id="dashboard-button-to-entity-choice",
                         color="primary",
                         outline=True,
