@@ -30,33 +30,43 @@ layout = html.Div(
                     width=2,
                 ),
                 dbc.Col(
-                    dbc.Button("Exporter les données", color="primary", className="mr-1", block=True),
-                    width={"size": 2, "offset": 6},
+                    dbc.Button("Exporter toutes les données", color="primary", className="mr-1", block=True),
+                    width={"size": 3, "offset": 5},
                 ),
                 dbc.Col(
                     dbc.Button("Aide", color="secondary", className="mr-1", block=True), width={"size": 2, "offset": 0}
                 ),
-            ]
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dbc.Card(html.Div(id="dashboard-selected-entity-show", className="m-2"), className="m-2"),
-                    width={"size": 10, "offset": 1},
-                )
-            ]
-        ),
-        dbc.Tabs(
-            id="tabs-datasets",
-            children=[
-                dbc.Tab(label="Déplacements train / avion", tab_id="chorus-dt"),
-                dbc.Tab(label="Déplacements voiture", tab_id="odrive"),
-                dbc.Tab(label="Consommation énergétiques", tab_id="osfi"),
             ],
-            className="nav-fill",
-            active_tab="chorus-dt",
+            className="mb-2",
         ),
-        html.Div(id="tabs-content"),
+        dbc.Card(
+            [
+                dbc.CardHeader(
+                    [
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    html.Div(id="dashboard-selected-entity-show", className="m-5"),
+                                    width={"size": 10, "offset": 1},
+                                )
+                            ]
+                        ),
+                        dbc.Tabs(
+                            id="tabs-datasets",
+                            children=[
+                                dbc.Tab(label="Déplacements train / avion", tab_id="chorus-dt"),
+                                dbc.Tab(label="Déplacements voiture", tab_id="odrive"),
+                                dbc.Tab(label="Consommation énergétiques", tab_id="osfi"),
+                            ],
+                            card=True,
+                            className="nav-fill",
+                            active_tab="chorus-dt",
+                        ),
+                    ]
+                ),
+                dbc.CardBody(html.Div(id="tabs-content")),
+            ]
+        ),
     ],
     style={"display": "none"},
 )

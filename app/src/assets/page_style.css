@@ -1,6 +1,7 @@
-body {
-    background-color: #f8f9fc;
-}
+html, body {
+    height: 100%;
+  }
+
 
 .nav_bar {
     width: 100%;
@@ -14,10 +15,10 @@ body {
 }
 
 .pretty_container {
-    background-color: #fff;
+    /* background-color: #fff; */
     box-shadow: 2px 2px 2px lightgrey;
-    margin: 10px;
-    padding: 15px;
+    /* margin: 10px; */
+    /* padding: 15px; */
 }
 
 

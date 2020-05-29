@@ -24,22 +24,26 @@ navbar = dbc.Navbar(
     [dbc.NavbarBrand("Outil d'aide à la réalisation de Bilans d'Émissions de Gaz à Effet de Serre (BEGES)", href="/")],
     color="dark",
     dark=True,
-    className="nav_bar",
+    className="nav_bar mb-3",
 )
 
 app.layout = html.Div(
-    children=[
-        dbc.Container(
-            [
-                html.Div(id="hidden_div_for_redirect_callback"),
-                dcc.Location(id="url", refresh=False),
-                navbar,
-                html.Br(),
-                html.Div(id="page-content"),
-                footer.layout,
-            ],
-            fluid=True,
-        )
+    [
+        html.Div(
+            id="wrap",
+            children=dbc.Container(
+                id="main",
+                children=[
+                    html.Div(id="hidden_div_for_redirect_callback"),
+                    dcc.Location(id="url", refresh=False),
+                    navbar,
+                    html.Div(id="page-content"),
+                ],
+                fluid=True,
+                className="clear-top",
+            ),
+        ),
+        footer.layout,
     ]
 )
 

@@ -18,5 +18,6 @@ layout = dbc.Row(
             + [html.A(id="methodologie_osfi"), methodology_osfi]
         ),
         width={"size": 6, "offset": 3},
-    )
+    ),
+    className="mt-5",
 )
