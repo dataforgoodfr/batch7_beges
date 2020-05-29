@@ -1,6 +1,5 @@
 import csv
 
-import dill
 from anytree import NodeMixin, RenderTree
 from anytree.search import find as find_tree
 

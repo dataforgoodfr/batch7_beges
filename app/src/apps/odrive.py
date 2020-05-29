@@ -2,13 +2,12 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
-from dash.dependencies import Output, Input, State
+from dash.dependencies import Output, Input
 
 from app import app
 from utils.organization_chart import oc
 from utils.odrive_handler import ov
 from components.html_components import build_figure_container, build_card_indicateur
-from components.figures_templates import xaxis_format
 
 
 def get_donut_by_entity_type(code_structure=None):

@@ -1,7 +1,7 @@
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
-from dash.dependencies import Output, Input, State
+from dash.dependencies import Output, Input
 from utils.texts import TEXTS
 
 from app import app
@@ -47,6 +47,6 @@ def on_click_go_to_entity_choice(n_clicks):
 
 
 @app.callback(Output("home-div-url-redirect-to-about", "children"), [Input("button-to-about", "n_clicks")])
-def on_click_go_to_entity_choice(n_clicks):
+def on_click_go_to_about(n_clicks):
     if n_clicks:
         return dcc.Location(id="url-redirect-to-about", pathname="/a_propos")
