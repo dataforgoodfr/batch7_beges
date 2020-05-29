@@ -46,6 +46,7 @@ layout = html.Div(
                     title="Liste de biens", id="osfi-all-data-table", footer="Explications..."
                 ),
                 width=12,
+                style={"textAlign": "left"},
             )
         ),
         dbc.Row(
@@ -88,8 +89,6 @@ layout = html.Div(
     [
         Output("osfi-all-data-table", "columns"),
         Output("osfi-all-data-table", "row_selectable"),
-        Output("osfi-all-data-table", "style_data"),
-        Output("osfi-all-data-table", "style_cell_conditional"),
         Output("osfi-all-data-table", "data"),
     ],
     [Input("dashboard-selected-entity", "children")],
@@ -102,11 +101,9 @@ def fill_dash_table_with_buildings(selected_entity):
     columns = [{"name": i, "id": i} for i in columns_to_keep]
     row_selectable = "multi"
     selected_rows=[]
-    style_data={'whiteSpace': 'normal','height': 'auto','minWidth': '60px', 'width': '180px', 'maxWidth': '180px'}
-    style_cell_conditional =[{'if': {'column_id': i}, 'textAlign': 'left'} for i in ['Nom du bien','Date']]
     buildings = data[columns_to_keep].drop_duplicates()
     data_to_return = buildings.to_dict("records")
-    return columns, row_selectable, style_data, style_cell_conditional, data_to_return
+    return columns, row_selectable, data_to_return
 
 
 @app.callback(
