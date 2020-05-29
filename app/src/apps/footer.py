@@ -13,7 +13,7 @@ div_about = html.Div(
             style={"list-style-type": "none"},
         ),
     ],
-    style={"margin-top": "5px"},
+    className="mt-2",
 )
 
 div_sources = html.Div(
@@ -33,10 +33,11 @@ div_sources = html.Div(
                         href="https://www.ecologique-solidaire.gouv.fr/sites/default/files/Guide%20m%C3%A9thodologique%20sp%C3%A9cifique%20pour%20les%20collectivit%C3%A9s%20pour%20la%20r%C3%A9alisation%20du%20bilan%20d%E2%80%99%C3%A9missions%20de%20GES_0.pdf",
                     )
                 ),
-            ]
+            ],
+            style={"list-style-type": "none"},
         ),
     ],
-    style={"margin-top": "5px"},
+    className="mt-2",
 )
 layout = html.Footer(
     dbc.Container(
@@ -51,16 +52,7 @@ layout = html.Footer(
                 dbc.Col(html.P("2020 © dataforgood", style={"text-align": "center", "margin": "1px"}), align="center")
             ),
         ],
-        style={
-            "background": "lightgrey",
-            "margin": "0px",
-            "position": "fixed",
-            "bottom": "0",
-            "left": "0",
-            "right": "0",
-            "font-size": "12px",
-        },
         fluid=True,
     ),
-    # style={"position": "absolute", "bottom": "0"},
+    className="footer mt-5",
 )

@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from flask_login import LoginManager, UserMixin
 
 external_stylesheets = [
-    dbc.themes.BOOTSTRAP,
+    dbc.themes.COSMO,
     {
         "href": "https://use.fontawesome.com/releases/v5.8.1/css/all.css",
         "rel": "stylesheet",

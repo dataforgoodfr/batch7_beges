@@ -11,8 +11,7 @@ layout = html.Div(
     children=[
         html.Div(id="home-div-url-redirect-to-about", style={"display": "none"}),
         html.Div(id="home-div-url-redirect-to-entity-choice", style={"display": "none"}),
-        dbc.Row(dbc.Col(dcc.Markdown(TEXTS["home"]), width={"size": 6, "offset": 3})),
-        html.Hr(),
+        dbc.Row(dbc.Col(dcc.Markdown(TEXTS["home"], className="my-5"), width={"size": 6, "offset": 3})),
         dbc.Row(
             [
                 dbc.Col(
