@@ -1,4 +1,5 @@
 import csv
+import os
 from pathlib import Path
 import json
 
@@ -64,6 +65,10 @@ class OrganizationChart:
             file_id.write(filename)
 
     def load_current(self):
+        # If there is no current file, we will create one with the default entity tree
+        if not os.path.isfile(ORGANIZATION_CHART_DIR / "current"):
+            self.set_current("default")
+
         with open(ORGANIZATION_CHART_DIR / "current") as file_id:
             filename = file_id.read().strip()
             self.load_json_file(filename)
@@ -102,4 +107,3 @@ class OrganizationChart:
 
 oc = OrganizationChart()
 oc.load_current()
-#  oc.load_tsv("/data/entities_tree.tsv")
