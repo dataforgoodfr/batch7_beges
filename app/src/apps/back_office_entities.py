@@ -10,6 +10,7 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input, State, ALL
 
 from app import app
+from utils.texts import TEXTS
 from utils.organization_chart import oc
 
 from utils.organization_chart_html_wrapper import (
@@ -23,12 +24,6 @@ from utils.organization_chart import OrganizationChart
 
 from apps.back_office_home import get_vertical_backoffice_navbar
 
-# organization_chart = OrganizationChart()
-# organization_chart.load_tsv("/data/entities_test_tree.tsv")  # "/data/entities_tree.tsv")
-# # organization_chart.load_tsv("/data/entities_tree.tsv")
-# ochw = oc_to_ochw(organization_chart)
-# ochw = oc_to_ochw(oc)
-# ochw_json = ochw.to_json()
 MODAL_ID_PREFIX = "back-office-entity-modal"
 
 
@@ -61,7 +56,7 @@ entity_modal_body = html.Div(
 help_modal = dbc.Modal(
     [
         dbc.ModalHeader("Aide"),
-        dbc.ModalBody("Voici un peu d'aide"),
+        dbc.ModalBody(TEXTS["backoffice_organization_chart_help"]),
         dbc.ModalFooter(dbc.Button("Fermer", id="back-office-help-close-button", className="ml-auto")),
     ],
     id="back-office-help-modal",
