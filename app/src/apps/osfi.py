@@ -19,21 +19,23 @@ def get_pie(data, column):
     fig.update_layout(plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30})
     return fig
 
+
 def get_emissions_timeseries(data, column):
     biens = data["Nom du bien"].unique()
     fig = go.Figure()
     for bien in biens:
         plot_data = data.loc[data["Nom du bien"] == bien]
         fig.add_trace(
-            go.Scatter(name=bien,
+            go.Scatter(
+                name=bien,
                 x=plot_data["Date"].astype(str),
                 y=plot_data[column].values,
                 mode="lines+markers",
                 line=dict(width=3),
             )
-    )
+        )
     fig.update_layout(
-        plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30}#, xaxis=xaxis_format
+        plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30}  # , xaxis=xaxis_format
     )
     return fig
 
@@ -42,9 +44,7 @@ layout = html.Div(
     [
         dbc.Row(
             dbc.Col(
-                build_table_container(
-                    title="Liste de biens", id="osfi-all-data-table", footer="Explications..."
-                ),
+                build_table_container(title="Liste de biens", id="osfi-all-data-table", footer="Explications..."),
                 width=12,
                 style={"textAlign": "left"},
             )
@@ -68,7 +68,9 @@ layout = html.Div(
         dbc.Row(
             dbc.Col(
                 build_figure_container(
-                    title="Évolution temporelles des émissions (électricité)", id="electricity_time_series", footer="Explications..."
+                    title="Évolution temporelles des émissions (électricité)",
+                    id="electricity_time_series",
+                    footer="Explications...",
                 ),
                 width=12,
             )
@@ -93,14 +95,12 @@ layout = html.Div(
     ],
     [Input("dashboard-selected-entity", "children")],
 )
-
 def fill_dash_table_with_buildings(selected_entity):
     service = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(service.code_osfi)
     columns_to_keep = ["Nom du bien", "Building type", "Adresse", "Code postal", "Ville", "Departement"]
     columns = [{"name": i, "id": i} for i in columns_to_keep]
     row_selectable = "multi"
-    selected_rows=[]
     buildings = data[columns_to_keep].drop_duplicates()
     data_to_return = buildings.to_dict("records")
     return columns, row_selectable, data_to_return
@@ -122,7 +122,7 @@ def fill_dash_table_with_buildings(selected_entity):
 def update_graphs_selected(selected_entity, selected_rows, buildings):
     entity = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(entity.code_osfi)
-    if selected_rows is None: 
+    if selected_rows is None:
         data_to_display = pd.DataFrame(data)
     else:
         biens = [buildings[int(i)] for i in selected_rows]
