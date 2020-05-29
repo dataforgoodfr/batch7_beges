@@ -1,10 +1,18 @@
 import os
 import math
+import ssl
 
 import dill
 
+import geopy.geocoders
 from geopy.geocoders import GoogleV3, Nominatim
 from geopy.extra.rate_limiter import RateLimiter
+
+# Fix to deactivate the ssl verification
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
+geopy.geocoders.options.default_ssl_context = ctx
 
 
 class GeocodingApiResolver:
