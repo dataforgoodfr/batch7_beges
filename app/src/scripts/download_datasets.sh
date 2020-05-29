@@ -5,8 +5,6 @@ mkdir -p /data/raw/odrive
 mkdir -p /data/prepared
 mkdir -p /data/cleaned
 
-mkdir -p /data/CO2_conversion_table
-
 
 #############
 #  Globals  #
