@@ -1,4 +1,3 @@
-# Méthodologie
 ## Introduction
 Actuellement, un BEGES s’articule autour de 23 postes d’émissions répartis en 3 catégories ou « scope ».
 - Scope 1 : émissions directes produites par les sources fixes et mobiles détenues par l’entité (ex : émissions du parc de véhicules de l’entité).

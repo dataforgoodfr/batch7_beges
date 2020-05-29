@@ -11,27 +11,24 @@ layout = html.Div(
     children=[
         html.Div(id="home-div-url-redirect-to-about", style={"display": "none"}),
         html.Div(id="home-div-url-redirect-to-entity-choice", style={"display": "none"}),
-        dbc.Row(dbc.Col(dcc.Markdown(TEXTS["home"], className="my-5"), width={"size": 6, "offset": 3})),
+        dbc.Row(
+            dbc.Col(
+                [html.H1("Outil BEGES", className="my-5"), dcc.Markdown(TEXTS["home"])], width={"size": 6, "offset": 3}
+            ),
+            className="mb-5",
+        ),
         dbc.Row(
             [
                 dbc.Col(
-                    dbc.Button(
-                        "En savoir plus",
-                        id="button-to-about",
-                        color="primary",
-                        outline=True,
-                        className="mr-1",
-                        block=True,
-                    ),
+                    dbc.Button("En savoir plus", id="button-to-about", color="primary", outline=True, block=True),
                     width={"size": 2, "offset": 4},
                 ),
                 dbc.Col(
-                    dbc.Button(
-                        "C'est parti !", id="button-to-entity-choice", color="primary", className="mr-1", block=True
-                    ),
+                    dbc.Button("C'est parti !", id="button-to-entity-choice", color="primary", block=True),
                     width={"size": 2, "offset": 0},
                 ),
-            ]
+            ],
+            className="mb-5",
         ),
     ],
 )

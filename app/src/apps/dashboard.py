@@ -24,7 +24,6 @@ layout = html.Div(
                         id="dashboard-button-to-entity-choice",
                         color="primary",
                         outline=True,
-                        className="mr-1",
                         block=True,
                     ),
                     width=2,
@@ -37,7 +36,7 @@ layout = html.Div(
                     dbc.Button("Aide", color="secondary", className="mr-1", block=True), width={"size": 2, "offset": 0}
                 ),
             ],
-            className="mb-2",
+            className="mb-3",
         ),
         dbc.Card(
             [

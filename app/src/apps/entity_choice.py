@@ -29,21 +29,21 @@ layout = html.Div(
         html.Div(id="entity-choice-selected-entity", style={"display": "none"}),
         dbc.Row(
             dbc.Col(
-                [html.H1("Choisissez votre entité"), dbc.Form([], id="entity-choice-dropdowns")],
+                [
+                    html.H1("Choisissez votre entité", className="my-5"),
+                    dbc.Form([], id="entity-choice-dropdowns", className="mb-5"),
+                ],
                 width={"size": 6, "offset": 3},
             )
         ),
         dbc.Row(
             dbc.Col(
                 dbc.Button(
-                    "Afficher les données",
-                    id="button-to-dashboard",
-                    color="primary",
-                    className="mr-1",
-                    style={"display": "none"},
+                    "Afficher les données", id="button-to-dashboard", color="primary", style={"display": "none"}
                 ),
                 width={"size": 2, "offset": 5},
-            )
+            ),
+            className="mb-5",
         ),
     ],
 )
