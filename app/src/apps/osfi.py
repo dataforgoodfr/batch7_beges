@@ -122,6 +122,8 @@ def fill_dash_table_with_buildings(selected_entity):
 def update_graphs_selected(selected_entity, selected_rows, buildings):
     entity = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(entity.code_osfi)
+    # If no rows are selected, we are displaying all of them
+    # Might seem a bit conter intuitive.
     if selected_rows is None or len(selected_rows) == 0:
         data_to_display = pd.DataFrame(data)
     else:
