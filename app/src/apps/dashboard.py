@@ -10,6 +10,16 @@ from apps import osfi
 from app import app
 
 from utils.organization_chart import oc
+from utils.texts import TEXTS
+
+help_modal = dbc.Modal(
+    [
+        dbc.ModalHeader("Aide"),
+        dbc.ModalBody(TEXTS["dashboard_help"]),
+        dbc.ModalFooter(dbc.Button("Fermer", id="dashboard-help-close-button", className="ml-auto")),
+    ],
+    id="dashboard-help-modal",
+)
 
 layout = html.Div(
     id="div-data-display",
@@ -26,18 +36,22 @@ layout = html.Div(
                         outline=True,
                         block=True,
                     ),
-                    width=2,
+                    width=3,
                 ),
                 dbc.Col(
                     dbc.Button("Exporter toutes les données", color="primary", className="mr-1", block=True),
-                    width={"size": 3, "offset": 5},
+                    width={"size": 3, "offset": 4},
                 ),
                 dbc.Col(
-                    dbc.Button("Aide", color="secondary", className="mr-1", block=True), width={"size": 2, "offset": 0}
+                    dbc.Button(
+                        "Aide", id="dashboard-help-toggle-button", color="secondary", className="mr-1", block=True
+                    ),
+                    width={"size": 2, "offset": 0},
                 ),
             ],
             className="mb-3",
         ),
+        help_modal,
         dbc.Card(
             [
                 dbc.CardHeader(
@@ -89,6 +103,18 @@ def on_selected_entity_show_selected_entity(selected_entity):
                 html.H4(service.label, style={"text-align": "center"}),
             ]
         )
+
+
+@app.callback(
+    Output("dashboard-help-modal", "is_open"),
+    [Input("dashboard-help-toggle-button", "n_clicks"), Input("dashboard-help-close-button", "n_clicks")],
+    [State("dashboard-help-modal", "is_open")],
+)
+def toggle_help(n1, n2, is_open):
+    print("Hop, test")
+    if n1 or n2:
+        return not is_open
+    return is_open
 
 
 @app.callback(
