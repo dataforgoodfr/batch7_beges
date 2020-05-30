@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 
 
-def build_figure_container(title, id, footer):
+def build_figure_container(title, id, footer=None):
     fig_containter = dbc.Card(
         [
             dbc.CardHeader(html.H4(title), style={"background-color": "#fff"}),
@@ -31,5 +31,5 @@ def build_table_container(title, id, footer):
     return fig_containter
 
 
-def build_card_indicateur(title, value):
-    return dbc.Card(dbc.CardBody([html.P(title), html.H3(value)]), className="pretty_container")
+def build_card_indicateur(title, id, value):
+    return dbc.Card(dbc.CardBody([html.P(title), html.H3(id=id, children=value)]), className="pretty_container")
