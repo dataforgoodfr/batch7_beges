@@ -181,10 +181,10 @@ def get_dropdown_list_vehicle_motor():
 
 cards = dbc.CardDeck(
     [
-        build_card_indicateur("Emissions en CO2 par an (kg)", "total_emissions_odrive", "0"),
-        build_card_indicateur("Nombre de véhicules", "fleet_vehicle_number_odrive", "0"),
-        build_card_indicateur("Distance parcourue par an (km)", "kilometers_total_odrive", "0"),
-        build_card_indicateur("Distance par mois par véhicule (km)", "montly_kilometer_odrive", "0"),
+        build_card_indicateur("Emissions en CO2 par an (kg)", "0", "total_emissions_odrive"),
+        build_card_indicateur("Nombre de véhicules", "0", "fleet_vehicle_number_odrive"),
+        build_card_indicateur("Distance parcourue par an (km)", "0", "kilometers_total_odrive"),
+        build_card_indicateur("Distance par mois par véhicule (km)", "0", "montly_kilometer_odrive"),
     ]
 )
 
