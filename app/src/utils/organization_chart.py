@@ -1,44 +1,91 @@
 import csv
+import os
+from pathlib import Path
+import json
 
-import dill
 from anytree import NodeMixin, RenderTree
 from anytree.search import find as find_tree
+from anytree.exporter import JsonExporter
+from anytree.importer import JsonImporter
+from anytree.importer import DictImporter
+
+ORGANIZATION_CHART_DIR = Path("/data/entities")
+ORGANIZATION_CHART_DIR.mkdir(parents=True, exist_ok=True)
 
 
 class Entity(NodeMixin):
-    def __init__(self, id, label, code_chorus=None, code_osfi=None, code_odrive=None, parent=None, children=None):
+    def __init__(
+        self, id, label, code_chorus=None, code_osfi=None, code_odrive=None, parent=None, children=None, activated=False
+    ):
         self.id = id
         self.label = label
         self.code_chorus = code_chorus
         self.code_osfi = code_osfi
         self.code_odrive = code_odrive
+        self.activated = activated
 
         self.parent = parent
-        if children:
-            self.children = children
 
     def __repr__(self):
         return_string = "%s: %s" % (self.id, self.label)
         return_string += "(%s, %s, %s)" % (self.code_chorus, self.code_osfi, self.code_odrive)
         return return_string
 
+    def to_json(self):
+        to_return_dict = {k: v for k, v in self.__dict__.items() if (("parent" not in k) and ("children" not in k))}
+        to_return_dict["parent"] = self.parent.id
+        return json.dumps(to_return_dict)
+
 
 class OrganizationChart:
-    def __init__(self, data_path):
-        self.data_path = data_path
+    def __init__(self):
         self._root = Entity(id="root", label="root")
-        self.load()
 
-    def load(self):
+    def load_json(self, json_tree):
+        dict_importer = DictImporter(nodecls=Entity)
+        print(json_tree)
+        self._root = JsonImporter(dict_importer).import_(json_tree)
+
+    def load_json_file(self, filename):
+        with open(ORGANIZATION_CHART_DIR / filename) as file_id:
+            json_tree = file_id.read()
+            self.load_json(json_tree)
+        self.render_tree()
+
+    def to_json(self):
+        return JsonExporter().export(self._root)
+
+    def save_json(self, filename):
+        with open(ORGANIZATION_CHART_DIR / filename, "w") as file_id:
+            json_tree = self.to_json()
+            file_id.write(json_tree)
+
+    def set_current(self, filename):
+        with open(ORGANIZATION_CHART_DIR / "current", "w") as file_id:
+            file_id.write(filename)
+
+    def load_current(self):
+        # If there is no current file, we will create one with the default entity tree
+        if not os.path.isfile(ORGANIZATION_CHART_DIR / "current"):
+            self.set_current("default")
+
+        with open(ORGANIZATION_CHART_DIR / "current") as file_id:
+            filename = file_id.read().strip()
+            self.load_json_file(filename)
+
+    def load_tsv(self, tsv_path):
         entities = {}
         entities["root"] = self._root
-        with open(self.data_path, "r") as file_id:
+        with open(tsv_path, "r") as file_id:
             reader = csv.DictReader(file_id, delimiter="\t")
             for entity_dict in reader:
                 entity_dict["parent"] = entities[entity_dict["parent"]]
                 entity = Entity(**entity_dict)
                 entities[entity.id] = entity
-        print("Loaded entity tree")
+        self.render_tree()
+
+    def render_tree(self):
+        print("Organization chart: ")
         print(RenderTree(self._root))
 
     def get_entity_by_id(self, id):
@@ -58,4 +105,5 @@ class OrganizationChart:
         return self.get_entity_by_id(organization_id), self.get_entity_by_id(service_id)
 
 
-oc = OrganizationChart("/data/entities_tree.tsv")
+oc = OrganizationChart()
+oc.load_current()

@@ -1,11 +1,25 @@
+import json
+
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+from dash.exceptions import PreventUpdate
 
-from dash.dependencies import Output, Input, State
+from dash.dependencies import Output, Input, State, ALL
 
 from utils.organization_chart import oc
 from app import app
+
+
+def get_dropdown(parent_id="root", depth=1):
+    return dcc.Dropdown(
+        id={"type": "entity-choice-dropdown-level", "id": depth},
+        options=oc.get_children_dropdown_items(parent_id),
+        placeholder="Choisissez votre entitée de niveau %s" % depth,
+        className="mb-3",
+        clearable=True,
+    )
 
 
 layout = html.Div(
@@ -13,31 +27,23 @@ layout = html.Div(
     children=[
         html.Div(id="entity-choice-div-url-redirect-to-dashboard", style={"display": "none"}),
         html.Div(id="entity-choice-selected-entity", style={"display": "none"}),
-        dcc.Dropdown(
-            id="dropdown-entity-choice-level-1",
-            options=oc.get_level_1_dropdown_items(),
-            placeholder="Choisissez votre organisation",
-            clearable=True,
-            style={"margin": "10px"},
+        dbc.Row(
+            dbc.Col(
+                [
+                    html.H1("Choisissez votre entité", className="my-5"),
+                    dbc.Form([], id="entity-choice-dropdowns", className="mb-5"),
+                ],
+                width={"size": 6, "offset": 3},
+            )
         ),
-        dcc.Dropdown(
-            id="dropdown-entity-choice-level-2",
-            placeholder="Choisissez votre service",
-            clearable=True,
-            style={"margin": "10px", "display": "none"},
-        ),
-        html.Hr(),
         dbc.Row(
             dbc.Col(
                 dbc.Button(
-                    "Afficher les données",
-                    id="button-to-dashboard",
-                    color="primary",
-                    className="mr-1",
-                    style={"display": "none"},
+                    "Afficher les données", id="button-to-dashboard", color="primary", style={"display": "none"}
                 ),
                 width={"size": 2, "offset": 5},
-            )
+            ),
+            className="mb-5",
         ),
     ],
 )
@@ -50,38 +56,52 @@ layout = html.Div(
 )
 def on_click_go_to_dashboard(n_clicks, selected_entity):
     if n_clicks:
-        organization, service = oc.get_organization_service(selected_entity)
-        return dcc.Location(id="url-redirect-to-dashboard", pathname="/tableau_de_bord/%s" % service.id)
+        entity = oc.get_entity_by_id(selected_entity)
+        return dcc.Location(id="url-redirect-to-dashboard", pathname="/tableau_de_bord/%s" % entity.id)
 
 
 @app.callback(
-    [
-        Output("dropdown-entity-choice-level-2", "style"),
-        Output("dropdown-entity-choice-level-2", "options"),
-        Output("dropdown-entity-choice-level-2", "value"),
-    ],
-    [Input("dropdown-entity-choice-level-1", "value")],
-    [State("dropdown-entity-choice-level-2", "style")],
-)
-def on_dropdown_level_1_value(value_level_1, level_2_style):
-    options = []
-    if value_level_1 is not None:
-        options = oc.get_level_2_dropdown_items(value_level_1)
-        style = level_2_style.copy()
-        level_2_style["display"] = "block"
-    else:
-        level_2_style["display"] = "none"
-    return level_2_style, options, None
-
-
-@app.callback(
-    [Output("entity-choice-selected-entity", "children"), Output("button-to-dashboard", "style")],
-    [Input("dropdown-entity-choice-level-1", "value"), Input("dropdown-entity-choice-level-2", "value")],
+    Output("button-to-dashboard", "style"),
+    [Input("entity-choice-selected-entity", "children")],
     [State("button-to-dashboard", "style")],
 )
-def on_set_value_level_1_level_2(value_level_1, value_level_2, button_to_dashboard_style):
-    if value_level_1 is not None:
-        if value_level_2 is not None:
-            button_to_dashboard_style["display"] = "block"
-            return ";".join((value_level_1, value_level_2)), button_to_dashboard_style
-    return None, button_to_dashboard_style
+def toggle_button_if_selected_entity(selected_entity, button_to_dashboard_style):
+    if selected_entity:
+        button_to_dashboard_style["display"] = "block"
+    else:
+        button_to_dashboard_style["display"] = "none"
+    return button_to_dashboard_style
+
+
+@app.callback(
+    [Output("entity-choice-dropdowns", "children"), Output("entity-choice-selected-entity", "children")],
+    [Input({"type": "entity-choice-dropdown-level", "id": ALL}, "value")],
+    [State("entity-choice-dropdowns", "children")],
+)
+def add_dropdown(values, dropdowns):
+    ctx = dash.callback_context
+    ctx_msg = json.dumps({"states": ctx.states, "triggered": ctx.triggered, "inputs": ctx.inputs}, indent=2)
+    selected_entity = None
+    # If the dropdowns are empty, we are adding the dropdowns for the first level
+    if not dropdowns:
+        dropdowns = [get_dropdown()]
+        return dropdowns, None
+    if not ctx.triggered:
+        raise PreventUpdate
+    else:
+        depth = json.loads(ctx.triggered[0]["prop_id"].split(".")[0])["id"]
+        # We delete the decedents dropdowns of the current changed value
+        dropdowns = dropdowns[:depth]
+
+        entity_id = ctx.triggered[0]["value"]
+        # The value can be None if the dropdown is cleared
+        if entity_id:
+            entity = oc.get_entity_by_id(entity_id)
+            # If there are some children, we add a dropdown with the children choices
+            if entity.children:
+                dropdowns.append(get_dropdown(parent_id=entity_id, depth=entity.depth + 1))
+            # Else, we set the selected_entity with the selected value
+            else:
+                selected_entity = entity.id
+
+    return dropdowns, selected_entity

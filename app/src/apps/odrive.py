@@ -11,7 +11,6 @@ from app import app
 from utils.organization_chart import oc
 from utils.odrive_handler import ov
 from components.html_components import build_figure_container, build_card_indicateur
-from components.figures_templates import xaxis_format
 
 
 def get_vehicle_category(emission_per_km):

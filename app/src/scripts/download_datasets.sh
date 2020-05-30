@@ -4,18 +4,20 @@ mkdir -p /data/raw/osfi
 mkdir -p /data/raw/odrive
 mkdir -p /data/prepared
 mkdir -p /data/cleaned
+mkdir -p /data/entities
+
 
 #############
 #  Globals  #
 #############
-# Tree Entities
-OUTPUT_PATH=/data
-wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1cHu-2yP1m0F2bugR50D_s8YvdfdDZppY' -O $OUTPUT_PATH/entities_tree.tsv
-
+# Default entity tree
+OUTPUT_PATH=/data/entities
+wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=15snEA3hG7c4bQQTURNCWEiiBdM0iiGXI' -O $OUTPUT_PATH/default
 
 #############
 # Chorus DT #
 #############
+
 # Avion train sample
 OUTPUT_PATH=/data/raw/chorus-dt
 wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1l_DE8hWpxKtjCBpHZ_JPIkjNeyw8LQ-c' -O $OUTPUT_PATH/first_semester.zip
@@ -39,6 +41,8 @@ wget --no-check-certificate 'https://ourairports.com/data/airports.csv' -O $OUTP
 #############
 OUTPUT_PATH=/data/raw/osfi
 wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1vzJKxyAi9ew0238z8IMULfX0ZPFtBqwV' -O $OUTPUT_PATH/osfi.csv
+wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1NtB0Noq2tm_CmhbHcm5U7yOEWVGFKJVM' -O $OUTPUT_PATH/osfi_monthly.csv
+wget -c --no-check-certificate 'https://docs.google.com/uc?export=download&id=1zROhuCgS-znQX68h5YsdmvGP-4zXd8lu' -O $OUTPUT_PATH/osfi_buildings.csv
 
 
 #############

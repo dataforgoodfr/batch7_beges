@@ -1,6 +1,7 @@
-body {
-    background-color: #f8f9fc;
-}
+html, body {
+    height: 100%;
+  }
+
 
 .nav_bar {
     width: 100%;
@@ -14,8 +15,30 @@ body {
 }
 
 .pretty_container {
-    background-color: #fff;
+    /* background-color: #fff; */
     box-shadow: 2px 2px 2px lightgrey;
-    margin: 10px;
-    padding: 15px;
+    /* margin: 10px; */
+    /* padding: 15px; */
+}
+
+
+.selected {
+    background-color: grey;
+}
+
+div.back_office_entity {
+    border-style: solid;
+    border-width: 1px;
+}
+
+div.back_office_entity:hover {
+    background-color: lightgray;
+}
+
+div.back_office_entity.selected {
+    background-color: darkgray;
+}
+
+div.back-office-entity-expand:hover {
+    background-color: darkgray;
 }

@@ -1,15 +1,9 @@
-import os
 import pandas as pd
 import numpy as np
 import math
 import datetime
 
-NAMES_TO_REPLACE = {
-    "CLIO IV": "CLIO 4",
-    "CLIO III": "CLIO 3",
-    "MÉGANE": "MEGANE",
-    "ZOÉ": "ZOE",
-}
+NAMES_TO_REPLACE = {"CLIO IV": "CLIO 4", "CLIO III": "CLIO 3", "MÉGANE": "MEGANE", "ZOÉ": "ZOE"}
 
 
 def clean_modele(modele):
