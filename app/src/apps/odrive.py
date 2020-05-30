@@ -22,8 +22,8 @@ def get_vehicle_category(emission_per_km):
     return "Emission haute"
 
 
-def get_donut_by_entity_type(code_structure=None, filter_vehicle_type=None, slider_range_emissions=None):
-    odrive_df = ov.get_structure_data(code_structure, filter_vehicle_type, slider_range_emissions)
+def get_donut_by_entity_type(code_structure=None, filter_vehicle_type=None):
+    odrive_df = ov.get_structure_data(code_structure, filter_vehicle_type)
     prestation_df = odrive_df.groupby(["Entité 3"])["Emissions (g/an)"].sum().reset_index()
     prestation_df.entities = list(set(odrive_df["Entité 3"]))
     fig = go.Figure(data=[go.Pie(labels=prestation_df["Entité 3"], values=prestation_df["Emissions (g/an)"], hole=0.3)])
@@ -180,12 +180,6 @@ def get_dropdown_list_vehicle_motor():
     return dcc.Checklist(id="select_odrive_vehicle_type", options=options, value=value, labelStyle={"display": "block"})
 
 
-def get_slider_vehicle_emissions():
-    odrive_df = ov.get_structure_data()
-    max_emissions = odrive_df["CO2 (g/km)"].max() + 1
-    return (dcc.RangeSlider(id="slider_range_emissions", min=0, max=max_emissions, step=1, value=[0, max_emissions]),)
-
-
 cards = dbc.CardDeck(
     [
         build_card_indicateur("Emissions en CO2 par an (kg)", "total_emissions_odrive", "0"),
@@ -213,7 +207,6 @@ layout = html.Div(
                                         [
                                             dbc.Label("Selectionner le type de motorisation du véhicule"),
                                             get_dropdown_list_vehicle_motor(),
-                                            get_slider_vehicle_emissions(),
                                         ]
                                     ),
                                 ]
@@ -298,15 +291,11 @@ layout = html.Div(
 
 @app.callback(
     Output("donut-by-entity", "figure"),
-    [
-        Input("dashboard-selected-entity", "children"),
-        Input("select_odrive_vehicle_type", "value"),
-        Input("slider_range_emissions", "value"),
-    ],
+    [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
 )
-def update_donut_by_prestation(selected_entity, filter_vehicle_type, slider_range_emissions):
+def update_donut_by_prestation(selected_entity, filter_vehicle_type):
     service = oc.get_entity_by_id(selected_entity)
-    return get_donut_by_entity_type(service.code_odrive, filter_vehicle_type, slider_range_emissions)
+    return get_donut_by_entity_type(service.code_odrive, filter_vehicle_type)
 
 
 @app.callback(
