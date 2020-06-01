@@ -29,7 +29,6 @@ def main():
         "timedelta64[D]"
     ) / 365
     data_xls["Total années cirulation"] = data_xls["Total années cirulation"].apply(math.fabs)
-    # data_xls["km parcours par an"] = (data_xls["Dernier relevé km"].fillna(0) / data_xls["Total années cirulation"])
     data_xls["km parcours par an"] = data_xls["Moyenne KM par mois"] * 12
     data_xls["Emissions (g/an)"] = data_xls["km parcours par an"] * data_xls["CO2 (g/km)"]
     data_xls.to_csv("/data/cleaned/data_odrive.csv", encoding="utf-8")
