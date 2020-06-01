@@ -11,9 +11,10 @@ class OdriveHandler:
 
     def get_structure_data(self, code_structure=None, filter_motorisation=None):
         if filter_motorisation is not None:
-            return self.data.loc[self.data["Motorisation"] == code_structure].loc[
+            return self.data.loc[self.data["Motorisation"].isin(filter_motorisation)].loc[
                 self.data["Entité 2"] == code_structure, :
             ]
+
         if code_structure is not None:
             return self.data.loc[self.data["Entité 2"] == code_structure, :]
         return self.data
