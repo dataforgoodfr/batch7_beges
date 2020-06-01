@@ -32,6 +32,8 @@ def get_donut_by_entity_type(code_structure=None, filter_vehicle_type=None):
 
 def get_plot_by_vehicle_type(code_structure=None, filter_vehicle_type=None):
     odrive_df = ov.get_structure_data(code_structure, filter_vehicle_type)
+    print(filter_vehicle_type)
+    print("odrive_df", odrive_df)
     odrive_df["categorie_emmission"] = odrive_df["CO2 (g/km)"].apply(get_vehicle_category)
     vehicles_df = odrive_df.groupby(["categorie_emmission"])["Immatriculation"].nunique().reset_index()
     fig = go.Figure(
@@ -197,6 +199,18 @@ layout = html.Div(
                 dbc.Col(
                     [
                         html.B("", id="selected-odrive-vehicle_type"),
+                        dbc.Jumbotron(
+                            [
+                                html.P(
+                                    "Les émissions annuelles sont obtenues en multipliant le facteur d'émission des véhicules par le nombre de kilomètres qu'ils parcourent en un an"
+                                ),
+                                html.P(
+                                    dbc.Button(
+                                        "En savoir plus", color="primary", href="/methodologie#methodologie_odrive"
+                                    )
+                                ),
+                            ]
+                        ),
                         dbc.Card(
                             dbc.CardBody(
                                 [
@@ -211,15 +225,6 @@ layout = html.Div(
                                 ]
                             ),
                             className="pretty_container",
-                        ),
-                        dbc.Card(
-                            dbc.CardBody(
-                                [html.H3("Exporter les données"), html.Br(), dbc.Button("Export", id="export")]
-                            ),
-                            className="pretty_container",
-                        ),
-                        dbc.Jumbotron(
-                            "Les émissions annuelles sont obtenues en multipliant le facteur d'émission des véhicules par le nombre de kilomètres qu'ils parcourent en un an"
                         ),
                     ]
                 ),
@@ -240,7 +245,7 @@ layout = html.Div(
                                     [
                                         build_figure_container(
                                             title="Répartition des km parcours par direction", id="histogram-by-entity"
-                                        ),
+                                        )
                                     ],
                                     width=6,
                                 ),
@@ -254,7 +259,7 @@ layout = html.Div(
                                             title="Répartition des émissions et kilomètres par marque et modèle",
                                             id="scatter_plot_by_vehicle_type",
                                             footer="Deux types de véhicule dans le même axe vertical ont la même utilisation, mais des emissions différentes, privilégiez l'utilisation ou l'achat de véhicules dans la partie basse du graphique ..",
-                                        ),
+                                        )
                                     ],
                                     width=6,
                                 ),
@@ -263,7 +268,7 @@ layout = html.Div(
                                         build_figure_container(
                                             title="Répartition des émissions par type de véhicule",
                                             id="plot_by_vehicle_type",
-                                        ),
+                                        )
                                     ],
                                     width=6,
                                 ),
@@ -272,7 +277,7 @@ layout = html.Div(
                                         build_figure_container(
                                             title="Répartition des émissions par véhicule",
                                             id="histogram_plot_by_vehicle",
-                                        ),
+                                        )
                                     ],
                                     width=12,
                                 ),
@@ -330,6 +335,7 @@ def update_histogram_plot_by_vehicle(selected_entity, filter_vehicle_type):
 )
 def update_plot_by_vehicle_type(selected_entity, filter_vehicle_type):
     service = oc.get_entity_by_id(selected_entity)
+    print(service)
     return get_plot_by_vehicle_type(service.code_odrive, filter_vehicle_type)
 
 
