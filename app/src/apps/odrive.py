@@ -204,11 +204,7 @@ layout = html.Div(
                                 html.P(
                                     "Les émissions annuelles sont obtenues en multipliant le facteur d'émission des véhicules par le nombre de kilomètres qu'ils parcourent en un an"
                                 ),
-                                html.P(
-                                    dbc.Button(
-                                        "En savoir plus", color="primary", href="/methodologie#methodologie_odrive"
-                                    )
-                                ),
+                                html.P(dbc.Button("En savoir plus", color="primary", href="/methodologie")),
                             ]
                         ),
                         dbc.Card(
