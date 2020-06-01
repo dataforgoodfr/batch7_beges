@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import math
 import datetime
 
@@ -27,9 +28,8 @@ def main():
     data_xls["Total années cirulation"] = (data_xls["Date relevé"] - data_xls["Date 1ère mise en circulation"]).astype(
         "timedelta64[D]"
     ) / 365
-    data_xls["km parcours par an"] = (
-        data_xls["Dernier relevé km"].fillna(0).astype(int) / data_xls["Total années cirulation"]
-    )
+    data_xls["Total années cirulation"] = data_xls["Total années cirulation"].apply(math.fabs)
+    data_xls["km parcours par an"] = data_xls["Moyenne KM par mois"] * 12
     data_xls["Emissions (g/an)"] = data_xls["km parcours par an"] * data_xls["CO2 (g/km)"]
     data_xls.to_csv("/data/cleaned/data_odrive.csv", encoding="utf-8")
 

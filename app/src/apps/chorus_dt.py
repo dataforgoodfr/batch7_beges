@@ -56,10 +56,10 @@ select_prestation_type = dcc.Dropdown(
 
 cards = dbc.CardDeck(
     [
-        build_card_indicateur("Nombre de trajets", "2 300"),
-        build_card_indicateur("Emissions (eCO2)", "2M"),
-        build_card_indicateur("Indicateur X", "XX"),
-        build_card_indicateur("Indicateur Y", "YY"),
+        build_card_indicateur("Nombre de trajets", "Nombre de trajets", "2 300"),
+        build_card_indicateur("Emissions (eCO2)", "Emissions (eCO2)", "2M"),
+        build_card_indicateur("Indicateur X", "Indicateur X", "XX"),
+        build_card_indicateur("Indicateur Y", "Indicateur Y", "YY"),
     ]
 )
 
