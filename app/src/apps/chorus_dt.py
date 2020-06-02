@@ -67,27 +67,6 @@ def get_scatter_by_emission(df):
     """
         Render and update a bubble chart figure to show emissions distribution by prestation type/distance
     """
-    df["slug"] = df["lieu_depart"] + " | " + df["lieu_arrivee"]
-    df["count"] = 1
-    distance_df = df.groupby(["slug", "prestation", "distance"])["CO2e/trip", "count"].sum().reset_index()
-    distance_df["avg_CO2e"] = distance_df["CO2e/trip"] / distance_df["count"]
-    fig = px.scatter(
-        distance_df,
-        x="distance",
-        y="count",
-        size="CO2e/trip",
-        color="prestation",
-        hover_name="slug",
-        log_x=True,
-        size_max=60,
-    )
-    return fig
-
-
-def get_scatter_by_emission(df):
-    """
-        Render and update a bubble chart figure to show emissions distribution by prestation type/distance
-    """
     distance_df = df.groupby(["prestation", "trajet", "distance"])[["CO2e/trip", "count"]].sum().reset_index()
     distance_df["avg_CO2e"] = distance_df["CO2e/trip"] / distance_df["count"]
     fig = px.scatter(
