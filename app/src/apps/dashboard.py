@@ -32,6 +32,7 @@ layout = html.Div(
                     dbc.Button(
                         [html.I(className="fa fa-chevron-left fa-1x mr-1"), "Choisir une autre entité"],
                         id="dashboard-button-to-entity-choice",
+                        href="/selection_entite",
                         color="primary",
                         outline=True,
                         block=True,
@@ -73,6 +74,7 @@ layout = html.Div(
                             ],
                             card=True,
                             className="nav-fill",
+                            persistence=True,
                             active_tab="chorus-dt",
                         ),
                     ]
@@ -111,7 +113,6 @@ def on_selected_entity_show_selected_entity(selected_entity):
     [State("dashboard-help-modal", "is_open")],
 )
 def toggle_help(n1, n2, is_open):
-    print("Hop, test")
     if n1 or n2:
         return not is_open
     return is_open
@@ -145,12 +146,3 @@ def on_selected_entity_fill_tabs_data(selected_entity, active_tab):
             return osfi.layout
     else:
         return "empty"
-
-
-@app.callback(
-    Output("dashboard-div-url-redirect-to-entity-choice", "children"),
-    [Input("dashboard-button-to-entity-choice", "n_clicks")],
-)
-def on_click_go_to_entity_choice(n_clicks):
-    if n_clicks:
-        return dcc.Location(id="url-redirect-to-entity-choice", pathname="/selection_entite")
