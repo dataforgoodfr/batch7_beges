@@ -3,7 +3,7 @@ import pandas as pd
 
 class OsfiHandler:
     def __init__(self):
-        self.data = pd.read_csv("/data/cleaned/data_osfi.csv")
+        self.data = pd.read_pickle("/data/cleaned/data_osfi.pkl")
 
     def get_structure_data(self, code_structure, year=None):
         if year:

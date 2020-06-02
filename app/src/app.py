@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 import flask
 from flask_login import LoginManager, UserMixin
 import utils
+from flask_caching import Cache
 
 external_stylesheets = [
     dbc.themes.COSMO,
@@ -42,6 +43,8 @@ ADMIN_NAME = os.getenv("APP_ADMIN_NAME", "admin")
 ADMIN_PWD = os.getenv("APP_ADMIN_PWD", "pwd")
 ADMIN_EMAIL = os.getenv("APP_ADMIN_EMAIL", "email@gmail.com")
 ADMINS = {ADMIN_NAME: User(name=ADMIN_NAME, pwd=ADMIN_PWD, email=ADMIN_EMAIL)}
+
+cache = Cache(app.server, config={"CACHE_TYPE": "simple"})
 
 # callback to reload the user object
 @login_manager.user_loader

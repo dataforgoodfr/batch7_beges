@@ -16,7 +16,7 @@ def build_figure_container(title, id, footer=None):
     return fig_containter
 
 
-def build_table_container(title, id, footer):
+def build_table_container(title, id, footer=None):
     fig_containter = dbc.Card(
         [
             dbc.CardHeader(html.H4(title)),
