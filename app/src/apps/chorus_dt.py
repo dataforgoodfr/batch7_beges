@@ -243,19 +243,6 @@ layout = html.Div(
                                     ]
                                 ),
                             ]
-                                        )
-                                    ]
-                                ),
-                                dbc.Col(
-                                    [
-                                        build_figure_container(
-                                            title="Évolution temporelles des émissions",
-                                            id="timeseries-chorus-dt",
-                                            footer="Explications..",
-                                        )
-                                    ]
-                                ),
-                            ]
                         ),
                     ],
                     width=9,
