@@ -43,7 +43,9 @@ def get_donut_by_prestation_type(df):
     """
     prestation_df = df.groupby(["prestation"])["CO2e/trip"].sum().reset_index()
     fig = go.Figure(data=[go.Pie(labels=prestation_df.prestation, values=prestation_df["CO2e/trip"], hole=0.3)])
-    fig.update_layout(plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30})
+    fig.update_layout(
+        plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30}, legend_orientation="h"
+    )
     return fig
 
 
@@ -97,7 +99,11 @@ def get_scatter_by_emission(df):
         size_max=60,
     )
     fig.update_layout(
-        plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30}, xaxis=xaxis_format
+        plot_bgcolor="white",
+        template="plotly_white",
+        margin={"t": 30, "r": 30, "l": 30},
+        xaxis=xaxis_format,  # .update( {'title' : 'Distance (km)'} ),
+        yaxis={"title": "Nombre de trajets"},
     )
     return fig
 
@@ -108,20 +114,18 @@ def get_hist_top_emission(df):
     """
     n = 10  # Max number of top trips to show
     hist_df = (
-        df.groupby(["trajet", "prestation"], as_index=False)[["CO2e/trip", "count"]]
-        .sum()
-        .sort_values("CO2e/trip", ascending=False)
+        df.groupby(["trajet"], as_index=False)[["CO2e/trip", "count"]].sum().sort_values("CO2e/trip", ascending=False)
     )
     hist_df["cumul_emission"] = hist_df["CO2e/trip"].cumsum()
     hist_df["cumul_emission%"] = 100 * hist_df["cumul_emission"] / hist_df["CO2e/trip"].sum()
     top_hist_df = hist_df.head(n)
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=top_hist_df["trajet"], y=top_hist_df["CO2e/trip"], name="Trajets effectués"))
+    fig.add_trace(go.Bar(x=top_hist_df["trajet"], y=top_hist_df["CO2e/trip"], name="Émissions"))
     fig.add_trace(
         go.Scatter(
             x=top_hist_df["trajet"],
             y=top_hist_df["cumul_emission%"],
-            name="Trajets effectués",
+            name="Cumul (%)",
             yaxis="y2",
             marker={"color": "orange"},
         )
@@ -131,17 +135,18 @@ def get_hist_top_emission(df):
         template="plotly_white",
         margin={"t": 30, "r": 30, "l": 30},
         xaxis=xaxis_format,
-        yaxis={"range": [0, 100], "title": "Defect Frequency", "ticksuffix": "%"},
+        yaxis={"title": "Émissions (kg eqCO2)"},
         yaxis2={
             "side": "right",
             "range": [0, 100],
-            "title": "Cumulative Percentage",
-            "tickfont": {"color": "rgb(148, 103, 189)"},
-            "titlefont": {"color": "rgb(148, 103, 189)"},
+            "title": "Part cumulative des émissions",
+            "tickfont": {"color": "orange"},
+            "titlefont": {"color": "orange"},
             "overlaying": "y",
             "ticksuffix": "%",
         },
     )
+    fig.update_xaxes(tickfont=dict(size=10))
     return fig
 
 
@@ -173,7 +178,7 @@ def get_dashtable_by_emission(df):
         selected_rows=[],
         page_action="native",
         page_current=0,
-        page_size=20,
+        page_size=16,
     )
     return table
 
@@ -248,28 +253,23 @@ layout = html.Div(
                 dbc.Col(
                     [
                         build_figure_container(
-                            title="Répartition des émissions par distance de trajet",
-                            id="scatter-by-emission",
+                            title="Pareto des liasons avec les plus gros volumes d'émissions",
+                            id="hist-by-emission",
                             footer="Explications..",
                         )
                     ],
-                    width=12,
+                    width=6,
                 ),
-                # dbc.Col(
-                #     [
-                #         dbc.Card(
-                #             dbc.CardBody(
-                #                 [
-                #                     html.H3("Filtres"),
-                #                     html.Br(),
-                #                     dbc.FormGroup([dbc.Label("Type de prestation"), select_prestation_type]),
-                #                 ]
-                #             ),
-                #             className="pretty_container",
-                #         ),
-                #     ],
-                #     width=4,
-                # ),
+                dbc.Col(
+                    [
+                        html.Div(
+                            id="table-by-emission",
+                            className="m-2",
+                            style={"overflow-x": "scroll", "padding-right": "10px", "padding-left": "15px"},
+                        )
+                    ],
+                    width=6,
+                ),
             ]
         ),
         dbc.Row(
@@ -277,14 +277,13 @@ layout = html.Div(
                 dbc.Col(
                     [
                         build_figure_container(
-                            title="Histogramme des iasons avec les plus gros volumns d'émissions",
-                            id="hist-by-emission",
+                            title="Répartition des émissions par distance de trajet",
+                            id="scatter-by-emission",
                             footer="Explications..",
                         )
                     ],
-                    width=6,
+                    width=12,
                 ),
-                dbc.Col([html.Div(id="table-by-emission"),], width=6,),
             ]
         ),
     ],
@@ -300,6 +299,8 @@ layout = html.Div(
         Output("donut-by-prestation", "figure"),
         Output("scatter-by-emission", "figure"),
         Output("timeseries-chorus-dt", "figure"),
+        Output("hist-by-emission", "figure"),
+        Output("table-by-emission", "children"),
     ],
     [Input("dashboard-selected-entity", "children")],
 )
@@ -314,18 +315,20 @@ def update_graphs(selected_entity):
         get_donut_by_prestation_type(chorus_dt_df),
         get_scatter_by_emission(chorus_dt_df),
         get_emissions_timeseries(chorus_dt_df),
+        get_hist_top_emission(chorus_dt_df),
+        get_dashtable_by_emission(chorus_dt_df),
     ]
 
 
-@app.callback(
-    [Output("hist-by-emission", "figure"), Output("table-by-emission", "children")],
-    [Input("dashboard-selected-entity", "children")],
-)
-def update_graphs_by_connexion(selected_entity):
-    service = oc.get_entity_by_id(selected_entity)
-    chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
-
-    return [get_hist_top_emission(chorus_dt_df), get_dashtable_by_emission(chorus_dt_df)]
+# @app.callback(
+#     [Output("hist-by-emission", "figure"), Output("table-by-emission", "children")],
+#     [Input("dashboard-selected-entity", "children")],
+# )
+# def update_graphs_by_connexion(selected_entity):
+#     service = oc.get_entity_by_id(selected_entity)
+#     chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
+#
+#     return [get_hist_top_emission(chorus_dt_df), get_dashtable_by_emission(chorus_dt_df)]
 
 
 # @app.callback(
