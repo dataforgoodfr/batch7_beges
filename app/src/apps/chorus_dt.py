@@ -5,6 +5,7 @@ import dash_table
 import plotly.graph_objects as go
 import plotly.express as px
 from dash.dependencies import Output, Input, State
+import pandas as pd
 import numpy as np
 
 from app import app
@@ -83,9 +84,7 @@ def get_scatter_by_emission(df):
     """
         Render and update a bubble chart figure to show emissions distribution by prestation type/distance
     """
-    df["slug"] = df["lieu_depart"] + " | " + df["lieu_arrivee"]
-    df["count"] = 1
-    distance_df = df.groupby(["slug", "prestation", "distance"])["CO2e/trip", "count"].sum().reset_index()
+    distance_df = df.groupby(["prestation", "trajet", "distance"])[["CO2e/trip", "count"]].sum().reset_index()
     distance_df["avg_CO2e"] = distance_df["CO2e/trip"] / distance_df["count"]
     fig = px.scatter(
         distance_df,
@@ -93,9 +92,55 @@ def get_scatter_by_emission(df):
         y="count",
         size="CO2e/trip",
         color="prestation",
-        hover_name="slug",
+        hover_name="trajet",
         log_x=True,
         size_max=60,
+    )
+    fig.update_layout(
+        plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30}, xaxis=xaxis_format
+    )
+    return fig
+
+
+def get_hist_top_emission(df):
+    """
+    Render and update a histogram showing top routes with most emissions.
+    """
+    n = 10  # Max number of top trips to show
+    hist_df = (
+        df.groupby(["trajet", "prestation"], as_index=False)[["CO2e/trip", "count"]]
+        .sum()
+        .sort_values("CO2e/trip", ascending=False)
+    )
+    hist_df["cumul_emission"] = hist_df["CO2e/trip"].cumsum()
+    hist_df["cumul_emission%"] = 100 * hist_df["cumul_emission"] / hist_df["CO2e/trip"].sum()
+    top_hist_df = hist_df.head(n)
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=top_hist_df["trajet"], y=top_hist_df["CO2e/trip"], name="Trajets effectués"))
+    fig.add_trace(
+        go.Scatter(
+            x=top_hist_df["trajet"],
+            y=top_hist_df["cumul_emission%"],
+            name="Trajets effectués",
+            yaxis="y2",
+            marker={"color": "orange"},
+        )
+    )
+    fig.update_layout(
+        plot_bgcolor="white",
+        template="plotly_white",
+        margin={"t": 30, "r": 30, "l": 30},
+        xaxis=xaxis_format,
+        yaxis={"range": [0, 100], "title": "Defect Frequency", "ticksuffix": "%"},
+        yaxis2={
+            "side": "right",
+            "range": [0, 100],
+            "title": "Cumulative Percentage",
+            "tickfont": {"color": "rgb(148, 103, 189)"},
+            "titlefont": {"color": "rgb(148, 103, 189)"},
+            "overlaying": "y",
+            "ticksuffix": "%",
+        },
     )
     return fig
 
@@ -105,10 +150,11 @@ def get_dashtable_by_emission(df):
     Render a dashtable listing top offending connexions by CO2 emissions
     """
     # TODO: Follow instructions in https://stackoverflow.com/questions/58804477/plotly-dash-table-callback
-    df["slug"] = df["lieu_depart"] + " | " + df["lieu_arrivee"]
-    df["count"] = 1
-    distance_df = df.groupby(["slug", "prestation", "distance"])["CO2e/trip", "count"].sum().reset_index()
+    distance_df = df.groupby(["trajet", "prestation", "distance"])[["CO2e/trip", "count"]].sum().reset_index()
     distance_df["avg_CO2e"] = distance_df["CO2e/trip"] / distance_df["count"]
+    distance_df["distance"] = distance_df["distance"].round(0)
+    distance_df[["CO2e/trip", "avg_CO2e"]] = distance_df[["CO2e/trip", "avg_CO2e"]].round(2)
+    distance_df = distance_df.sort_values(["CO2e/trip"], ascending=False)
     table = dash_table.DataTable(
         id="datatable-row-ids",
         columns=[
@@ -122,12 +168,12 @@ def get_dashtable_by_emission(df):
         filter_action="native",
         sort_action="native",
         sort_mode="multi",
-        row_selectable="multi",
-        row_deletable=True,
+        # row_selectable="multi",
+        # row_deletable=True,
         selected_rows=[],
         page_action="native",
         page_current=0,
-        page_size=10,
+        page_size=20,
     )
     return table
 
@@ -140,7 +186,6 @@ select_prestation_type = dcc.Dropdown(
 cards = dbc.CardDeck(
     [
         build_card_indicateur("Emissions (kg eqCO2)", "0", "kpi-emissions"),
-        build_card_indicateur("Emissions (# Tasses de café)", "0", "kpi-emissions-example"),
         build_card_indicateur("Nombre de trajets", "0", "kpi-trips"),
         build_card_indicateur("Distance totale (km)", "0", "kpi-distance"),
     ]
@@ -164,12 +209,7 @@ layout = html.Div(
                             ),
                             className="pretty_container",
                         ),
-                        dbc.Card(
-                            dbc.CardBody(
-                                [html.H3("Exporter les données"), html.Br(), dbc.Button("Export", id="export")]
-                            ),
-                            className="pretty_container",
-                        ),
+                        html.Br(),
                         dbc.Jumbotron("Explications sur les graphiques et leur fonctionnement..."),
                     ]
                 ),
@@ -213,23 +253,23 @@ layout = html.Div(
                             footer="Explications..",
                         )
                     ],
-                    width=8,
+                    width=12,
                 ),
-                dbc.Col(
-                    [
-                        dbc.Card(
-                            dbc.CardBody(
-                                [
-                                    html.H3("Filtres"),
-                                    html.Br(),
-                                    dbc.FormGroup([dbc.Label("Type de prestation"), select_prestation_type]),
-                                ]
-                            ),
-                            className="pretty_container",
-                        ),
-                    ],
-                    width=4,
-                ),
+                # dbc.Col(
+                #     [
+                #         dbc.Card(
+                #             dbc.CardBody(
+                #                 [
+                #                     html.H3("Filtres"),
+                #                     html.Br(),
+                #                     dbc.FormGroup([dbc.Label("Type de prestation"), select_prestation_type]),
+                #                 ]
+                #             ),
+                #             className="pretty_container",
+                #         ),
+                #     ],
+                #     width=4,
+                # ),
             ]
         ),
         dbc.Row(
@@ -255,7 +295,6 @@ layout = html.Div(
 @app.callback(
     [
         Output("kpi-emissions", "children"),
-        Output("kpi-emissions-example", "children"),
         Output("kpi-trips", "children"),
         Output("kpi-distance", "children"),
         Output("donut-by-prestation", "figure"),
@@ -270,7 +309,6 @@ def update_graphs(selected_entity):
 
     return [
         get_kpi_emissions(chorus_dt_df),
-        get_kpi_emissions_example(chorus_dt_df),
         get_kpi_trips_count(chorus_dt_df),
         get_kpi_distance(chorus_dt_df),
         get_donut_by_prestation_type(chorus_dt_df),
@@ -280,34 +318,25 @@ def update_graphs(selected_entity):
 
 
 @app.callback(
-    Output("hist-by-emission", "figure"), [Input("dashboard-selected-entity", "children")],
+    [Output("hist-by-emission", "figure"), Output("table-by-emission", "children")],
+    [Input("dashboard-selected-entity", "children")],
 )
 def update_graphs_by_connexion(selected_entity):
     service = oc.get_entity_by_id(selected_entity)
     chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
 
-    return get_scatter_by_emission(chorus_dt_df)
+    return [get_hist_top_emission(chorus_dt_df), get_dashtable_by_emission(chorus_dt_df)]
 
 
-import pandas as pd
-
-df = pd.read_csv(
-    "https://gist.githubusercontent.com/chriddyp/"
-    "c78bf172206ce24f77d6363a2d754b59/raw/"
-    "c353e8ef842413cae56ae3920b8fd78468aa4cb2/"
-    "usa-agricultural-exports-2011.csv"
-)
-
-
-@app.callback(
-    Output("table-by-emission", "children"), [Input("dashboard-selected-entity", "children")],
-)
-def update_graphs_by_connexion(selected_entity):
-    service = oc.get_entity_by_id(selected_entity)
-    chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
-
-    return get_dashtable_by_emission(chorus_dt_df)
-    # dfgb = df.groupby(['state']).sum()
-    # data = df.to_dict('rows')
-    # columns = [{"name": i, "id": i, } for i in (df.columns)]
-    # return dash_table.DataTable(data=data, columns=columns)
+# @app.callback(
+#     Output("table-by-emission", "children"), [Input("dashboard-selected-entity", "children")],
+# )
+# def update_graphs_by_connexion(selected_entity):
+#     service = oc.get_entity_by_id(selected_entity)
+#     chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
+#
+#     return get_dashtable_by_emission(chorus_dt_df)
+#     # dfgb = df.groupby(['state']).sum()
+#     # data = df.to_dict('rows')
+#     # columns = [{"name": i, "id": i, } for i in (df.columns)]
+#     # return dash_table.DataTable(data=data, columns=columns)
