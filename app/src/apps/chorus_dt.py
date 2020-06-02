@@ -14,12 +14,6 @@ from utils.chorus_dt_handler import ch
 from components.html_components import build_figure_container, build_card_indicateur
 from components.figures_templates import xaxis_format
 
-# TODO: move get figure function to chorus_dt_components.py in components
-# TODO:
-# - List of top trips based on emissions
-# - Emissions
-# - Nombre des trajets train vs avions
-
 
 def get_kpi_emissions(df):
     return "{:,} kg".format(int(np.round(df["CO2e/trip"].sum(), 0))).replace(",", " ")
@@ -46,19 +40,6 @@ def get_donut_by_prestation_type(df):
     fig.update_layout(
         plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30}, legend_orientation="h"
     )
-    return fig
-
-
-def get_hist_by_distance_group(df):
-    """
-        Render and update a donut figure to show emissions distribution by prestation type
-    """
-    distance_df = df.groupby(["distance_group", "prestation"])["CO2e/trip"].sum().reset_index()
-    distance_df = distance_df.pivot(index="distance_group", columns="prestation", values="CO2e/trip")
-    fig = go.Figure()
-    for col in distance_df.columns:
-        fig.add_trace(go.Bar(x=distance_df.index, y=distance_df[col], name=col))
-    fig.update_layout(plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30})
     return fig
 
 
@@ -220,7 +201,6 @@ cards = dbc.CardDeck(
 layout = html.Div(
     [
         dbc.Row(html.P("", id="values-selected")),
-        # Cards row
         dbc.Row(
             [
                 dbc.Col(
@@ -352,28 +332,3 @@ def update_graphs(selected_entity):
         get_hist_top_emission(chorus_dt_df),
         get_dashtable_by_emission(chorus_dt_df),
     ]
-
-
-# @app.callback(
-#     [Output("hist-by-emission", "figure"), Output("table-by-emission", "children")],
-#     [Input("dashboard-selected-entity", "children")],
-# )
-# def update_graphs_by_connexion(selected_entity):
-#     service = oc.get_entity_by_id(selected_entity)
-#     chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
-#
-#     return [get_hist_top_emission(chorus_dt_df), get_dashtable_by_emission(chorus_dt_df)]
-
-
-# @app.callback(
-#     Output("table-by-emission", "children"), [Input("dashboard-selected-entity", "children")],
-# )
-# def update_graphs_by_connexion(selected_entity):
-#     service = oc.get_entity_by_id(selected_entity)
-#     chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
-#
-#     return get_dashtable_by_emission(chorus_dt_df)
-#     # dfgb = df.groupby(['state']).sum()
-#     # data = df.to_dict('rows')
-#     # columns = [{"name": i, "id": i, } for i in (df.columns)]
-#     # return dash_table.DataTable(data=data, columns=columns)
