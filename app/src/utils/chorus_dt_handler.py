@@ -11,6 +11,7 @@ class ChorusDtHandler:
 
     def __init__(self):
         self.data_path = CHORUS_DT_DATA_PATH
+        self.prestation_dict = {"A": "Avion", "T": "Train", "TC": "Transport en commun"}
         self.data = self.load_data()
         self.preprocess_data()
 
@@ -21,6 +22,8 @@ class ChorusDtHandler:
         return df
 
     def preprocess_data(self):
+        self.data["count"] = 1
+        self.data["prestation"] = self.data["prestation"].replace(self.prestation_dict)
         self.data["date_debut_mission"] = pd.to_datetime(self.data["date_debut_mission"])
         self.data["date_fin_mission"] = pd.to_datetime(self.data["date_fin_mission"])
         self.data.loc[:, "year_month"] = self.data["date_debut_mission"].dt.to_period("M")
@@ -29,6 +32,20 @@ class ChorusDtHandler:
             bins=[0, 100, 500, 1000, float("inf")],
             labels=["0-100", "100-500", "500-1000", ">1000"],
         )
+        self.data["lieu1"] = (
+            self.data["lieu_depart"].str.extract("\ - (.*)")[0].str.replace("[\(\[].*?[\)\]]", "").str[:24]
+        )
+        self.data["lieu2"] = (
+            self.data["lieu_arrivee"].str.extract("\ - (.*)")[0].str.replace("[\(\[].*?[\)\]]", "").str[:24]
+        )
+        loc1_st_loc2 = self.data["lieu1"] <= self.data["lieu2"]
+        self.data.loc[loc1_st_loc2, "trajet"] = (
+            self.data.loc[loc1_st_loc2, "lieu1"] + " <-> " + self.data.loc[loc1_st_loc2, "lieu2"]
+        )
+        self.data.loc[~loc1_st_loc2, "trajet"] = (
+            self.data.loc[~loc1_st_loc2, "lieu2"] + " <-> " + self.data.loc[~loc1_st_loc2, "lieu1"]
+        )
+        pass
 
     def get_structure_data(self, code_structure=None):
         """"
