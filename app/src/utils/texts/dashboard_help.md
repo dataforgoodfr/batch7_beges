@@ -5,7 +5,7 @@ Cliquez sur « Exporter toutes les données » en haut à droite de la fenêtre 
 
 Le panneau latéral à gauche de la fenêtre vous permet d'appliquer des filtres sur la donnée à afficher.
 
-Il vous est possible de télécharger les graphiques affichés en cliquant sur le symbole "appareil photo" présent dans le bandeau supérieure de chaque graphique. 
+Il vous est possible de télécharger les graphiques affichés en cliquant sur le symbole "appareil photo" présent dans le bandeau supérieur de chaque graphique. 
 
 Pour toute question relative à la méthode de calcul utilisée, consultez la rubrique « Méthodologie ».
 
