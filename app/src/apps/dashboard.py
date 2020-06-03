@@ -1,19 +1,12 @@
-import flask
 from flask import url_for
 import dash_core_components as dcc
-import flask
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input, State
-import pandas as pd
-import io
-
 from apps import chorus_dt
 from apps import odrive
 from apps import osfi
-
 from app import app
-import utils
 from utils.organization_chart import oc
 from utils.texts import TEXTS
 
@@ -45,7 +38,11 @@ layout = html.Div(
                     width=3,
                 ),
                 dbc.Col(
-                    dbc.Button("Exporter toutes les données", color="primary", className="mr-1", block=True),
+                    html.A(
+                        dbc.Button("Exporter toutes les données", color="primary", className="mr-1", block=True),
+                        id="export-data-link",
+                        href="",
+                    ),
                     width={"size": 3, "offset": 4},
                 ),
                 dbc.Col(

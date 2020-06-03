@@ -2,8 +2,6 @@ import dash
 import os
 import dash_bootstrap_components as dbc
 import flask
-import io
-from flask import url_for
 from flask_login import LoginManager, UserMixin
 import utils
 
