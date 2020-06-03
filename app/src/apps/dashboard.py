@@ -1,14 +1,12 @@
+from flask import url_for
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input, State
-
 from apps import chorus_dt
 from apps import odrive
 from apps import osfi
-
 from app import app
-
 from utils.organization_chart import oc
 from utils.texts import TEXTS
 
@@ -40,7 +38,11 @@ layout = html.Div(
                     width=3,
                 ),
                 dbc.Col(
-                    dbc.Button("Exporter toutes les données", color="primary", className="mr-1", block=True),
+                    html.A(
+                        dbc.Button("Exporter toutes les données", color="primary", className="mr-1", block=True),
+                        id="export-data-link",
+                        href="",
+                    ),
                     width={"size": 3, "offset": 4},
                 ),
                 dbc.Col(
@@ -85,6 +87,11 @@ layout = html.Div(
     ],
     style={"display": "none"},
 )
+
+
+@app.callback([Output("export-data-link", "href")], [Input("dashboard-selected-entity", "children")])
+def update_link(service):
+    return [url_for("download_raw_excel", service=service)]
 
 
 @app.callback(Output("dashboard-selected-entity", "children"), [Input("url", "pathname")])
