@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 def build_figure_container(title, id, footer=None):
     fig_containter = dbc.Card(
         [
-            dbc.CardHeader(html.H4(title)),
+            dbc.CardHeader(html.H5(title)),
             dbc.CardBody([dbc.Col(dcc.Graph(id=id))]),  # , style={"padding": "0px"}),
             dbc.CardFooter(footer),
         ],
@@ -34,5 +34,5 @@ def build_table_container(title, id, footer):
     return fig_containter
 
 
-def build_card_indicateur(title, value, id = None):
+def build_card_indicateur(title, value, id=None):
     return dbc.Card(dbc.CardBody([html.P(title), html.H3(id=id, children=value)]), className="m-2 pretty_container")
