@@ -7,3 +7,5 @@ RUN pip install -r requirements.txt
 RUN PYTHONPATH=/app:$PYTHONPATH
 
 COPY ./src /app
+
+COPY ./nginx_config/* /etc/nginx/conf.d/
