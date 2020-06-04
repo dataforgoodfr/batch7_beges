@@ -2,9 +2,11 @@ import time
 import datetime
 import locale
 
+import dash
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
+from dash.exceptions import PreventUpdate
 import pandas as pd
 
 import plotly.graph_objects as go
@@ -24,11 +26,13 @@ TIMEOUT = 600
 
 @cache.memoize(timeout=TIMEOUT)
 def get_data(selected_entity, selected_rows, buildings, slider_values):
-    print("Getting data")
-    min_date = unix_to_date(slider_values[0])
-    max_date = unix_to_date(slider_values[1])
     entity = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(entity.code_osfi)
+
+    # Start of month for min slider range
+    min_date = pd.Timestamp(unix_to_date(slider_values[0])) - pd.offsets.MonthBegin(1)
+    max_date = pd.Timestamp(unix_to_date(slider_values[1]))
+
     # If no rows are selected, we are displaying all of them
     # Might seem a bit conter intuitive.
     if selected_rows is None or len(selected_rows) == 0:
@@ -39,8 +43,8 @@ def get_data(selected_entity, selected_rows, buildings, slider_values):
         codes = biens["Nom du bien"]
         data_to_display = data[data["Nom du bien"].isin(codes)]
         data_to_display = pd.DataFrame(data_to_display)
-    data_to_display = data_to_display[data_to_display["Date"] >= pd.Timestamp(min_date)]
-    data_to_display = data_to_display[data_to_display["Date"] <= pd.Timestamp(max_date)]
+    data_to_display = data_to_display[data_to_display["Date"] >= min_date]
+    data_to_display = data_to_display[data_to_display["Date"] <= max_date]
     return data_to_display
 
 
@@ -143,18 +147,44 @@ filters = dbc.Card(
                 dbc.Row(
                     [
                         dbc.Col(
-                            html.Div(id="osfi-dates-rangeslider-min-display"),
-                            width={"size": 3, "offset": 1},
-                            style={"text-align": "left"},
+                            html.P("Date de début : "),
+                            width=3,
                         ),
                         dbc.Col(
-                            html.Div(id="osfi-dates-rangeslider-max-display"),
-                            width={"size": 3, "offset": 4},
-                            style={"text-align": "right"},
+                            dbc.Button(html.I(className="fa fa-chevron-left fa-1x mr-1"), id='osfi-dates-rangeslider-min-down', color='light', block=True),
+                            width=1,
+                        ),
+                        dbc.Col(
+                            html.Div(id="osfi-dates-rangeslider-min-display", style={'text-align': 'center'}),
+                            width=2,
+                        ),
+                        dbc.Col(
+                            dbc.Button(html.I(className="fa fa-chevron-right fa-1x mr-1"), id='osfi-dates-rangeslider-min-up', color='light', block=True),
+                            width=1,
                         ),
                     ]
                 ),
-                dcc.RangeSlider(id="osfi-dates-rangeslider"),
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            html.P("Date de fin : "),
+                            width=3,
+                        ),
+                        dbc.Col(
+                            dbc.Button(html.I(className="fa fa-chevron-left fa-1x mr-1"), id='osfi-dates-rangeslider-max-down', color='light', block=True),
+                            width=1,
+                        ),
+                        dbc.Col(
+                            html.Div(id="osfi-dates-rangeslider-max-display", style={'text-align': 'center'}),
+                            width=2,
+                        ),
+                        dbc.Col(
+                            dbc.Button(html.I(className="fa fa-chevron-right fa-1x mr-1"), id='osfi-dates-rangeslider-max-up', color='light', block=True),
+                            width=1,
+                        ),
+                    ]
+                ),
+                dcc.RangeSlider(id="osfi-dates-rangeslider", step=None),
             ]
         ),
     ],
@@ -173,14 +203,19 @@ layout = html.Div(
                             html.P(dbc.Button("En savoir plus", color="primary", href="/methodologie")),
                         ]
                     ),
-                    width=12,
+                    width=3,
+                ),
+                dbc.Col(
+                    filters,
+                    width=9,
                 )
+
             ]
         ),
         dbc.Row(
             [
                 dbc.Col(
-                    [filters, build_table_container(title="Liste de biens", id="osfi-all-data-table")],
+                    build_table_container(title="Liste de biens", id="osfi-all-data-table"),
                     width=6,
                     style={"textAlign": "left"},
                 ),
@@ -259,7 +294,6 @@ def fill_dash_table_with_buildings(selected_entity):
         Output("osfi-dates-rangeslider", "min"),
         Output("osfi-dates-rangeslider", "max"),
         Output("osfi-dates-rangeslider", "marks"),
-        Output("osfi-dates-rangeslider", "value"),
     ],
     [Input("dashboard-selected-entity", "children")],
 )
@@ -272,8 +306,54 @@ def set_slider_range(selected_entity):
     marks = get_marks(datelist)
     min_value = unix_time_millis(min_date)
     max_value = unix_time_millis(max_date)
-    return min_value, max_value, marks, [min_value, max_value]
+    return min_value, max_value, marks
 
+
+@app.callback(
+    Output("osfi-dates-rangeslider", "value"),
+    [
+        Input('osfi-dates-rangeslider-min-down', 'n_clicks'),
+        Input('osfi-dates-rangeslider-min-up', 'n_clicks'),
+        Input('osfi-dates-rangeslider-max-down', 'n_clicks'),
+        Input('osfi-dates-rangeslider-max-up', 'n_clicks'),
+        Input("osfi-dates-rangeslider", "marks"), 
+    ],
+    [
+        State("osfi-dates-rangeslider", "value"), 
+    ],
+)
+def update_sliders_values(min_down_n_clicks, min_up_n_clicks, max_down_clicks, max_up_clicks, rangeslider_marks, rangeslider_values):
+    ctx = dash.callback_context
+    # If values of the range slider are not set, we take the first and last mark
+    if rangeslider_values is None:
+        marks = list(rangeslider_marks)
+        return [int(marks[0]), int(marks[-1])]
+
+    if not ctx.triggered:
+        raise PreventUpdate
+    else:
+        prop_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        marks = [int(m) for m in rangeslider_marks]
+        min_value = rangeslider_values[0]
+        print(marks)
+        print(min_value)
+        min_index = marks.index(min_value)
+        max_value = rangeslider_values[1]
+        max_index = marks.index(max_value)
+        if prop_id == "osfi-dates-rangeslider-min-down":
+            if min_index > 0:
+                min_value = marks[min_index - 1]
+        elif prop_id == "osfi-dates-rangeslider-min-up":
+            if min_index < len(marks):
+                min_value = marks[min_index + 1]
+        elif prop_id == "osfi-dates-rangeslider-max-down":
+            if max_index > 0:
+                max_value = marks[max_index - 1]
+        elif prop_id == "osfi-dates-rangeslider-max-up":
+            if max_index < len(marks):
+                max_value = marks[max_index + 1]
+        return [int(min_value), int(max_value)]
+        
 
 @app.callback(
     [
