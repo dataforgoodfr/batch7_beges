@@ -8,6 +8,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash.exceptions import PreventUpdate
 import pandas as pd
+import numpy as np
 
 import plotly.graph_objects as go
 
@@ -33,19 +34,19 @@ def get_data(selected_entity, selected_rows, buildings, slider_values):
     min_date = pd.Timestamp(unix_to_date(slider_values[0])) - pd.offsets.MonthBegin(1)
     max_date = pd.Timestamp(unix_to_date(slider_values[1]))
 
-    # If no rows are selected, we are displaying all of them
-    # Might seem a bit conter intuitive.
+    # If no rows are selected, we are returning an empty dataframe
+    # with the same structure as data
     if selected_rows is None or len(selected_rows) == 0:
-        data_to_display = pd.DataFrame(data)
+        return pd.DataFrame().reindex_like(data)
     else:
         biens = [buildings[int(i)] for i in selected_rows]
         biens = pd.DataFrame(biens)
         codes = biens["Nom du bien"]
         data_to_display = data[data["Nom du bien"].isin(codes)]
         data_to_display = pd.DataFrame(data_to_display)
-    data_to_display = data_to_display[data_to_display["Date"] >= min_date]
-    data_to_display = data_to_display[data_to_display["Date"] <= max_date]
-    return data_to_display
+        data_to_display = data_to_display[data_to_display["Date"] >= min_date]
+        data_to_display = data_to_display[data_to_display["Date"] <= max_date]
+        return data_to_display
 
 
 def get_pie(data, column):
@@ -74,8 +75,31 @@ def get_emissions_timeseries(data, column):
     return fig
 
 
-def get_building_location(buildings):
-    data = [go.Scattermapbox(lon=buildings["longitude RT"], lat=buildings["Latitude RT"])]
+def get_building_location(buildings, data_to_display, selected_rows):
+    selected_building_names = [b["Nom du bien"] for i, b in enumerate(buildings) if i in selected_rows]
+    print("Building names: ", selected_building_names)
+    building_names_group = data_to_display.groupby("Nom du bien")
+    buildings = building_names_group[["longitude RT", "Latitude RT"]].first()
+    markers_sizes = np.log(building_names_group[["emission_electricity", "emission_gaz"]].sum().sum(axis=1))
+
+    def get_marker_color(x):
+        if x["Nom du bien"] in selected_building_names:
+            return "blue"
+        else:
+            return "green"
+
+    markers_color = building_names_group[["Nom du bien"]].first().apply(get_marker_color, axis=1).values
+    data = [
+        dict(
+            # type="scattermapbox",
+            type="scattergeo",
+            lon=buildings["longitude RT"],
+            lat=buildings["Latitude RT"],
+            mode="markers",
+            text=building_names_group[["Nom du bien"]].first(),
+            marker=dict(size=markers_sizes, color=markers_color),
+        )
+    ]
     center = {"lon": buildings["longitude RT"].mean(), "lat": buildings["Latitude RT"].mean()}
     center = {
         "lon": (buildings["longitude RT"].max() + buildings["longitude RT"].min()) / 2.0,
@@ -88,31 +112,17 @@ def get_building_location(buildings):
     print(zoom)
 
     layout = dict(
-        geo=go.layout.Geo(
-            scope="world",
-            fitbounds="locations",
-            # showframe=True,
-            # showlakes=False,
-            # lakecolor="lightblue",
-            # showocean=False,
-            # oceancolor="lightblue",
-            # showrivers=True,
-            # rivercolor="lightblue",
-            # riverwidth=1,
-            # showland=True,
-            # landcolor="gainsboro",
-            # showcoastlines=False,
-            # coastlinewidth=0.5,
-            # showcountries=True,
-            # countrycolor="darkgray",
-            # countrywidth=0.5,
-        ),
-        # mapbox=dict(style="carto-positron", center=center, zoom=zoom),
+        geo=go.layout.Geo(scope="world",),
         mapbox=dict(style="open-street-map", center=center, zoom=zoom),
         margin=dict(r=0, l=0, t=0, b=0),
+        autosize=True,
+        uirevision="no reset of zoom",
     )
     fig = go.Figure(data=data, layout=layout)
     fig.update_geos(fitbounds="locations")
+    print("buildings: ", buildings)
+    print("center: ", fig.layout.mapbox.center, center)
+    print("zoom: ", fig.layout.mapbox.zoom)
     return fig
 
 
@@ -146,40 +156,52 @@ filters = dbc.Card(
             [
                 dbc.Row(
                     [
+                        dbc.Col(html.P("Date de début : "), width=3,),
                         dbc.Col(
-                            html.P("Date de début : "),
-                            width=3,
-                        ),
-                        dbc.Col(
-                            dbc.Button(html.I(className="fa fa-chevron-left fa-1x mr-1"), id='osfi-dates-rangeslider-min-down', color='light', block=True),
+                            dbc.Button(
+                                html.I(className="fa fa-chevron-left fa-1x mr-1"),
+                                id="osfi-dates-rangeslider-min-down",
+                                color="light",
+                                block=True,
+                            ),
                             width=1,
                         ),
                         dbc.Col(
-                            html.Div(id="osfi-dates-rangeslider-min-display", style={'text-align': 'center'}),
-                            width=2,
+                            html.Div(id="osfi-dates-rangeslider-min-display", style={"text-align": "center"}), width=2,
                         ),
                         dbc.Col(
-                            dbc.Button(html.I(className="fa fa-chevron-right fa-1x mr-1"), id='osfi-dates-rangeslider-min-up', color='light', block=True),
+                            dbc.Button(
+                                html.I(className="fa fa-chevron-right fa-1x mr-1"),
+                                id="osfi-dates-rangeslider-min-up",
+                                color="light",
+                                block=True,
+                            ),
                             width=1,
                         ),
                     ]
                 ),
                 dbc.Row(
                     [
+                        dbc.Col(html.P("Date de fin : "), width=3,),
                         dbc.Col(
-                            html.P("Date de fin : "),
-                            width=3,
-                        ),
-                        dbc.Col(
-                            dbc.Button(html.I(className="fa fa-chevron-left fa-1x mr-1"), id='osfi-dates-rangeslider-max-down', color='light', block=True),
+                            dbc.Button(
+                                html.I(className="fa fa-chevron-left fa-1x mr-1"),
+                                id="osfi-dates-rangeslider-max-down",
+                                color="light",
+                                block=True,
+                            ),
                             width=1,
                         ),
                         dbc.Col(
-                            html.Div(id="osfi-dates-rangeslider-max-display", style={'text-align': 'center'}),
-                            width=2,
+                            html.Div(id="osfi-dates-rangeslider-max-display", style={"text-align": "center"}), width=2,
                         ),
                         dbc.Col(
-                            dbc.Button(html.I(className="fa fa-chevron-right fa-1x mr-1"), id='osfi-dates-rangeslider-max-up', color='light', block=True),
+                            dbc.Button(
+                                html.I(className="fa fa-chevron-right fa-1x mr-1"),
+                                id="osfi-dates-rangeslider-max-up",
+                                color="light",
+                                block=True,
+                            ),
                             width=1,
                         ),
                     ]
@@ -205,11 +227,7 @@ layout = html.Div(
                     ),
                     width=3,
                 ),
-                dbc.Col(
-                    filters,
-                    width=9,
-                )
-
+                dbc.Col(filters, width=9,),
             ]
         ),
         dbc.Row(
@@ -268,6 +286,7 @@ layout = html.Div(
     [
         Output("osfi-all-data-table", "columns"),
         Output("osfi-all-data-table", "row_selectable"),
+        Output("osfi-all-data-table", "selected_rows"),
         Output("osfi-all-data-table", "hidden_columns"),
         Output("osfi-all-data-table", "data"),
     ],
@@ -280,13 +299,15 @@ def fill_dash_table_with_buildings(selected_entity):
     columns = [{"name": i, "id": i} for i in columns_to_keep]
     hidden_columns = []
     for c in columns:
-        if c["name"] != "Nom du bien":
+        if c["name"] not in ["Nom du bien", "Ville"]:
             c["hideable"] = True
             hidden_columns.append(c["id"])
     row_selectable = "multi"
     buildings = data[columns_to_keep].drop_duplicates()
+    selected_rows = list(range(0, len(buildings)))
+    print(selected_rows)
     data_to_return = buildings.to_dict("records")
-    return columns, row_selectable, hidden_columns, data_to_return
+    return columns, row_selectable, selected_rows, hidden_columns, data_to_return
 
 
 @app.callback(
@@ -312,17 +333,17 @@ def set_slider_range(selected_entity):
 @app.callback(
     Output("osfi-dates-rangeslider", "value"),
     [
-        Input('osfi-dates-rangeslider-min-down', 'n_clicks'),
-        Input('osfi-dates-rangeslider-min-up', 'n_clicks'),
-        Input('osfi-dates-rangeslider-max-down', 'n_clicks'),
-        Input('osfi-dates-rangeslider-max-up', 'n_clicks'),
-        Input("osfi-dates-rangeslider", "marks"), 
+        Input("osfi-dates-rangeslider-min-down", "n_clicks"),
+        Input("osfi-dates-rangeslider-min-up", "n_clicks"),
+        Input("osfi-dates-rangeslider-max-down", "n_clicks"),
+        Input("osfi-dates-rangeslider-max-up", "n_clicks"),
+        Input("osfi-dates-rangeslider", "marks"),
     ],
-    [
-        State("osfi-dates-rangeslider", "value"), 
-    ],
+    [State("osfi-dates-rangeslider", "value"),],
 )
-def update_sliders_values(min_down_n_clicks, min_up_n_clicks, max_down_clicks, max_up_clicks, rangeslider_marks, rangeslider_values):
+def update_sliders_values(
+    min_down_n_clicks, min_up_n_clicks, max_down_clicks, max_up_clicks, rangeslider_marks, rangeslider_values
+):
     ctx = dash.callback_context
     # If values of the range slider are not set, we take the first and last mark
     if rangeslider_values is None:
@@ -353,7 +374,7 @@ def update_sliders_values(min_down_n_clicks, min_up_n_clicks, max_down_clicks, m
             if max_index < len(marks):
                 max_value = marks[max_index + 1]
         return [int(min_value), int(max_value)]
-        
+
 
 @app.callback(
     [
@@ -378,6 +399,7 @@ def update_sliders_min_max_display(range_slider_value):
     ],
 )
 def update_emission_electricity_pie(selected_entity, selected_rows, buildings, slider_values):
+    print("Selected rows: ", selected_rows)
     t1 = time.time()
     data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
     t2 = time.time()
@@ -425,6 +447,6 @@ def update_gas_time_series(selected_rows, slider_values, selected_entity, buildi
     [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
 )
 def update_map_location(selected_rows, slider_values, selected_entity, buildings):
-    data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
-    buildings = data_to_display.groupby("Nom du bien").first()
-    return get_building_location(buildings)
+    # Here we select all the data
+    data_to_display = get_data(selected_entity, list(range(len(buildings))), buildings, slider_values)
+    return get_building_location(buildings, data_to_display, selected_rows)
