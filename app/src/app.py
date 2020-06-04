@@ -63,3 +63,14 @@ def download_raw_excel():
         as_attachment=True,
         cache_timeout=0,
     )  # TODO: Remove cache timeout
+
+
+# Setting up loader io route to test our application
+
+
+def get_loader_io_token():
+    loader_io_token = os.getenv("LOADER_IO_TOKEN", "loader_io_token")
+    return loader_io_token
+
+
+app.server.add_url_rule(rule="/" + get_loader_io_token() + "/", view_func=get_loader_io_token)

@@ -3,6 +3,7 @@ services:
     beges:
         build: ./app
         environment:
+            - LOADER_IO_TOKEN=${LOADER_IO_TOKEN}
             - GMAP_API_KEY=${GMAP_API_KEY}
             - APP_ADMIN_NAME=${APP_ADMIN_NAME}
             - APP_ADMIN_PWD=${APP_ADMIN_PWD}
