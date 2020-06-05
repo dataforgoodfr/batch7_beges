@@ -10,14 +10,17 @@ from dash.exceptions import PreventUpdate
 import pandas as pd
 import numpy as np
 
+
+from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import plotly.express as px
 
 from app import app, cache
 from utils.organization_chart import oc
 from utils.osfi_handler import oh
 from dash.dependencies import Input, Output, State
 
-from components.html_components import build_figure_container, build_table_container
+from components.html_components import build_figure_container, build_table_container, build_card_indicateur
 
 locale.setlocale(locale.LC_TIME, "")
 
@@ -49,14 +52,175 @@ def get_data(selected_entity, selected_rows, buildings, slider_values):
         return data_to_display
 
 
-def get_pie(data, column):
-    fig = go.Figure(data=[go.Pie(labels=data["Nom du bien"], values=data[column], hole=0.3)])
-    fig.update_layout(plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30})
+def get_pies(data, data_type: str, unit: str):
+    fig = make_subplots(
+        rows=1,
+        cols=3,
+        specs=[[{"type": "domain"}, {"type": "domain"}, {"type": "domain"}]],
+        subplot_titles=["Électricité", "Gaz", "Total"],
+    )
+    data = (
+        data.groupby("Nom du bien")[
+            [
+                oh.column_names[data_type]["gas"],
+                oh.column_names[data_type]["electricity"],
+                oh.column_names[data_type]["total"],
+            ]
+        ]
+        .sum()
+        .reset_index()
+    )
+    fig.add_trace(
+        go.Pie(
+            values=data[oh.column_names[data_type]["electricity"]].values,
+            labels=data["Nom du bien"],
+            scalegroup="one",
+            name="Électricité",
+        ),
+        1,
+        1,
+    )
+    fig.add_trace(
+        go.Pie(
+            labels=data["Nom du bien"],
+            values=data[oh.column_names[data_type]["gas"]].values,
+            scalegroup="one",
+            name="Gaz",
+        ),
+        1,
+        2,
+    )
+    fig.add_trace(
+        go.Pie(
+            labels=data["Nom du bien"],
+            values=data[oh.column_names[data_type]["total"]].values,
+            scalegroup="one",
+            name="Total",
+        ),
+        1,
+        3,
+    )
+    fig.update_traces(
+        hole=0.4,
+        hoverinfo="label+value+percent+name",
+        textposition="inside",
+        hovertemplate="%{label}<br>%{value} " + unit + "<br>(%{percent})",
+    )
+    fig.update_layout(uniformtext_minsize=12, uniformtext_mode="hide")
+    fig.update_layout(plot_bgcolor="white", template="plotly_white")
     return fig
 
 
-def get_emissions_timeseries(data, column):
+def get_repartition_consumption_pies(data):
+    return get_pies(data, "consumption", "kWh")
+
+
+def get_repartition_emission_pies(data):
+    return get_pies(data, "emission", "kgCO2e")
+
+
+def get_consumption_timeseries(data, display_mode):
+    fig = go.Figure()
+    data = (
+        data.groupby("Date")[[oh.column_names["consumption"]["gas"], oh.column_names["consumption"]["electricity"]]]
+        .sum()
+        .reset_index()
+    )
+    if display_mode == "total":
+        fig.add_trace(go.Bar(x=data["Date"], y=data[oh.column_names["consumption"]["gas"]], name="Consommation gaz"))
+        fig.add_trace(
+            go.Bar(
+                x=data["Date"], y=data[oh.column_names["consumption"]["electricity"]], name="Consommation électricité"
+            )
+        )
+    elif display_mode == "electricity":
+        fig.add_trace(
+            go.Bar(
+                x=data["Date"], y=data[oh.column_names["consumption"]["electricity"]], name="Consommation électricité"
+            )
+        )
+    elif display_mode == "gas":
+        fig.add_trace(go.Bar(x=data["Date"], y=data[oh.column_names["consumption"]["gas"]], name="Consommation gaz"))
+
+    fig.update_layout(
+        barmode="relative",
+        plot_bgcolor="white",
+        showlegend=True,
+        template="plotly_white",
+        margin={"t": 30, "r": 30, "l": 30},  # , xaxis=xaxis_format
+        yaxis=dict(title_text="Consommation en kWh"),
+    )
+    return fig
+
+
+def get_emission_timeseries(data, display_mode):
+    fig = go.Figure()
+
+    data = (
+        data.groupby("Date")[["Emissions de CO2 par l'électricité (kgCO2e)", "Emissions de CO2 par le gaz (kgCO2e)"]]
+        .sum()
+        .reset_index()
+    )
+    if display_mode == "total":
+        fig.add_trace(go.Bar(x=data["Date"], y=data["Emissions de CO2 par le gaz (kgCO2e)"], name="Emission gaz"))
+        fig.add_trace(
+            go.Bar(x=data["Date"], y=data["Emissions de CO2 par l'électricité (kgCO2e)"], name="Emission électricité")
+        )
+    elif display_mode == "electricity":
+        fig.add_trace(
+            go.Bar(x=data["Date"], y=data["Emissions de CO2 par l'électricité (kgCO2e)"], name="Emission électricité")
+        )
+    elif display_mode == "gas":
+        fig.add_trace(go.Bar(x=data["Date"], y=data["Emissions de CO2 par le gaz (kgCO2e)"], name="Emission gaz"))
+
+    fig.update_layout(
+        barmode="relative",
+        plot_bgcolor="white",
+        showlegend=True,
+        template="plotly_white",
+        margin={"t": 30, "r": 30, "l": 30},  # , xaxis=xaxis_format
+        yaxis=dict(title_text="Emission en kgCO2e"),
+    )
+    return fig
+
+
+def get_consumption_timeseries_per_building(data, display_mode):
+    # column = "Consumption kwh electricity"
+    print(data.columns)
+    buildings = data["Nom du bien"].unique()
+    fig = go.Figure()
+    for building in buildings:
+        print("building", building)
+        plot_data = data.loc[data["Nom du bien"] == building]
+        fig.add_trace(
+            go.Scatter(
+                name=building,
+                x=plot_data["Date"],
+                y=plot_data["Consommation d'électricité (kWh)"],
+                mode="lines+markers",
+                line=dict(width=3),
+            )
+        )
+    fig.update_layout(
+        plot_bgcolor="white", template="plotly_white", margin={"t": 30, "r": 30, "l": 30}  # , xaxis=xaxis_format
+    )
+    return fig
+
+
+def get_emission_timeseries_per_building(data, display_mode):
+    column = "Consumption kwh electricity"
     biens = data["Nom du bien"].unique()
+    data = (
+        data.groupby("Date")[
+            [
+                "Emissions de CO2 par l'électricité (kgCO2e)",
+                "Emissions de CO2 par le gaz (kgCO2e)",
+                "Emissions de CO2 au total (kgCO2e)",
+            ]
+        ]
+        .sum()
+        .reset_index()
+    )
     fig = go.Figure()
     for bien in biens:
         plot_data = data.loc[data["Nom du bien"] == bien]
@@ -77,10 +241,9 @@ def get_emissions_timeseries(data, column):
 
 def get_building_location(buildings, data_to_display, selected_rows):
     selected_building_names = [b["Nom du bien"] for i, b in enumerate(buildings) if i in selected_rows]
-    print("Building names: ", selected_building_names)
     building_names_group = data_to_display.groupby("Nom du bien")
-    buildings = building_names_group[["longitude RT", "Latitude RT"]].first()
-    markers_sizes = np.log(building_names_group[["emission_electricity", "emission_gaz"]].sum().sum(axis=1))
+    buildings = building_names_group[["Longitude RT", "Latitude RT"]].first()
+    markers_sizes = np.log(building_names_group[["Emissions de CO2 par l'électricité (kgCO2e)"]].sum().sum(axis=1))
 
     def get_marker_color(x):
         if x["Nom du bien"] in selected_building_names:
@@ -89,28 +252,21 @@ def get_building_location(buildings, data_to_display, selected_rows):
             return "green"
 
     markers_color = building_names_group[["Nom du bien"]].first().apply(get_marker_color, axis=1).values
+    center = {
+        "lon": (buildings["Longitude RT"].max() + buildings["Longitude RT"].min()) / 2.0,
+        "lat": (buildings["Latitude RT"].max() + buildings["Latitude RT"].min()) / 2.0,
+    }
+    zoom = 5
     data = [
         dict(
-            # type="scattermapbox",
-            type="scattergeo",
-            lon=buildings["longitude RT"],
+            type="scattermapbox",
+            lon=buildings["Longitude RT"],
             lat=buildings["Latitude RT"],
             mode="markers",
             text=building_names_group[["Nom du bien"]].first(),
             marker=dict(size=markers_sizes, color=markers_color),
         )
     ]
-    center = {"lon": buildings["longitude RT"].mean(), "lat": buildings["Latitude RT"].mean()}
-    center = {
-        "lon": (buildings["longitude RT"].max() + buildings["longitude RT"].min()) / 2.0,
-        "lat": (buildings["Latitude RT"].max() + buildings["Latitude RT"].min()) / 2.0,
-    }
-    zoom = 5.0 / max(
-        buildings["longitude RT"].max() - buildings["longitude RT"].min(),
-        buildings["Latitude RT"].max() - buildings["Latitude RT"].min(),
-    )
-    print(zoom)
-
     layout = dict(
         geo=go.layout.Geo(scope="world",),
         mapbox=dict(style="open-street-map", center=center, zoom=zoom),
@@ -119,10 +275,6 @@ def get_building_location(buildings, data_to_display, selected_rows):
         uirevision="no reset of zoom",
     )
     fig = go.Figure(data=data, layout=layout)
-    fig.update_geos(fitbounds="locations")
-    print("buildings: ", buildings)
-    print("center: ", fig.layout.mapbox.center, center)
-    print("zoom: ", fig.layout.mapbox.zoom)
     return fig
 
 
@@ -154,9 +306,13 @@ filters = dbc.Card(
         dbc.CardHeader(html.H4("Filtres")),
         dbc.CardBody(
             [
+                dbc.Row(dbc.Col(dcc.RangeSlider(id="osfi-dates-rangeslider", step=None),), className="m-2",),
                 dbc.Row(
                     [
-                        dbc.Col(html.P("Date de début : "), width=3,),
+                        dbc.Col(html.P("Date de début : "), width=2,),
+                        dbc.Col(
+                            html.Div(id="osfi-dates-rangeslider-min-display", style={"text-align": "center"}), width=2,
+                        ),
                         dbc.Col(
                             dbc.Button(
                                 html.I(className="fa fa-chevron-left fa-1x mr-1"),
@@ -167,9 +323,6 @@ filters = dbc.Card(
                             width=1,
                         ),
                         dbc.Col(
-                            html.Div(id="osfi-dates-rangeslider-min-display", style={"text-align": "center"}), width=2,
-                        ),
-                        dbc.Col(
                             dbc.Button(
                                 html.I(className="fa fa-chevron-right fa-1x mr-1"),
                                 id="osfi-dates-rangeslider-min-up",
@@ -178,11 +331,10 @@ filters = dbc.Card(
                             ),
                             width=1,
                         ),
-                    ]
-                ),
-                dbc.Row(
-                    [
-                        dbc.Col(html.P("Date de fin : "), width=3,),
+                        dbc.Col(html.P("Date de fin : "), width=2),
+                        dbc.Col(
+                            html.Div(id="osfi-dates-rangeslider-max-display", style={"text-align": "center"}), width=2,
+                        ),
                         dbc.Col(
                             dbc.Button(
                                 html.I(className="fa fa-chevron-left fa-1x mr-1"),
@@ -193,9 +345,6 @@ filters = dbc.Card(
                             width=1,
                         ),
                         dbc.Col(
-                            html.Div(id="osfi-dates-rangeslider-max-display", style={"text-align": "center"}), width=2,
-                        ),
-                        dbc.Col(
                             dbc.Button(
                                 html.I(className="fa fa-chevron-right fa-1x mr-1"),
                                 id="osfi-dates-rangeslider-max-up",
@@ -204,14 +353,41 @@ filters = dbc.Card(
                             ),
                             width=1,
                         ),
-                    ]
+                    ],
+                    className="m-2",
                 ),
-                dcc.RangeSlider(id="osfi-dates-rangeslider", step=None),
+                dbc.Row(
+                    [
+                        dbc.Col(dbc.Label("Mode d'affichage", html_for="osfi-display-mode-dropdown"), width=2,),
+                        dbc.Col(
+                            dcc.Dropdown(
+                                id="osfi-display-mode-dropdown",
+                                options=[
+                                    {"label": "Électricité / Gaz", "value": "total"},
+                                    {"label": "Électricité", "value": "electricity"},
+                                    {"label": "Gaz", "value": "gas"},
+                                ],
+                                value="total",
+                            ),
+                            width=10,
+                        ),
+                    ],
+                    className="m-2",
+                ),
             ]
         ),
     ],
     className="m-2 pretty_container",
 )
+
+# cards = dbc.CardDeck(
+# [
+# build_card_indicateur("Nombre de bâtiments", "0", "number-of-buildings"),
+# build_card_indicateur(", "0", "kilometers_total_odrive"),
+# build_card_indicateur("Distance par mois par véhicule (km)", "0", "montly_kilometer_odrive"),
+# ]
+# )
+
 layout = html.Div(
     [
         dbc.Row(
@@ -247,36 +423,72 @@ layout = html.Div(
         dbc.Row(
             dbc.Col(
                 build_figure_container(
-                    title="Emission electricité par batiment", id="emission-electricity-pie", footer="Explications..."
+                    title="Répartition de la consommation énergétique par bâtiment",
+                    id="osfi-repartition-consumption-pies",
                 ),
                 width=12,
-            )
+            ),
         ),
         dbc.Row(
             dbc.Col(
                 build_figure_container(
-                    title="Emission gaz par batiment", id="emission-gas-pie", footer="Explications..."
-                ),
-                width=12,
-            )
-        ),
-        dbc.Row(
-            dbc.Col(
-                build_figure_container(
-                    title="Évolution temporelles des émissions (électricité)",
-                    id="electricity_time_series",
+                    title="Répartition des émissions par bâtiment",
+                    id="osfi-repartition-emission-pies",
                     footer="Explications...",
                 ),
                 width=12,
-            )
+            ),
         ),
         dbc.Row(
-            dbc.Col(
-                build_figure_container(
-                    title="Évolution temporelles des émissions (gaz)", id="gas_time_series", footer="Explications..."
+            [
+                dbc.Col(
+                    build_figure_container(
+                        title="Évolution temporelles de la consommation de gaz par bâtiment (kWh)",
+                        id="osfi-consumption-timeseries",
+                    ),
+                    width=6,
                 ),
-                width=12,
-            )
+                dbc.Col(
+                    build_figure_container(
+                        title="Évolution temporelles des émissions (kgCO2)", id="osfi-emission-timeseries",
+                    ),
+                    width=6,
+                ),
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    build_figure_container(
+                        title="Évolution temporelles de la consommation par bâtiment (kWh)",
+                        id="osfi-consumption-timeseries-per-building",
+                    ),
+                    width=6,
+                ),
+                dbc.Col(
+                    build_figure_container(
+                        title="Évolution temporelles des émissions par bâtiment (kgCO2)",
+                        id="osfi-emission-timeseries-per-building",
+                    ),
+                    width=6,
+                ),
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    build_figure_container(
+                        title="Évolution temporelles de la consommation (kWh)", id="osfi-consumption-timeseries",
+                    ),
+                    width=6,
+                ),
+                dbc.Col(
+                    build_figure_container(
+                        title="Évolution temporelles des émissions (kgCO2)", id="osfi-emission-timeseries",
+                    ),
+                    width=6,
+                ),
+            ]
         ),
     ]
 )
@@ -356,8 +568,6 @@ def update_sliders_values(
         prop_id = ctx.triggered[0]["prop_id"].split(".")[0]
         marks = [int(m) for m in rangeslider_marks]
         min_value = rangeslider_values[0]
-        print(marks)
-        print(min_value)
         min_index = marks.index(min_value)
         max_value = rangeslider_values[1]
         max_index = marks.index(max_value)
@@ -390,58 +600,6 @@ def update_sliders_min_max_display(range_slider_value):
 
 
 @app.callback(
-    Output("emission-electricity-pie", "figure"),
-    [
-        Input("dashboard-selected-entity", "children"),
-        Input("osfi-all-data-table", "selected_rows"),
-        Input("osfi-all-data-table", "data"),
-        Input("osfi-dates-rangeslider", "value"),
-    ],
-)
-def update_emission_electricity_pie(selected_entity, selected_rows, buildings, slider_values):
-    print("Selected rows: ", selected_rows)
-    t1 = time.time()
-    data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
-    t2 = time.time()
-    electricity_pie_graph = get_pie(data_to_display, "emission_electricity")
-    return electricity_pie_graph
-
-
-@app.callback(
-    Output("emission-gas-pie", "figure"),
-    [Input("osfi-all-data-table", "selected_rows"), Input("osfi-dates-rangeslider", "value")],
-    [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
-)
-def update_gas_pie(selected_rows, slider_values, selected_entity, buildings):
-    data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
-    gas_pie_graph = get_pie(data_to_display, "emission_gaz")
-    return gas_pie_graph
-
-
-@app.callback(
-    Output("electricity_time_series", "figure"),
-    [Input("osfi-all-data-table", "selected_rows"), Input("osfi-dates-rangeslider", "value")],
-    [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
-)
-def update_electricity_time_series(selected_rows, slider_values, selected_entity, buildings):
-    data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
-    electricity_time_series = get_emissions_timeseries(data_to_display, "emission_electricity")
-    return electricity_time_series
-
-
-@app.callback(
-    Output("gas_time_series", "figure"),
-    [Input("osfi-all-data-table", "selected_rows"), Input("osfi-dates-rangeslider", "value")],
-    [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
-)
-def update_gas_time_series(selected_rows, slider_values, selected_entity, buildings):
-    data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
-    gas_time_series = get_emissions_timeseries(data_to_display, "emission_gaz")
-
-    return gas_time_series
-
-
-@app.callback(
     Output("osfi-building-location", "figure"),
     [Input("osfi-all-data-table", "selected_rows"), Input("osfi-dates-rangeslider", "value")],
     [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
@@ -450,3 +608,118 @@ def update_map_location(selected_rows, slider_values, selected_entity, buildings
     # Here we select all the data
     data_to_display = get_data(selected_entity, list(range(len(buildings))), buildings, slider_values)
     return get_building_location(buildings, data_to_display, selected_rows)
+
+
+@app.callback(
+    Output("osfi-repartition-consumption-pies", "figure"),
+    [
+        Input("dashboard-selected-entity", "children"),
+        Input("osfi-all-data-table", "selected_rows"),
+        Input("osfi-all-data-table", "data"),
+        Input("osfi-dates-rangeslider", "value"),
+    ],
+)
+def update_repartition_consumption_pies(selected_entity, selected_rows, buildings, slider_values):
+    data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
+    consumption_pies = get_repartition_consumption_pies(data_to_display)
+    return consumption_pies
+
+
+@app.callback(
+    Output("osfi-repartition-emission-pies", "figure"),
+    [
+        Input("dashboard-selected-entity", "children"),
+        Input("osfi-all-data-table", "selected_rows"),
+        Input("osfi-all-data-table", "data"),
+        Input("osfi-dates-rangeslider", "value"),
+    ],
+)
+def update_repartition_emission_pies(selected_entity, selected_rows, buildings, slider_values):
+    data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
+    emission_pies = get_repartition_emission_pies(data_to_display)
+    return emission_pies
+
+
+#
+#
+# @app.callback(
+#     Output("emission-gas-pie", "figure"),
+#     [Input("osfi-all-data-table", "selected_rows"), Input("osfi-dates-rangeslider", "value")],
+#     [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
+# )
+# def update_gas_pie(selected_rows, slider_values, selected_entity, buildings):
+#     data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
+#     gas_pie_graph = get_pie(data_to_display, "emission_gaz")
+#     return gas_pie_graph
+
+
+@app.callback(
+    Output("osfi-consumption-timeseries-per-building", "figure"),
+    [
+        Input("osfi-all-data-table", "selected_rows"),
+        Input("osfi-dates-rangeslider", "value"),
+        Input("osfi-display-mode-dropdown", "value"),
+    ],
+    [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
+)
+def update_consumption_timeseries_per_building(selected_rows, slider_values, display_mode, selected_entity, buildings):
+    data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
+    consumption_time_series = get_consumption_timeseries_per_building(data_to_display, display_mode)
+    return consumption_time_series
+
+
+# @app.callback(
+#     Output("osfi-emission-timeseries-per-building", "figure"),
+#     [
+#         Input("osfi-all-data-table", "selected_rows"),
+#         Input("osfi-dates-rangeslider", "value"),
+#         Input("osfi-display-mode-dropdown", "value"),
+#     ],
+#     [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
+# )
+# def update_emission_timeseries_per_building(selected_rows, slider_values, display_mode, selected_entity, buildings):
+#     data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
+#     emission_time_series = get_emission_timeseries_per_building(data_to_display, display_mode)
+#     return emission_time_series
+
+
+@app.callback(
+    Output("osfi-consumption-timeseries", "figure"),
+    [
+        Input("osfi-all-data-table", "selected_rows"),
+        Input("osfi-dates-rangeslider", "value"),
+        Input("osfi-display-mode-dropdown", "value"),
+    ],
+    [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
+)
+def update_consumption_timeseries(selected_rows, slider_values, display_mode, selected_entity, buildings):
+    data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
+    consumption_time_series = get_consumption_timeseries(data_to_display, display_mode)
+    return consumption_time_series
+
+
+@app.callback(
+    Output("osfi-emission-timeseries", "figure"),
+    [
+        Input("osfi-all-data-table", "selected_rows"),
+        Input("osfi-dates-rangeslider", "value"),
+        Input("osfi-display-mode-dropdown", "value"),
+    ],
+    [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
+)
+def update_emission_timeseries(selected_rows, slider_values, display_mode, selected_entity, buildings):
+    data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
+    emission_time_series = get_emission_timeseries(data_to_display, display_mode)
+    return emission_time_series
+
+
+# @app.callback(
+#     Output("gas_time_series", "figure"),
+#     [Input("osfi-all-data-table", "selected_rows"), Input("osfi-dates-rangeslider", "value")],
+#     [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
+# )
+# def update_gas_time_series(selected_rows, slider_values, selected_entity, buildings):
+#     data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
+#     gas_time_series = get_emissions_timeseries(data_to_display, "emission_gaz")
+#
+#     return gas_time_series
