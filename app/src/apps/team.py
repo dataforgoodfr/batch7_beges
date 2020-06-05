@@ -95,6 +95,7 @@ team_members["maria"] = TeamMember(
 )
 team_members["svetlana"] = TeamMember(
     full_name="Svetlana Bazhenova",
+    title="Data Analyst",
     image_url="https://media-exp1.licdn.com/dms/image/C5603AQHcVXiOBeapvg/profile-displayphoto-shrink_200_200/0?e=1596672000&v=beta&t=G7JibPanZNxvGuLb1wgRFNIpTYi4a45mP_YiNCC2V3E",
     linkedin_link="https://www.linkedin.com/in/svetlana-bazhenova/",
 )
