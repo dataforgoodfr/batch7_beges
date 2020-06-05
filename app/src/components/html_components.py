@@ -8,7 +8,7 @@ def build_figure_container(title, id, footer=None):
     fig_containter = dbc.Card(
         [
             dbc.CardHeader(html.H4(title)),
-            dbc.CardBody([dbc.Col(dcc.Graph(id=id, config={"toImageButtonOptions": {"filename": id + ".png"}}))]),
+            dbc.CardBody([dbc.Col(dcc.Graph(id=id, config={"toImageButtonOptions": {"filename": id}}))]),
             dbc.CardFooter(footer),
         ],
         className="m-2 pretty_container",
