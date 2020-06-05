@@ -13,7 +13,7 @@ from utils.texts import TEXTS
 help_modal = dbc.Modal(
     [
         dbc.ModalHeader("Aide"),
-        dbc.ModalBody(TEXTS["dashboard_help"]),
+        dbc.ModalBody(dcc.Markdown(TEXTS["dashboard_help"])),
         dbc.ModalFooter(dbc.Button("Fermer", id="dashboard-help-close-button", className="ml-auto")),
     ],
     id="dashboard-help-modal",
