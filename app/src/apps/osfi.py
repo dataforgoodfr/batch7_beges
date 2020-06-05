@@ -54,12 +54,17 @@ def get_data(selected_entity, selected_rows, buildings, slider_values):
 
 
 def get_repartition_emission_pies(data):
+    """
+    This function will create a figure with 3 pies describing the repartition per building of the emission for electricity / gas / total
+    """
+
     fig = make_subplots(
         rows=1,
         cols=3,
         specs=[[{"type": "domain"}, {"type": "domain"}, {"type": "domain"}]],
         subplot_titles=["Électricité", "Gaz", "Emission totale"],
     )
+    # Grouping by the building name
     data = (
         data.groupby("Nom du bien")[
             [
@@ -74,6 +79,7 @@ def get_repartition_emission_pies(data):
         .sum()
         .reset_index()
     )
+    # Pie for electricity
     fig.add_trace(
         go.Pie(
             values=data[oh.column_names["emission"]["electricity"]].values,
@@ -85,6 +91,7 @@ def get_repartition_emission_pies(data):
         1,
         1,
     )
+    # Pie for gaz
     fig.add_trace(
         go.Pie(
             labels=data["Nom du bien"],
@@ -96,6 +103,7 @@ def get_repartition_emission_pies(data):
         1,
         2,
     )
+    # Pie for total
     fig.add_trace(
         go.Pie(
             labels=data["Nom du bien"],
@@ -107,6 +115,7 @@ def get_repartition_emission_pies(data):
         1,
         3,
     )
+    # Figure settings
     fig.update_traces(
         hole=0.4,
         textposition="inside",
@@ -118,30 +127,39 @@ def get_repartition_emission_pies(data):
 
 
 def get_consumption_timeseries(data):
+    """
+    Returns stacked bars with the consumption of electricity / gas
+    """
     fig = go.Figure()
     data = (
         data.groupby("Date")[[oh.column_names["consumption"]["gas"], oh.column_names["consumption"]["electricity"]]]
         .sum()
         .reset_index()
     )
+    # The gas trace
     fig.add_trace(go.Bar(x=data["Date"], y=data[oh.column_names["consumption"]["gas"]], name="Consommation gaz"))
+
+    # The electricity trace
     fig.add_trace(
         go.Bar(x=data["Date"], y=data[oh.column_names["consumption"]["electricity"]], name="Consommation électricité")
     )
 
+    # Figure settings
     fig.update_traces(hovertemplate="Date : %{x}<br>%{y:.0f} kWh",)
     fig.update_layout(
         barmode="relative",
         plot_bgcolor="white",
         showlegend=True,
         template="plotly_white",
-        # margin={"t": 30, "r": 30, "l": 30},  # , xaxis=xaxis_format
         yaxis=dict(title_text="Consommation en kWh"),
     )
     return fig
 
 
 def get_emission_timeseries(data):
+    """
+    Returns stacked bars with the emission of electricity / gas
+    """
     fig = go.Figure()
 
     data = (
@@ -149,23 +167,30 @@ def get_emission_timeseries(data):
         .sum()
         .reset_index()
     )
+
+    # The gas trace
     fig.add_trace(go.Bar(x=data["Date"], y=data[oh.column_names["emission"]["gas"]], name="Emission gaz"))
+
+    # The electricity trace
     fig.add_trace(
         go.Bar(x=data["Date"], y=data[oh.column_names["emission"]["electricity"]], name="Emission électricité")
     )
+    # Figure settings
     fig.update_traces(hovertemplate="Date : %{x}<br>%{y:.0f} kgCO2e",)
     fig.update_layout(
         barmode="relative",
         plot_bgcolor="white",
         showlegend=True,
         template="plotly_white",
-        # margin={"t": 30, "r": 30, "l": 30},
         yaxis=dict(title_text="Emission en kgCO2e"),
     )
     return fig
 
 
 def get_emission_timeseries_per_building(data):
+    """
+    Returns a figure with 3 subplots describing the monthly emission for electricity / gas and total
+    """
     fig = make_subplots(
         rows=3,
         cols=1,
@@ -173,10 +198,14 @@ def get_emission_timeseries_per_building(data):
         vertical_spacing=0.1,
         subplot_titles=["Électricité", "Gaz", "Emission totale"],
     )
+    # Looping over the emission types and buildings
     buildings = data["Nom du bien"].unique()
     for emission_type_count, emission_type in enumerate(["electricity", "gas", "total"]):
+
+        # Getting the right column names
         emission_column = oh.column_names["emission"][emission_type]
         consumption_column = oh.column_names["consumption"][emission_type]
+
         for building_count, building in enumerate(buildings):
             plot_data = data.loc[data["Nom du bien"] == building]
             fig.add_trace(
@@ -184,16 +213,20 @@ def get_emission_timeseries_per_building(data):
                     name=building,
                     x=plot_data["Date"],
                     y=plot_data[emission_column],
-                    legendgroup=building,
+                    legendgroup=building,  # adding this trace to the building legend group
                     text=plot_data[consumption_column],
                     mode="lines+markers",
                     marker=dict(color=PLOTLY_COLORS[building_count % len(PLOTLY_COLORS)]),
-                    showlegend=(True if (emission_type_count == 0) else False),
+                    showlegend=(
+                        True if (emission_type_count == 0) else False
+                    ),  # Only adding the legend if it's the first trace for this emission type
                     line=dict(width=3),
                 ),
-                row=emission_type_count + 1,
+                row=emission_type_count + 1,  # adding this trace to right emission type
                 col=1,
             )
+
+    # Figure settings
     fig.update_traces(hovertemplate="Date: %{x} <br>Emission : %{y:.0f} kgCO2e<br>Consommation : %{text:.0f} kWh",)
     fig.update_yaxes(title_text="Emissions (kgCO2e)")
     fig.update_layout(height=600, hovermode="x")
@@ -202,22 +235,29 @@ def get_emission_timeseries_per_building(data):
 
 
 def get_building_location(buildings, data_to_display, selected_rows):
+    """
+    Returns a scattermapbox with openstreet map layout where buidlings are displayed in a color representing if they are or not selected and their size their global emission
+    """
+    # Getting names
     selected_building_names = [b["Nom du bien"] for i, b in enumerate(buildings) if i in selected_rows]
     building_names_group = data_to_display.groupby("Nom du bien")
     buildings = building_names_group[["Longitude RT", "Latitude RT"]].first()
-    markers_sizes = np.log(building_names_group[["Emissions de CO2 par l'électricité (kgCO2e)"]].sum().sum(axis=1))
+    markers_sizes = np.log(building_names_group[["Emissions de CO2 au total (kgCO2e)"]].sum().sum(axis=1))
 
     def get_marker_color(x):
+        # Returns blue if the building is selected, else green
         if x["Nom du bien"] in selected_building_names:
             return "blue"
         else:
             return "green"
 
     markers_color = building_names_group[["Nom du bien"]].first().apply(get_marker_color, axis=1).values
+    # Just getting the center of the min / max window
     center = {
         "lon": (buildings["Longitude RT"].max() + buildings["Longitude RT"].min()) / 2.0,
         "lat": (buildings["Latitude RT"].max() + buildings["Latitude RT"].min()) / 2.0,
     }
+    # Default value
     zoom = 5
     data = [
         dict(
@@ -268,9 +308,12 @@ filters = dbc.Card(
         dbc.CardHeader(html.H4("Filtres")),
         dbc.CardBody(
             [
+                # Range slider
                 dbc.Row(dbc.Col(dcc.RangeSlider(id="osfi-dates-rangeslider", step=None),), className="m-2",),
+                # Start date / end date row
                 dbc.Row(
                     [
+                        # Start date
                         dbc.Col(html.P("Date de début : "), width=2,),
                         dbc.Col(
                             html.Div(id="osfi-dates-rangeslider-min-display", style={"text-align": "center"}), width=2,
@@ -293,6 +336,7 @@ filters = dbc.Card(
                             ),
                             width=1,
                         ),
+                        # End date
                         dbc.Col(html.P("Date de fin : "), width=2),
                         dbc.Col(
                             html.Div(id="osfi-dates-rangeslider-max-display", style={"text-align": "center"}), width=2,
@@ -324,16 +368,9 @@ filters = dbc.Card(
     className="m-2 pretty_container",
 )
 
-# cards = dbc.CardDeck(
-# [
-# build_card_indicateur("Nombre de bâtiments", "0", "number-of-buildings"),
-# build_card_indicateur(", "0", "kilometers_total_odrive"),
-# build_card_indicateur("Distance par mois par véhicule (km)", "0", "montly_kilometer_odrive"),
-# ]
-# )
-
 layout = html.Div(
     [
+        # Help jumbotron and filters
         dbc.Row(
             [
                 dbc.Col(
@@ -350,6 +387,7 @@ layout = html.Div(
                 dbc.Col(filters, width=9,),
             ]
         ),
+        # Building tables and location map
         dbc.Row(
             [
                 dbc.Col(
@@ -364,6 +402,7 @@ layout = html.Div(
                 ),
             ]
         ),
+        # Emission pies
         dbc.Row(
             dbc.Col(
                 build_figure_container(
@@ -374,6 +413,7 @@ layout = html.Div(
                 width=12,
             ),
         ),
+        # Monthly emission curves
         dbc.Row(
             dbc.Col(
                 build_figure_container(
@@ -383,6 +423,7 @@ layout = html.Div(
                 width=12,
             ),
         ),
+        # Consumption / emission curves
         dbc.Row(
             [
                 dbc.Col(
@@ -426,7 +467,6 @@ def fill_dash_table_with_buildings(selected_entity):
     row_selectable = "multi"
     buildings = data[columns_to_keep].drop_duplicates()
     selected_rows = list(range(0, len(buildings)))
-    print(selected_rows)
     data_to_return = buildings.to_dict("records")
     return columns, row_selectable, selected_rows, hidden_columns, data_to_return
 
@@ -440,6 +480,9 @@ def fill_dash_table_with_buildings(selected_entity):
     [Input("dashboard-selected-entity", "children")],
 )
 def set_slider_range(selected_entity):
+    """
+    Will get min / max date range to setup the range slider
+    """
     service = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(service.code_osfi)
     min_date = data["Date"].min()
@@ -465,6 +508,10 @@ def set_slider_range(selected_entity):
 def update_sliders_values(
     min_down_n_clicks, min_up_n_clicks, max_down_clicks, max_up_clicks, rangeslider_marks, rangeslider_values
 ):
+    """
+    Will be triggered when set_slider_range is first triggered to initialize the rangeslider values.
+    Otherwise, will be triggered when clicking on the chevron around the date.
+    """
     ctx = dash.callback_context
     # If values of the range slider are not set, we take the first and last mark
     if rangeslider_values is None:
@@ -476,10 +523,15 @@ def update_sliders_values(
     else:
         prop_id = ctx.triggered[0]["prop_id"].split(".")[0]
         marks = [int(m) for m in rangeslider_marks]
+
+        # Min / max values
         min_value = rangeslider_values[0]
-        min_index = marks.index(min_value)
         max_value = rangeslider_values[1]
+
+        # Index in the mark list of the min / max values
+        min_index = marks.index(min_value)
         max_index = marks.index(max_value)
+        # Checking bondaries
         if prop_id == "osfi-dates-rangeslider-min-down":
             if min_index > 0:
                 min_value = marks[min_index - 1]
@@ -503,6 +555,9 @@ def update_sliders_values(
     [Input("osfi-dates-rangeslider", "value")],
 )
 def update_sliders_min_max_display(range_slider_value):
+    """
+    Display the dates below the range slider
+    """
     min_display = unix_to_date(range_slider_value[0]).strftime("%b %Y")
     max_display = unix_to_date(range_slider_value[1]).strftime("%b %Y")
     return min_display, max_display
@@ -514,7 +569,7 @@ def update_sliders_min_max_display(range_slider_value):
     [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
 )
 def update_map_location(selected_rows, slider_values, selected_entity, buildings):
-    # Here we select all the data
+    # Draw the building location map
     data_to_display = get_data(selected_entity, list(range(len(buildings))), buildings, slider_values)
     return get_building_location(buildings, data_to_display, selected_rows)
 
@@ -529,6 +584,7 @@ def update_map_location(selected_rows, slider_values, selected_entity, buildings
     ],
 )
 def update_repartition_emission_pies(selected_entity, selected_rows, buildings, slider_values):
+    # Draw the emission repartition pies
     data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
     emission_pies = get_repartition_emission_pies(data_to_display)
     return emission_pies
@@ -540,6 +596,7 @@ def update_repartition_emission_pies(selected_entity, selected_rows, buildings, 
     [State("dashboard-selected-entity", "children"), State("osfi-all-data-table", "data")],
 )
 def update_emission_timeseries_per_building(selected_rows, slider_values, selected_entity, buildings):
+    # Draw the monthly building emission
     data_to_display = get_data(selected_entity, selected_rows, buildings, slider_values)
     emission_time_series = get_emission_timeseries_per_building(data_to_display)
     return emission_time_series
