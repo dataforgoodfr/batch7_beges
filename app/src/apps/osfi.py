@@ -542,7 +542,7 @@ def update_sliders_values(
             if max_index > 0:
                 max_value = marks[max_index - 1]
         elif prop_id == "osfi-dates-rangeslider-max-up":
-            if max_index < len(marks):
+            if max_index < len(marks) - 1:
                 max_value = marks[max_index + 1]
         return [int(min_value), int(max_value)]
 
