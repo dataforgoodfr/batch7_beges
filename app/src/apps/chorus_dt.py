@@ -5,7 +5,6 @@ import dash_table
 import plotly.graph_objects as go
 import plotly.express as px
 from dash.dependencies import Output, Input, State
-import pandas as pd
 import numpy as np
 
 from app import app
@@ -36,8 +35,7 @@ def get_donut_by_prestation_type(df):
         Render and update a donut figure to show emissions distribution by prestation type
     """
     prestation_df = df.groupby(["prestation"])["CO2e/trip"].sum().reset_index()
-    # fig = go.Figure(data=[go.Pie(labels=prestation_df.prestation, values=prestation_df["CO2e/trip"], hole=0.3)])
-    fig = px.pie(prestation_df, values="CO2e/trip", names="prestation", color="prestation", hole=0.3)
+    fig = px.pie(prestation_df, values="CO2e/trip", names="prestation", color="prestation", hole=0.3, opacity=0.8)
     fig.update_layout(
         plot_bgcolor="white",
         template="plotly_white",
@@ -147,8 +145,6 @@ def get_dashtable_by_emission(df):
         filter_action="native",
         sort_action="native",
         sort_mode="multi",
-        # row_selectable="multi",
-        # row_deletable=True,
         selected_rows=[],
         page_action="native",
         page_current=0,
@@ -195,8 +191,22 @@ def get_scatter_by_emission(df):
     return fig
 
 
-select_prestation_type = dcc.Dropdown(
-    id="select-prestation_type", options=[{"label": "Train", "value": "T"}, {"label": "Avion", "value": "A"}]
+select_prestation_type = dbc.Checklist(
+    id="select-prestation_type",
+    options=ch.prestation_options,
+    value=[p["value"] for p in ch.prestation_options],
+    inline=True,
+)
+
+select_travel_year = dbc.Checklist(
+    options=ch.year_options, value=[p["value"] for p in ch.year_options], id="select-travel-year", inline=True,
+)
+
+select_unreliable = dbc.Checklist(
+    options=[{"label": "Inclure les trajets peu fiables", "value": False},],
+    value=[True],
+    id="select-unreliable",
+    switch=True,
 )
 
 
@@ -220,7 +230,8 @@ layout = html.Div(
                                     "Les émissions des trajets sont obtenues en multipliant le facteur d'émission du "
                                     "type de trajet par la distance parcourue."
                                 ),
-                                html.P(dbc.Button("En savoir plus", color="primary", href="/methodologie")),
+                                html.Br(),
+                                html.A(dbc.Button("En savoir plus", color="primary"), href="/methodologie"),
                             ]
                         ),
                         dbc.Card(
@@ -229,6 +240,12 @@ layout = html.Div(
                                     html.H3("Filtres"),
                                     html.Br(),
                                     dbc.FormGroup([dbc.Label("Type de prestation"), select_prestation_type]),
+                                    dbc.FormGroup([dbc.Label("Années d'étude"), select_travel_year]),
+                                    dbc.FormGroup([dbc.Label("Fiabilité déplacement"), select_unreliable]),
+                                    html.Br(),
+                                    dbc.Button(
+                                        "Appliquer", color="primary", className="mr-1", id="button-apply-filters"
+                                    ),
                                 ]
                             ),
                             className="pretty_container",
@@ -318,12 +335,23 @@ layout = html.Div(
         Output("hist-by-emission", "figure"),
         Output("table-by-emission", "children"),
     ],
-    [Input("dashboard-selected-entity", "children")],
+    [Input("dashboard-selected-entity", "children"), Input("button-apply-filters", "n_clicks")],
+    state=[
+        State("select-prestation_type", "value"),
+        State("select-travel-year", "value"),
+        State("select-unreliable", "value"),
+    ],
 )
-def update_graphs(selected_entity):
+def update_graphs(selected_entity, n_clicks, prestation_types: list, years, unreliable):
     service = oc.get_entity_by_id(selected_entity)
     chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
 
+    filters = (
+        chorus_dt_df.prestation.isin(prestation_types)
+        & chorus_dt_df.date_debut_mission.dt.year.isin(years)
+        & (chorus_dt_df.fiable.isin(unreliable) | chorus_dt_df.fiable)
+    )
+    chorus_dt_df = chorus_dt_df.loc[filters, :]
     return [
         get_kpi_emissions(chorus_dt_df),
         get_kpi_trips_count(chorus_dt_df),
