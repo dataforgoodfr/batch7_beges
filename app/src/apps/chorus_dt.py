@@ -15,7 +15,7 @@ from components.figures_templates import xaxis_format
 
 
 def get_kpi_emissions(df):
-    return "{:,} kg".format(int(np.round(df["CO2e/trip"].sum(), 0))).replace(",", " ")
+    return "{:,}".format(int(np.round(df["CO2e/trip"].sum(), 0))).replace(",", " ")
 
 
 def get_kpi_emissions_example(df, example_ec02=0.11):
@@ -35,7 +35,11 @@ def get_donut_by_prestation_type(df):
         Render and update a donut figure to show emissions distribution by prestation type
     """
     prestation_df = df.groupby(["prestation"])["CO2e/trip"].sum().reset_index()
-    fig = px.pie(prestation_df, values="CO2e/trip", names="prestation", color="prestation", hole=0.3, opacity=0.8)
+    prestation_df["CO2e/trip"] = np.round(prestation_df["CO2e/trip"], 0)
+    prestation_df = prestation_df.rename(columns={"prestation": "Prestation", "CO2e/trip": "Total eqCO2 (kg)",})
+    fig = px.pie(
+        prestation_df, values="Total eqCO2 (kg)", names="Prestation", color="Prestation", hole=0.3, opacity=0.8
+    )
     fig.update_layout(
         plot_bgcolor="white",
         template="plotly_white",
@@ -58,7 +62,6 @@ def get_emissions_timeseries(df):
             y=timeseries_df["CO2e/trip"].values,
             mode="lines+markers",
             line=dict(width=3),
-            marker_color="#373a3c",
         )
     )
     fig.update_layout(
@@ -83,7 +86,9 @@ def get_hist_top_emission(df):
     hist_df["cumul_emission%"] = 100 * hist_df["cumul_emission"] / hist_df["CO2e/trip"].sum()
     top_hist_df = hist_df.head(n)
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=top_hist_df["trajet"], y=top_hist_df["CO2e/trip"], name="Émissions", marker_color="#373a3c"))
+    fig.add_trace(
+        go.Bar(x=top_hist_df["trajet"], y=top_hist_df["CO2e/trip"], name="Émissions")
+    )  # marker_color="#373a3c"
     fig.add_trace(
         go.Scatter(
             x=top_hist_df["trajet"],
@@ -127,8 +132,8 @@ def get_dashtable_by_emission(df):
         columns={
             "trajet": "Trajet",
             "prestation": "Prestation",
-            "distance": "Distance",
-            "CO2e/trip": "Total kg eqCO2",
+            "distance": "Distance (km)",
+            "CO2e/trip": "Total eqCO2 (kg)",
             "count": "Nombre",
         }
     )
@@ -148,7 +153,7 @@ def get_dashtable_by_emission(df):
         selected_rows=[],
         page_action="native",
         page_current=0,
-        page_size=16,
+        page_size=15,
     )
     return table
 
@@ -163,8 +168,8 @@ def get_scatter_by_emission(df):
         columns={
             "trajet": "Trajet",
             "prestation": "Prestation",
-            "distance": "Distance",
-            "CO2e/trip": "Total kg eqCO2",
+            "distance": "Distance (km)",
+            "CO2e/trip": "Total eqCO2 (kg)",
             "count": "Nombre",
         }
     )
@@ -172,8 +177,8 @@ def get_scatter_by_emission(df):
     xaxis_format_updated["title"] = "Distance (km) - Log"
     fig = px.scatter(
         distance_df,
-        x="Distance",
-        y="Total kg eqCO2",
+        x="Distance (km)",
+        y="Total eqCO2 (kg)",
         size="Nombre",
         color="Prestation",
         hover_name="Trajet",
@@ -227,10 +232,10 @@ layout = html.Div(
                         dbc.Jumbotron(
                             [
                                 html.P(
-                                    "Les émissions des trajets sont obtenues en multipliant le facteur d'émission du "
-                                    "type de trajet par la distance parcourue."
+                                    "Les émissions des trajets sont obtenues en croisant le facteur d'émission du "
+                                    "type de trajet (e.g. train, avion) avec la distance parcourue. Des biais de calcul"
+                                    "subsistent. Cliquer ci-dessous pour en savoir plus sur les hypothèses de calcul."
                                 ),
-                                html.Br(),
                                 html.A(dbc.Button("En savoir plus", color="primary"), href="/methodologie"),
                             ]
                         ),
@@ -284,7 +289,7 @@ layout = html.Div(
                 dbc.Col(
                     [
                         build_figure_container(
-                            title="Pareto des liasons avec les plus gros volumes d'émissions",
+                            title="Pareto des liaisons avec les plus gros volumes d'émissions",
                             id="hist-by-emission",
                             footer="Dix plus gros trajets émetteurs d'émissions. "
                             "Voir le tableau pour plus de détails sur les trajets.",
@@ -294,11 +299,12 @@ layout = html.Div(
                 ),
                 dbc.Col(
                     [
+                        html.H4("Liste des trajets classés par contribution aux émissions totales"),
                         html.Div(
                             id="table-by-emission",
                             className="m-2",
                             style={"overflow-x": "scroll", "padding-right": "10px", "padding-left": "15px"},
-                        )
+                        ),
                     ],
                     width=6,
                 ),
