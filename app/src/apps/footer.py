@@ -31,8 +31,15 @@ div_sources = html.Div(
                 ),
                 html.Li(
                     dcc.Link(
-                        "Recommandations du gouvernment",
-                        href="https://www.ecologique-solidaire.gouv.fr/sites/default/files/Guide%20m%C3%A9thodologique%20sp%C3%A9cifique%20pour%20les%20collectivit%C3%A9s%20pour%20la%20r%C3%A9alisation%20du%20bilan%20d%E2%80%99%C3%A9missions%20de%20GES_0.pdf",
+                        "Guide méthodologique général de l'ADEME",
+                        href="https://www.ecologique-solidaire.gouv.fr/sites/default/files/Guide%20m%C3%A9thodologique%20sp%C3%A9cifique%20pour%20les%20collectivit%C3%A9s%20pour%20la%20r%C3%A9alisation%20du%20bilan%20d%E2%80%99%C3%A9missions%20de%20GES.pdf",
+                        target="_blank",
+                    )
+                ),
+                html.Li(
+                    dcc.Link(
+                        "Guide sectoriel de l'ADEME",
+                        href="https://www.ademe.fr/realisation-dun-bilan-emissions-gaz-a-effet-serre-secteur-tertiaire-non-marchand",
                         target="_blank",
                     )
                 ),

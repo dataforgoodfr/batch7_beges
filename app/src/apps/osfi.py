@@ -367,6 +367,11 @@ filters = dbc.Card(
     ],
     className="m-2 pretty_container",
 )
+jumbotron_text = """
+Les consommations sont extraites de la base de données OSFI (deepki) et les facteurs d'émissions appliqués sont extraits de la base carbone de l'ADEME, sur le périmètre France continentale :
+*Electricité - 2018 - mix moyen - consommation* et *Gaz naturel - 2015 - mix moyen - consommation*.
+"""
+
 
 layout = html.Div(
     [
@@ -376,9 +381,7 @@ layout = html.Div(
                 dbc.Col(
                     dbc.Jumbotron(
                         [
-                            html.P(
-                                "Les consommations sont extraites de la base de données de l'outil OSFI (deepki) et les facteurs d'émissions appliqués sont 0.0571 kgCO2e / kWh pour l'électricité, et 0.227 kgCO2 / kWh pour le gaz."
-                            ),
+                            dcc.Markdown(jumbotron_text),
                             html.P(dbc.Button("En savoir plus", color="primary", href="/methodologie")),
                         ]
                     ),
@@ -417,7 +420,7 @@ layout = html.Div(
         dbc.Row(
             dbc.Col(
                 build_figure_container(
-                    title="Évolution temporelles des émissions énergétique par bâtiment",
+                    title="Évolution temporelle des émissions énergétique par bâtiment",
                     id="osfi-emission-timeseries-per-building",
                 ),
                 width=12,
@@ -428,13 +431,13 @@ layout = html.Div(
             [
                 dbc.Col(
                     build_figure_container(
-                        title="Évolution temporelles de la consommation (kWh)", id="osfi-consumption-timeseries",
+                        title="Évolution temporelle de la consommation (kWh)", id="osfi-consumption-timeseries",
                     ),
                     width=6,
                 ),
                 dbc.Col(
                     build_figure_container(
-                        title="Évolution temporelles des émissions (kgCO2)", id="osfi-emission-timeseries",
+                        title="Évolution temporelle des émissions (kgCO2)", id="osfi-emission-timeseries",
                     ),
                     width=6,
                 ),
