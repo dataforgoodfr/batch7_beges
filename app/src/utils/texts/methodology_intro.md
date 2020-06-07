@@ -9,7 +9,7 @@ L’outil a été développé autour de trois bases de données permettant l’e
 - aux déplacements professionnels réalisés en voiture (scope 1)
 - à la consommation énergétique (gaz et électricité) des bâtiments de l’entité (scopes 1 & 2).
 
-Le guide sectoriel de l’ADEME dédié au calcul des émissions du secteur tertiaire non marchand présente ces catégories d’émissions comme les plus pertinentes pour une administration.
+Le guide sectoriel de l’ADEME dédié au calcul des émissions du secteur tertiaire non marchand (https://www.ademe.fr/realisation-dun-bilan-emissions-gaz-a-effet-serre-secteur-tertiaire-non-marchand) présente ces catégories d’émissions comme les plus pertinentes pour une administration.
 
 ## Fonctionnement
 ### Centralisation des données
@@ -24,9 +24,11 @@ La mise en cohérence permet d’associer une entité à ses données liées et 
 
 La mise en relation des bases de données dans l’Outil-BEGES fonctionne en 3 étapes :
 
-1) La définition d’un organigramme présentant les entités souhaitées. Cet organigramme est facilement modifiable et permet l’ajout ou la suppression d’une entité, voire un changement de libellé.
-2) L’association d’un code d’identification à chaque entité, pour chaque base de données.
-3) La mise en relation des codes de l’entité. Les codes d’une même entité sont associés dans l’outil au libellé correspondant dans l’organigramme.
+1- La définition d’un organigramme présentant les entités souhaitées. Cet organigramme est facilement modifiable et permet l’ajout ou la suppression d’une entité, voire un changement de libellé.
+
+2- L’association d’un code d’identification à chaque entité, pour chaque base de données.
+
+3- La mise en relation des codes de l’entité. Les codes d’une même entité sont associés dans l’outil au libellé correspondant à cette entité dans l’organigramme.
 
 ## Estimation des émissions pour chaque base de données
 Le calcul des émissions est basé sur le guide méthodologique de l’ADEME pour la réalisation des BEGES.
