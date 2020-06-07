@@ -9,7 +9,7 @@ L’outil a été développé autour de trois bases de données permettant l’e
 - aux déplacements professionnels réalisés en voiture (scope 1)
 - à la consommation énergétique (gaz et électricité) des bâtiments de l’entité (scopes 1 & 2).
 
-Le guide sectoriel de l’ADEME dédié au calcul des émissions du secteur tertiaire non marchand (https://www.ademe.fr/realisation-dun-bilan-emissions-gaz-a-effet-serre-secteur-tertiaire-non-marchand) présente ces catégories d’émissions comme les plus pertinentes pour une administration.
+Le [guide sectoriel](https://www.ademe.fr/realisation-dun-bilan-emissions-gaz-a-effet-serre-secteur-tertiaire-non-marchand) de l’ADEME dédié au calcul des émissions du secteur tertiaire non marchand  présente ces catégories d’émissions comme les plus pertinentes pour une administration.
 
 ## Fonctionnement
 ### Centralisation des données
