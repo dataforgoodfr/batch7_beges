@@ -351,7 +351,8 @@ layout = html.Div(
 def update_graphs(selected_entity, n_clicks, prestation_types: list, years, unreliable):
     service = oc.get_entity_by_id(selected_entity)
     chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
-
+    if "fiable" not in chorus_dt_df.columns:
+        chorus_dt_df["fiable"] = True
     filters = (
         chorus_dt_df.prestation.isin(prestation_types)
         & chorus_dt_df.date_debut_mission.dt.year.isin(years)
