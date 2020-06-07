@@ -21,7 +21,6 @@ tqdm.pandas()
 def compute_distances(data):
 
     data["distance"] = np.NaN
-
     data["distance"] = compute_distance_between_points(
         data["lieu_depart_lon"], data["lieu_depart_lat"], data["lieu_arrivee_lon"], data["lieu_arrivee_lat"]
     ).fillna(0, inplace=True)
