@@ -23,7 +23,6 @@ def compute_distances(data):
     data["distance"] = compute_distance_between_points(
         data["lieu_depart_lon"], data["lieu_depart_lat"], data["lieu_arrivee_lon"], data["lieu_arrivee_lat"]
     )
-    data["distance"] = data["distance"].fillna(0, inplace=True)
 
     return data
 
