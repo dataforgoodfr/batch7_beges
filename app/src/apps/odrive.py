@@ -30,7 +30,7 @@ def get_donut_by_entity_type(code_structure=None, filter_vehicle_type=None):
     return fig
 
 
-def get_plot_by_vehicle_type(code_structure=None, filter_vehicle_type=None):
+def get_odrive_plot_vehicle_make(code_structure=None, filter_vehicle_type=None):
     odrive_df = ov.get_structure_data(code_structure, filter_vehicle_type)
     odrive_df["categorie_emmission"] = odrive_df["CO2 (g/km)"].apply(get_vehicle_category)
     vehicles_df = odrive_df.groupby(["categorie_emmission"])["Immatriculation"].nunique().reset_index()
@@ -55,7 +55,7 @@ def get_histogram_by_entity_type(code_structure=None, filter_vehicle_type=None):
     return fig
 
 
-def get_histogram_plot_by_vehicle(code_structure=None, filter_vehicle_type=None):
+def get_odrive_histogram_plot_by_vehicle(code_structure=None, filter_vehicle_type=None):
     odrive_df = ov.get_structure_data(code_structure, filter_vehicle_type)
     odrive_df["Immatriculation"] = (
         odrive_df["Immatriculation"].astype(str) + " (" + odrive_df["Marque"] + " - " + odrive_df["Modèle"] + ")"
@@ -90,7 +90,7 @@ def get_histogram_plot_by_vehicle(code_structure=None, filter_vehicle_type=None)
     return fig
 
 
-def get_scatter_plot_by_vehicle_type(code_structure=None, filter_vehicle_type=None):
+def get_odrive_scatter_plot_by_vehicle_type(code_structure=None, filter_vehicle_type=None):
     odrive_df = ov.get_structure_data(code_structure, filter_vehicle_type)
     odrive_df["Marque"] = odrive_df["Marque"] + " " + odrive_df["Modèle"] + " (" + odrive_df["Motorisation"] + ")"
     vehicle_emissions = odrive_df.groupby(["Marque"])
@@ -159,7 +159,7 @@ def get_kilometers_total_odive(code_structure=None, filter_vehicle_type=None):
     return round(count_kilometers, 2)
 
 
-def get_montly_kilometer_odrive(code_structure=None, filter_vehicle_type=None):
+def get_odrive_montly_kilometer(code_structure=None, filter_vehicle_type=None):
     odrive_df = ov.get_structure_data(code_structure, filter_vehicle_type)
     count_kilometers_per_month_per_vehicle = (odrive_df["km parcours par an"].sum() / 12) / odrive_df[
         "Immatriculation"
@@ -176,15 +176,15 @@ def get_dropdown_list_vehicle_motor():
         if m is not None and m is not np.nan:
             options.append({"label": m, "value": m})
             value.append(m)
-    return dcc.Checklist(id="select_odrive_vehicle_type", options=options, value=value, labelStyle={"display": "block"})
+    return dcc.Checklist(id="odrive_select_vehicle_type", options=options, value=value, labelStyle={"display": "block"})
 
 
 cards = dbc.CardDeck(
     [
-        build_card_indicateur("Emissions en CO2 par an (kg)", "0", "total_emissions_odrive"),
-        build_card_indicateur("Nombre de véhicules", "0", "fleet_vehicle_number_odrive"),
-        build_card_indicateur("Distance parcourue par an (km)", "0", "kilometers_total_odrive"),
-        build_card_indicateur("Distance par mois par véhicule (km)", "0", "montly_kilometer_odrive"),
+        build_card_indicateur("Emissions en CO2 par an (kg)", "0", "odrive_total_emissions"),
+        build_card_indicateur("Nombre de véhicules", "0", "odrive_fleet_vehicle_number_odrive"),
+        build_card_indicateur("Distance parcourue par an (km)", "0", "odrive_kilometers_total"),
+        build_card_indicateur("Distance par mois par véhicule (km)", "0", "odrive_montly_kilometer"),
     ]
 )
 
@@ -230,7 +230,7 @@ layout = html.Div(
                                 dbc.Col(
                                     [
                                         build_figure_container(
-                                            title="Répartition des émissions par site", id="donut-by-entity"
+                                            title="Répartition des émissions par site", id="odrive_donut_by_entity"
                                         )
                                     ],
                                     width=6,
@@ -238,7 +238,7 @@ layout = html.Div(
                                 dbc.Col(
                                     [
                                         build_figure_container(
-                                            title="Répartition des km parcourus", id="histogram-by-entity"
+                                            title="Répartition des km parcourus", id="odrive_historgram_by_entity"
                                         )
                                     ],
                                     width=6,
@@ -251,7 +251,7 @@ layout = html.Div(
                                     [
                                         build_figure_container(
                                             title="Répartition des émissions et kilomètres par marque et modèle",
-                                            id="scatter_plot_by_vehicle_type",
+                                            id="odrive_scatter_plot_by_vehicle_type",
                                             footer="Deux types de véhicule dans le même axe vertical ont la même utilisation, mais des emissions différentes, privilégiez l'utilisation ou l'achat de véhicules dans la partie basse du graphique ..",
                                         )
                                     ],
@@ -261,7 +261,7 @@ layout = html.Div(
                                     [
                                         build_figure_container(
                                             title="Répartition des émissions par type de véhicule (Décret n°2017-24 du 11 janvier 2017)",
-                                            id="plot_by_vehicle_type",
+                                            id="odrive_plot_vehicle_make",
                                         )
                                     ],
                                     width=6,
@@ -270,7 +270,7 @@ layout = html.Div(
                                     [
                                         build_figure_container(
                                             title="Répartition des émissions par véhicule",
-                                            id="histogram_plot_by_vehicle",
+                                            id="odrive_histogram_plot_by_vehicle",
                                         )
                                     ],
                                     width=12,
@@ -288,8 +288,8 @@ layout = html.Div(
 
 
 @app.callback(
-    Output("donut-by-entity", "figure"),
-    [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
+    Output("odrive_donut_by_entity", "figure"),
+    [Input("dashboard-selected-entity", "children"), Input("odrive_select_vehicle_type", "value")],
 )
 def update_donut_by_prestation(selected_entity, filter_vehicle_type):
     service = oc.get_entity_by_id(selected_entity)
@@ -297,8 +297,8 @@ def update_donut_by_prestation(selected_entity, filter_vehicle_type):
 
 
 @app.callback(
-    Output("histogram-by-entity", "figure"),
-    [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
+    Output("odrive_historgram_by_entity", "figure"),
+    [Input("dashboard-selected-entity", "children"), Input("odrive_select_vehicle_type", "value")],
 )
 def update_histogram_by_prestation(selected_entity, filter_vehicle_type):
     service = oc.get_entity_by_id(selected_entity)
@@ -306,36 +306,36 @@ def update_histogram_by_prestation(selected_entity, filter_vehicle_type):
 
 
 @app.callback(
-    Output("scatter_plot_by_vehicle_type", "figure"),
-    [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
+    Output("odrive_scatter_plot_by_vehicle_type", "figure"),
+    [Input("dashboard-selected-entity", "children"), Input("odrive_select_vehicle_type", "value")],
 )
 def update_scatter_plot_by_vehicle(selected_entity, filter_vehicle_type):
     service = oc.get_entity_by_id(selected_entity)
-    return get_scatter_plot_by_vehicle_type(service.code_odrive, filter_vehicle_type)
+    return get_odrive_scatter_plot_by_vehicle_type(service.code_odrive, filter_vehicle_type)
 
 
 @app.callback(
-    Output("histogram_plot_by_vehicle", "figure"),
-    [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
+    Output("odrive_histogram_plot_by_vehicle", "figure"),
+    [Input("dashboard-selected-entity", "children"), Input("odrive_select_vehicle_type", "value")],
 )
-def update_histogram_plot_by_vehicle(selected_entity, filter_vehicle_type):
+def update_odrive_histogram_plot_by_vehicle(selected_entity, filter_vehicle_type):
     service = oc.get_entity_by_id(selected_entity)
-    return get_histogram_plot_by_vehicle(service.code_odrive, filter_vehicle_type)
+    return get_odrive_histogram_plot_by_vehicle(service.code_odrive, filter_vehicle_type)
 
 
 @app.callback(
-    Output("plot_by_vehicle_type", "figure"),
-    [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
+    Output("odrive_plot_vehicle_make", "figure"),
+    [Input("dashboard-selected-entity", "children"), Input("odrive_select_vehicle_type", "value")],
 )
-def update_plot_by_vehicle_type(selected_entity, filter_vehicle_type):
+def update_odrive_plot_vehicle_make(selected_entity, filter_vehicle_type):
     service = oc.get_entity_by_id(selected_entity)
     print(service)
-    return get_plot_by_vehicle_type(service.code_odrive, filter_vehicle_type)
+    return get_odrive_plot_vehicle_make(service.code_odrive, filter_vehicle_type)
 
 
 @app.callback(
-    Output("fleet_vehicle_number_odrive", "children"),
-    [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
+    Output("odrive_fleet_vehicle_number_odrive", "children"),
+    [Input("dashboard-selected-entity", "children"), Input("odrive_select_vehicle_type", "value")],
 )
 def update_fleet_vehicle(selected_entity, filter_vehicle_type):
     service = oc.get_entity_by_id(selected_entity)
@@ -343,8 +343,8 @@ def update_fleet_vehicle(selected_entity, filter_vehicle_type):
 
 
 @app.callback(
-    Output("total_emissions_odrive", "children"),
-    [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
+    Output("odrive_total_emissions", "children"),
+    [Input("dashboard-selected-entity", "children"), Input("odrive_select_vehicle_type", "value")],
 )
 def update_total_emissions_vehicles(selected_entity, filter_vehicle_type):
     service = oc.get_entity_by_id(selected_entity)
@@ -352,8 +352,8 @@ def update_total_emissions_vehicles(selected_entity, filter_vehicle_type):
 
 
 @app.callback(
-    Output("kilometers_total_odrive", "children"),
-    [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
+    Output("odrive_kilometers_total", "children"),
+    [Input("dashboard-selected-entity", "children"), Input("odrive_select_vehicle_type", "value")],
 )
 def update_kilometers_total_odive(selected_entity, filter_vehicle_type):
     service = oc.get_entity_by_id(selected_entity)
@@ -361,9 +361,9 @@ def update_kilometers_total_odive(selected_entity, filter_vehicle_type):
 
 
 @app.callback(
-    Output("montly_kilometer_odrive", "children"),
-    [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
+    Output("odrive_montly_kilometer", "children"),
+    [Input("dashboard-selected-entity", "children"), Input("odrive_select_vehicle_type", "value")],
 )
-def update_montly_kilometer_odrive(selected_entity, filter_vehicle_type):
+def update_odrive_montly_kilometer(selected_entity, filter_vehicle_type):
     service = oc.get_entity_by_id(selected_entity)
-    return get_montly_kilometer_odrive(service.code_odrive, filter_vehicle_type)
+    return get_odrive_montly_kilometer(service.code_odrive, filter_vehicle_type)
