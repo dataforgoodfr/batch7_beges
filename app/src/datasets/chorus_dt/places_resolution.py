@@ -169,6 +169,7 @@ def main():
     data = compute_distances(data)
 
     data = calc_CO2(data, carbon_dict)
+    data = filter_trips(data)
 
     places.to_csv("/data/cleaned/places.csv", index=False)
     data.to_csv("/data/cleaned/data_chorus_dt.csv", index=True)
