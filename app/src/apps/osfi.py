@@ -268,7 +268,7 @@ def get_building_location(buildings, data_to_display, selected_rows):
             lat=buildings["Latitude RT"],
             mode="markers",
             text=building_names_group[["Nom du bien"]].first(),
-            marker=dict(size=markers_sizes, color=markers_color),
+            marker=dict(size=5 + markers_sizes, color=markers_color),
         )
     ]
     layout = dict(
