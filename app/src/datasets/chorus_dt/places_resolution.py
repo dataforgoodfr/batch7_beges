@@ -24,6 +24,8 @@ def compute_distances(data):
         data["lieu_depart_lon"], data["lieu_depart_lat"], data["lieu_arrivee_lon"], data["lieu_arrivee_lat"]
     )
 
+    data["distance"].fillna(0, inplace=True)
+
     return data
 
 
