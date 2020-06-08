@@ -11,3 +11,4 @@ dash-bootstrap-components==0.9.2
 anytree==2.8.0
 openpyxl==3.0.3
 flask_login==0.4.1
+flask_caching==1.9.0

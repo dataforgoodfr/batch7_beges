@@ -7,14 +7,3 @@ Cette version de l’outil a été développée à partir des bases de données 
 - OSFi (Outil de suivi des fluides) : base de données recensant les consommations énergétiques des bâtiments administratifs.
 
 Les estimations de GES sont réalisées en croisant ces données d’activité avec les facteurs d’émissions de la base carbone de l’ADEME.
-
-## L’équipe
-- Anthony
-- Antoine Biard : Data engineer / data scientist ([linkedin](https://www.linkedin.com/in/antoine-biard-02906355/), [github](https://github.com/antoan2), [email](antoine.biard.10@gmail.com))
-- Artus
-- Ayoub Samaki : Data scientist ([linkedin](https://www.linkedin.com/in/ayoub-samaki-0a158588/), [github](https://github.com/Tiyop))
-- Gustave : data scientist ([linkedin](https://www.linkedin.com/in/gustave-ronteix-677a82ba/), [github](https://github.com/gronteix))
-- Maria
-- Maxime
-- Svetlana
-- Tallulah

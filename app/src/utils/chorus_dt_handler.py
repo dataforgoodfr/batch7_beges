@@ -14,6 +14,8 @@ class ChorusDtHandler:
         self.prestation_dict = {"A": "Avion", "T": "Train", "TC": "Transport en commun"}
         self.data = self.load_data()
         self.preprocess_data()
+        self.prestation_options = self.get_prestation_options()
+        self.year_options = self.get_year_options()
 
     def load_data(self):
         col_types = {"distance": np.float64, "CO2e/trip": np.float64}
@@ -51,10 +53,17 @@ class ChorusDtHandler:
         """"
             Returns pandas dataframe with Chorus DT data filtered on a code_structure.
         """
-
         if code_structure is not None:
             return self.data.loc[self.data.code_structure == code_structure, :]
         return self.data
+
+    def get_prestation_options(self):
+        unique_prestations = self.data.loc[:, "prestation"].unique()
+        return [{"label": prestation, "value": prestation} for prestation in unique_prestations]
+
+    def get_year_options(self):
+        years = self.data["date_debut_mission"].dt.year.unique()
+        return [{"label": year, "value": year} for year in years]
 
 
 ch = ChorusDtHandler()

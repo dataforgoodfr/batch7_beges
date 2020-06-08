@@ -16,6 +16,7 @@ from apps import back_office_entities
 from apps import back_office_upload
 from apps import back_office_login
 from apps import back_office_logout
+from apps import team
 
 from app import app
 
@@ -71,6 +72,8 @@ def display_page(pathname):
         return dashboard.layout, ""
     elif pathname == "/a_propos":
         return about.layout, ""
+    elif pathname == "/equipe":
+        return team.layout, ""
     elif pathname == "/methodologie":
         return methodology.layout, ""
     # Only root to allow login

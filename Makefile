@@ -14,7 +14,7 @@ run-bash:
 	docker-compose -f docker-compose.yml -f docker-compose-dev.yml run --rm --service-ports beges /bin/bash
 
 run-prod-server:
-	docker-compose -f docker-compose.yml -f docker-compose-prod.yml up
+	docker-compose -f docker-compose.yml -f docker-compose-prod.yml up -d
 
 run-dev-server:
 	docker-compose -f docker-compose.yml -f docker-compose-dev.yml up
