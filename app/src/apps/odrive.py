@@ -8,7 +8,7 @@ import numpy as np
 from dash.dependencies import Output, Input, State
 
 from app import app
-from utils.organization_chart import oc
+from utils.organization_chart import OrganizationChart
 from utils.odrive_handler import ov
 from components.html_components import build_figure_container, build_card_indicateur
 
@@ -300,6 +300,8 @@ layout = html.Div(
     [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
 )
 def update_donut_by_prestation(selected_entity, filter_vehicle_type):
+    oc = OrganizationChart()
+    oc.load_current()
     service = oc.get_entity_by_id(selected_entity)
     return get_donut_by_entity_type(service.code_odrive, filter_vehicle_type)
 
@@ -309,6 +311,8 @@ def update_donut_by_prestation(selected_entity, filter_vehicle_type):
     [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
 )
 def update_histogram_by_prestation(selected_entity, filter_vehicle_type):
+    oc = OrganizationChart()
+    oc.load_current()
     service = oc.get_entity_by_id(selected_entity)
     return get_histogram_by_entity_type(service.code_odrive, filter_vehicle_type)
 
@@ -318,6 +322,8 @@ def update_histogram_by_prestation(selected_entity, filter_vehicle_type):
     [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
 )
 def update_scatter_plot_by_vehicle(selected_entity, filter_vehicle_type):
+    oc = OrganizationChart()
+    oc.load_current()
     service = oc.get_entity_by_id(selected_entity)
     return get_scatter_plot_by_vehicle_type(service.code_odrive, filter_vehicle_type)
 
@@ -327,6 +333,8 @@ def update_scatter_plot_by_vehicle(selected_entity, filter_vehicle_type):
     [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
 )
 def update_histogram_plot_by_vehicle(selected_entity, filter_vehicle_type):
+    oc = OrganizationChart()
+    oc.load_current()
     service = oc.get_entity_by_id(selected_entity)
     return get_histogram_plot_by_vehicle(service.code_odrive, filter_vehicle_type)
 
@@ -336,6 +344,8 @@ def update_histogram_plot_by_vehicle(selected_entity, filter_vehicle_type):
     [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
 )
 def update_plot_by_vehicle_type(selected_entity, filter_vehicle_type):
+    oc = OrganizationChart()
+    oc.load_current()
     service = oc.get_entity_by_id(selected_entity)
     print(service)
     return get_plot_by_vehicle_type(service.code_odrive, filter_vehicle_type)
@@ -346,6 +356,8 @@ def update_plot_by_vehicle_type(selected_entity, filter_vehicle_type):
     [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
 )
 def update_fleet_vehicle(selected_entity, filter_vehicle_type):
+    oc = OrganizationChart()
+    oc.load_current()
     service = oc.get_entity_by_id(selected_entity)
     return get_fleet_vehicle(service.code_odrive, filter_vehicle_type)
 
@@ -355,6 +367,8 @@ def update_fleet_vehicle(selected_entity, filter_vehicle_type):
     [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
 )
 def update_total_emissions_vehicles(selected_entity, filter_vehicle_type):
+    oc = OrganizationChart()
+    oc.load_current()
     service = oc.get_entity_by_id(selected_entity)
     return get_total_emisions_vehicles(service.code_odrive, filter_vehicle_type)
 
@@ -364,6 +378,8 @@ def update_total_emissions_vehicles(selected_entity, filter_vehicle_type):
     [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
 )
 def update_kilometers_total_odive(selected_entity, filter_vehicle_type):
+    oc = OrganizationChart()
+    oc.load_current()
     service = oc.get_entity_by_id(selected_entity)
     return get_kilometers_total_odive(service.code_odrive, filter_vehicle_type)
 
@@ -373,5 +389,7 @@ def update_kilometers_total_odive(selected_entity, filter_vehicle_type):
     [Input("dashboard-selected-entity", "children"), Input("select_odrive_vehicle_type", "value")],
 )
 def update_montly_kilometer_odrive(selected_entity, filter_vehicle_type):
+    oc = OrganizationChart()
+    oc.load_current()
     service = oc.get_entity_by_id(selected_entity)
     return get_montly_kilometer_odrive(service.code_odrive, filter_vehicle_type)

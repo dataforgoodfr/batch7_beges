@@ -16,7 +16,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 from app import app, cache
-from utils.organization_chart import oc
+from utils.organization_chart import OrganizationChart
 from utils.osfi_handler import oh
 from dash.dependencies import Input, Output, State
 
@@ -31,6 +31,8 @@ TIMEOUT = 600
 
 @cache.memoize(timeout=TIMEOUT)
 def get_data(selected_entity, selected_rows, buildings, slider_values):
+    oc = OrganizationChart()
+    oc.load_current()
     entity = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(entity.code_osfi)
 
@@ -464,6 +466,8 @@ layout = html.Div(
     [Input("dashboard-selected-entity", "children")],
 )
 def fill_dash_table_with_buildings(selected_entity):
+    oc = OrganizationChart()
+    oc.load_current()
     service = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(service.code_osfi)
     columns_to_keep = ["Nom du bien", "Building type", "Adresse", "Code postal", "Ville", "Departement"]
@@ -492,6 +496,8 @@ def set_slider_range(selected_entity):
     """
     Will get min / max date range to setup the range slider
     """
+    oc = OrganizationChart()
+    oc.load_current()
     service = oc.get_entity_by_id(selected_entity)
     data = oh.get_structure_data(service.code_osfi)
     min_date = data["Date"].min()
