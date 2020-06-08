@@ -7,7 +7,7 @@ from apps import chorus_dt
 from apps import odrive
 from apps import osfi
 from app import app
-from utils.organization_chart import oc
+from utils.organization_chart import OrganizationChart
 from utils.texts import TEXTS
 
 help_modal = dbc.Modal(
@@ -104,6 +104,8 @@ def parse_pathname(pathname):
 @app.callback(Output("dashboard-selected-entity-show", "children"), [Input("dashboard-selected-entity", "children")])
 def on_selected_entity_show_selected_entity(selected_entity):
     if selected_entity is not None:
+        oc = OrganizationChart()
+        oc.load_current()
         service = oc.get_entity_by_id(selected_entity)
         return html.Div(
             [

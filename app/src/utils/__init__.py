@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl import load_workbook
-from utils.organization_chart import oc
+from utils.organization_chart import OrganizationChart
 from utils.chorus_dt_handler import ch
 from utils.odrive_handler import ov
 from utils.osfi_handler import oh
@@ -14,6 +14,8 @@ EXCEL_TEMPLATE_PATH = "/data/templates/beges_template.xlsx"
 
 class DataExport:
     def __init__(self, selected_entity):
+        oc = OrganizationChart()
+        oc.load_current()
         self.service = oc.get_entity_by_id(selected_entity)
         self.load_data()
 
