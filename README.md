@@ -1,11 +1,11 @@
 # Installation
 
 ## Requirements
-- Docker : [Installation guide](https://docs.docker.com/engine/install/)
-- Docker-compose : [Installation guide](https://docs.docker.com/compose/install/)
-- Pre-commit : [Installation guide](https://pre-commit.com/)
-- Black : Just run `pip install --user black`
-
+- Docker: [Installation guide](https://docs.docker.com/engine/install/)
+- Docker-compose: [Installation guide](https://docs.docker.com/compose/install/)
+- Pre-commit: [Installation guide](https://pre-commit.com/)
+- Black: Just run `pip install --user black`
+- git-lfs: https://github.com/git-lfs/git-lfs/wiki/Installation and `git lfs install` in your repository
 
 If you want a local dev setup:
 - python 3.7

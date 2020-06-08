@@ -8,7 +8,7 @@ from dash.dependencies import Output, Input, State
 import numpy as np
 
 from app import app
-from utils.organization_chart import oc
+from utils.organization_chart import OrganizationChart
 from utils.chorus_dt_handler import ch
 from components.html_components import build_figure_container, build_card_indicateur
 from components.figures_templates import xaxis_format
@@ -236,7 +236,13 @@ layout = html.Div(
                                     "type de trajet (e.g. train, avion) avec la distance parcourue. Des biais de calcul"
                                     "subsistent. Cliquer ci-dessous pour en savoir plus sur les hypothèses de calcul."
                                 ),
-                                html.A(dbc.Button("En savoir plus", color="primary"), href="/methodologie"),
+                                dbc.Button(
+                                    "En savoir plus",
+                                    color="primary",
+                                    href="/methodologie#methodologie_chorus",
+                                    external_link=True,
+                                    target="_blank",
+                                ),
                             ]
                         ),
                         dbc.Card(
@@ -349,6 +355,8 @@ layout = html.Div(
     ],
 )
 def update_graphs(selected_entity, n_clicks, prestation_types: list, years, unreliable):
+    oc = OrganizationChart()
+    oc.load_current()
     service = oc.get_entity_by_id(selected_entity)
     chorus_dt_df = ch.get_structure_data(service.code_chorus).copy()
     if "fiable" not in chorus_dt_df.columns:

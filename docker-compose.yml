@@ -9,4 +9,4 @@ services:
             - APP_ADMIN_PWD=${APP_ADMIN_PWD}
             - APP_ADMIN_EMAIL=${APP_ADMIN_EMAIL}
         volumes:
-            - ${DATA_DIR}:/data
+            - ./data:/data

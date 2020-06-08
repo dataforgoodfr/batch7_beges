@@ -4,6 +4,7 @@ mkdir -p /data/raw/osfi
 mkdir -p /data/raw/odrive
 mkdir -p /data/prepared
 mkdir -p /data/cleaned
+mkdir -p /data/cleaned/exports/
 mkdir -p /data/entities
 
 
