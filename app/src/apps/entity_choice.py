@@ -8,11 +8,13 @@ from dash.exceptions import PreventUpdate
 
 from dash.dependencies import Output, Input, State, ALL
 
-from utils.organization_chart import oc
+from utils.organization_chart import OrganizationChart
 from app import app
 
 
 def get_dropdown(parent_id="root", depth=1):
+    oc = OrganizationChart()
+    oc.load_current()
     return dcc.Dropdown(
         id={"type": "entity-choice-dropdown-level", "id": depth},
         options=oc.get_children_dropdown_items(parent_id),
@@ -60,6 +62,8 @@ layout = html.Div(
 )
 def on_click_go_to_dashboard(n_clicks, selected_entity):
     if n_clicks:
+        oc = OrganizationChart()
+        oc.load_current()
         entity = oc.get_entity_by_id(selected_entity)
         return dcc.Location(id="url-redirect-to-dashboard", pathname="/tableau_de_bord/%s" % entity.id)
 
@@ -100,6 +104,8 @@ def add_dropdown(values, dropdowns):
         entity_id = ctx.triggered[0]["value"]
         # The value can be None if the dropdown is cleared
         if entity_id:
+            oc = OrganizationChart()
+            oc.load_current()
             entity = oc.get_entity_by_id(entity_id)
             # If there are some children, we add a dropdown with the children choices
             if entity.children:

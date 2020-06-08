@@ -39,10 +39,11 @@ class User(UserMixin):
         return "User: ({name}, {pwd})".format(name=self.username, pwd=self.password)
 
 
-ADMIN_NAME = os.getenv("APP_ADMIN_NAME", "admin")
-ADMIN_PWD = os.getenv("APP_ADMIN_PWD", "pwd")
-ADMIN_EMAIL = os.getenv("APP_ADMIN_EMAIL", "email@gmail.com")
+ADMIN_NAME = os.getenv("APP_ADMIN_NAME", default="admin")
+ADMIN_PWD = os.getenv("APP_ADMIN_PWD", default="pwd")
+ADMIN_EMAIL = os.getenv("APP_ADMIN_EMAIL", default="email@gmail.com")
 ADMINS = {ADMIN_NAME: User(name=ADMIN_NAME, pwd=ADMIN_PWD, email=ADMIN_EMAIL)}
+print(ADMINS)
 
 cache = Cache(app.server, config={"CACHE_TYPE": "simple"})
 

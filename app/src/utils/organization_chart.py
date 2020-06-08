@@ -103,7 +103,3 @@ class OrganizationChart:
     def get_organization_service(self, selected_entity):
         organization_id, service_id = selected_entity.split(";")
         return self.get_entity_by_id(organization_id), self.get_entity_by_id(service_id)
-
-
-oc = OrganizationChart()
-oc.load_current()

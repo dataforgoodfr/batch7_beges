@@ -11,7 +11,7 @@ from dash.dependencies import Output, Input, State, ALL
 
 from app import app
 from utils.texts import TEXTS
-from utils.organization_chart import oc
+from utils.organization_chart import OrganizationChart
 
 from utils.organization_chart_html_wrapper import (
     EntityHtmlWrapper,
@@ -258,6 +258,9 @@ def interact_organigram(
     # If the json tree is empty, we will load the tree from the app organization chart
     # Else we will load this json tree
     if not json_tree:
+
+        oc = OrganizationChart()
+        oc.load_current()
         ochw = oc_to_ochw(oc)
     else:
         ochw = OrganizationChartHtmlWrapper()
@@ -440,7 +443,6 @@ def save_organization_chart_and_publish(n_clicks, json_tree):
             filename = str(time.time_ns())
             local_oc.save_json(filename)
             local_oc.set_current(filename)
-            oc.load_current()
             return False, True
         except Exception as e:
             return True, False
