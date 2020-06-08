@@ -8,6 +8,7 @@ download-datasets:
 
 prepare-datasets:
 	docker-compose -f docker-compose.yml -f docker-compose-dev.yml run --rm beges python scripts/prepare_datasets.py
+	docker-compose -f docker-compose.yml -f docker-compose-dev.yml run --rm beges python scripts/prepare_exports.py
 
 down:
 	docker-compose down
