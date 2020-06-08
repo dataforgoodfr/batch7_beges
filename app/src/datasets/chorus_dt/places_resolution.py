@@ -144,11 +144,12 @@ def filter_trips(trips: pd.DataFrame):
 
     Tag trips according to rough heuristic (to be improved):
      - all non-plane trips > 800km
+     - all TC trips
 
     """
     trips["fiable"] = True
     trips.loc[(trips.index.get_level_values("prestation") != "A") & (trips["distance"] > 799), "fiable"] = False
-    trips.loc[(trips.index.get_level_values("prestation") != "TC"), "fiable"] = False
+    trips.loc[(trips.index.get_level_values("prestation") == "TC"), "fiable"] = False
 
     return trips
 
