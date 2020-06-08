@@ -71,5 +71,5 @@ def prepare_exports():
     for entity in tqdm(oc.get_leaves()):
         tqdm.write("Exporting excel for entity: %s" % entity.id)
         data_export = DataExport(entity.id)
-        with open("/data/cleaned/exports/%s.xls" % entity.id, "wb") as file_id:
+        with open("/data/cleaned/exports/%s.xlsx" % entity.id, "wb") as file_id:
             file_id.write(data_export.get_file_as_bytes().read())

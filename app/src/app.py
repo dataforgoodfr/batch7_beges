@@ -57,7 +57,7 @@ def download_raw_excel():
     """Define route for exporting raw data"""
     service = flask.request.args.get("service")
     # TODO: Include some security checks on passed value
-    with open("/data/cleaned/exports/%s.xls" % service, "rb") as file_id:
+    with open("/data/cleaned/exports/%s.xlsx" % service, "rb") as file_id:
         strIO = io.BytesIO(file_id.read())
     return flask.send_file(
         strIO,
