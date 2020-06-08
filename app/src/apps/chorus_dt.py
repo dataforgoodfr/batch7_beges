@@ -236,7 +236,13 @@ layout = html.Div(
                                     "type de trajet (e.g. train, avion) avec la distance parcourue. Des biais de calcul"
                                     "subsistent. Cliquer ci-dessous pour en savoir plus sur les hypothèses de calcul."
                                 ),
-                                html.A(dbc.Button("En savoir plus", color="primary"), href="/methodologie"),
+                                dbc.Button(
+                                    "En savoir plus",
+                                    color="primary",
+                                    href="/methodologie#methodologie_chorus",
+                                    external_link=True,
+                                    target="_blank",
+                                ),
                             ]
                         ),
                         dbc.Card(

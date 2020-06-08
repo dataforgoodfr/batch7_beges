@@ -382,7 +382,13 @@ layout = html.Div(
                     dbc.Jumbotron(
                         [
                             dcc.Markdown(jumbotron_text),
-                            html.P(dbc.Button("En savoir plus", color="primary", href="/methodologie")),
+                            dbc.Button(
+                                "En savoir plus",
+                                color="primary",
+                                href="/methodologie#methodologie_osfi",
+                                external_link=True,
+                                target="_blank",
+                            ),
                         ]
                     ),
                     width=3,
