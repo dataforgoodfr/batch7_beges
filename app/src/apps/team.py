@@ -90,6 +90,7 @@ team_members["gustave"] = TeamMember(
 )
 team_members["maria"] = TeamMember(
     full_name="Maria Anaya",
+    title="Data analyst",
     linkedin_link="https://www.linkedin.com/in/mariaanaya/",
     image_url="https://media-exp1.licdn.com/dms/image/C5603AQF0PeKRRNoZWA/profile-displayphoto-shrink_200_200/0?e=1596672000&v=beta&t=G_tAgB7Xs7Hr1mJbC-LUbs8VFUFLmOc-cMKAPL8WyhU",
 )
