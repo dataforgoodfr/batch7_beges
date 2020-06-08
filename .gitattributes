@@ -1,0 +1,19 @@
+# Entities
+data/entities/default filter=lfs diff=lfs merge=lfs -text
+
+# Chorus dt
+data/raw/chorus-dt/airports.csv filter=lfs diff=lfs merge=lfs -text
+data/raw/chorus-dt/laposte_hexasmal.csv filter=lfs diff=lfs merge=lfs -text
+data/raw/chorus-dt/liste-des-gares.csv filter=lfs diff=lfs merge=lfs -text
+data/raw/chorus-dt/referentiel-gares-voyageurs.csv filter=lfs diff=lfs merge=lfs -text
+data/raw/chorus-dt/second_semester.zip filter=lfs diff=lfs merge=lfs -text
+data/raw/chorus-dt/first_semester.zip filter=lfs diff=lfs merge=lfs -text
+data/raw/chorus-dt/gmap_response.pkl filter=lfs diff=lfs merge=lfs -text
+
+# OSFI
+data/raw/osfi/osfi.csv filter=lfs diff=lfs merge=lfs -text
+data/raw/osfi/osfi_monthly.csv filter=lfs diff=lfs merge=lfs -text
+data/raw/osfi/osfi_buildings.csv filter=lfs diff=lfs merge=lfs -text
+
+# ODRIVE
+data/raw/odrive/odrive.xlsx filter=lfs diff=lfs merge=lfs -text
