@@ -1,5 +1,6 @@
 ### Déplacements professionnels effectués en avion et train
-Les émissions liées aux déplacements professionnels en avion et train sont calculées à partir de la base Chorus DT. Elles sont comprises dans le poste d'émission "Déplacements professionnels" du scope 3.
+
+Les émissions liées aux déplacements professionnels en avion et train sont calculées à partir de la base Chorus DT. Elles sont comprises dans le poste d'émission n°23 (Déplacements professionnels) du scope 3.
 
 Elles sont obtenues en trois étapes :
 
