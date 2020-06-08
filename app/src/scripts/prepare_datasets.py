@@ -3,6 +3,7 @@ from datasets.chorus_dt.places_resolution import main as chorus_dt_resolve_place
 
 from datasets.odrive.file_conversion import main as odrive_file_conversion
 from datasets.osfi.data_preparation import main as osfi_prepare_data
+from utils.data_export import prepare_exports
 
 if __name__ == "__main__":
     # Prepare Odrive
@@ -13,3 +14,5 @@ if __name__ == "__main__":
 
     # Prepare osfi
     osfi_prepare_data()
+
+    prepare_exports()

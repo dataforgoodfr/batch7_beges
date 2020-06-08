@@ -43,14 +43,12 @@ class OrganizationChart:
 
     def load_json(self, json_tree):
         dict_importer = DictImporter(nodecls=Entity)
-        print(json_tree)
         self._root = JsonImporter(dict_importer).import_(json_tree)
 
     def load_json_file(self, filename):
         with open(ORGANIZATION_CHART_DIR / filename) as file_id:
             json_tree = file_id.read()
             self.load_json(json_tree)
-        self.render_tree()
 
     def to_json(self):
         return JsonExporter().export(self._root)
@@ -82,7 +80,6 @@ class OrganizationChart:
                 entity_dict["parent"] = entities[entity_dict["parent"]]
                 entity = Entity(**entity_dict)
                 entities[entity.id] = entity
-        self.render_tree()
 
     def render_tree(self):
         print("Organization chart: ")
@@ -103,3 +100,6 @@ class OrganizationChart:
     def get_organization_service(self, selected_entity):
         organization_id, service_id = selected_entity.split(";")
         return self.get_entity_by_id(organization_id), self.get_entity_by_id(service_id)
+
+    def get_leaves(self):
+        return self._root.leaves

@@ -1,9 +1,9 @@
+import io
 import dash
 import os
 import dash_bootstrap_components as dbc
 import flask
 from flask_login import LoginManager, UserMixin
-import utils
 from flask_caching import Cache
 
 external_stylesheets = [
@@ -43,7 +43,6 @@ ADMIN_NAME = os.getenv("APP_ADMIN_NAME", default="admin")
 ADMIN_PWD = os.getenv("APP_ADMIN_PWD", default="pwd")
 ADMIN_EMAIL = os.getenv("APP_ADMIN_EMAIL", default="email@gmail.com")
 ADMINS = {ADMIN_NAME: User(name=ADMIN_NAME, pwd=ADMIN_PWD, email=ADMIN_EMAIL)}
-print(ADMINS)
 
 cache = Cache(app.server, config={"CACHE_TYPE": "simple"})
 
@@ -58,8 +57,8 @@ def download_raw_excel():
     """Define route for exporting raw data"""
     service = flask.request.args.get("service")
     # TODO: Include some security checks on passed value
-    de = utils.DataExport(service)
-    strIO = de.get_file_as_bytes()
+    with open("/data/cleaned/exports/%s.xls" % service, "rb") as file_id:
+        strIO = io.BytesIO(file_id.read())
     return flask.send_file(
         strIO,
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
