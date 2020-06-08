@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 import flask
 from flask_login import LoginManager, UserMixin
 import utils
+from flask_caching import Cache
 
 external_stylesheets = [
     dbc.themes.COSMO,
@@ -43,6 +44,8 @@ ADMIN_PWD = os.getenv("APP_ADMIN_PWD", "pwd")
 ADMIN_EMAIL = os.getenv("APP_ADMIN_EMAIL", "email@gmail.com")
 ADMINS = {ADMIN_NAME: User(name=ADMIN_NAME, pwd=ADMIN_PWD, email=ADMIN_EMAIL)}
 
+cache = Cache(app.server, config={"CACHE_TYPE": "simple"})
+
 # callback to reload the user object
 @login_manager.user_loader
 def load_user(user_id):
@@ -63,3 +66,14 @@ def download_raw_excel():
         as_attachment=True,
         cache_timeout=0,
     )  # TODO: Remove cache timeout
+
+
+# Setting up loader io route to test our application
+
+
+def get_loader_io_token():
+    loader_io_token = os.getenv("LOADER_IO_TOKEN", "loader_io_token")
+    return loader_io_token
+
+
+app.server.add_url_rule(rule="/" + get_loader_io_token() + "/", view_func=get_loader_io_token)

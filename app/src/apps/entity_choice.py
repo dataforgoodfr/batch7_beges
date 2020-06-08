@@ -39,7 +39,11 @@ layout = html.Div(
         dbc.Row(
             dbc.Col(
                 dbc.Button(
-                    "Afficher les données", id="button-to-dashboard", color="primary", style={"display": "none"}
+                    "Afficher les données",
+                    id="button-to-dashboard",
+                    color="primary",
+                    style={"display": "none"},
+                    block=True,
                 ),
                 width={"size": 2, "offset": 5},
             ),
