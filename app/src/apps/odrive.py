@@ -15,10 +15,10 @@ from components.html_components import build_figure_container, build_card_indica
 
 def get_vehicle_category(emission_per_km):
     if emission_per_km < 10:
-        return "Emission très faible"
+        return "Emission très faible (<10 gCO2/km)"
     if emission_per_km < 60:
-        return "Emission faible"
-    return "Emission haute"
+        return "Emission faible (10 < . < 60 gCO2/km)"
+    return "Emission haute (>60 gCO2/km)"
 
 
 def get_donut_by_entity_type(code_structure=None, filter_vehicle_type=None):
@@ -32,8 +32,6 @@ def get_donut_by_entity_type(code_structure=None, filter_vehicle_type=None):
 
 def get_plot_by_vehicle_type(code_structure=None, filter_vehicle_type=None):
     odrive_df = ov.get_structure_data(code_structure, filter_vehicle_type)
-    print(filter_vehicle_type)
-    print("odrive_df", odrive_df)
     odrive_df["categorie_emmission"] = odrive_df["CO2 (g/km)"].apply(get_vehicle_category)
     vehicles_df = odrive_df.groupby(["categorie_emmission"])["Immatriculation"].nunique().reset_index()
     fig = go.Figure(
@@ -52,7 +50,7 @@ def get_histogram_by_entity_type(code_structure=None, filter_vehicle_type=None):
         plot_bgcolor="white",
         template="plotly_white",
         margin={"t": 30, "r": 30, "l": 30},
-        yaxis=dict(title_text="km parcours par an"),
+        yaxis=dict(title_text="km parcourus par an"),
     )
     return fig
 
@@ -124,7 +122,7 @@ def get_scatter_plot_by_vehicle_type(code_structure=None, filter_vehicle_type=No
         template="plotly_white",
         margin={"t": 30, "r": 30, "l": 30},
         xaxis=dict(title_text="Moyenne de distance parcourue par an (km)"),
-        yaxis=dict(title_text="Moyenne des emissions par an (g)"),
+        yaxis=dict(title_text="Moyenne des emissions de CO2 par an (g)"),
     )
     return fig
 
@@ -202,7 +200,7 @@ layout = html.Div(
                         dbc.Jumbotron(
                             [
                                 html.P(
-                                    "Les émissions annuelles sont obtenues en multipliant le facteur d'émission des véhicules par le nombre de kilomètres qu'ils parcourent en un an"
+                                    "Les émissions annuelles sont obtenues par croisement de la moyenne kilométrique annuelle de chaque véhicule avec les données d’émissions de GES (en gCO2e/km) qui leur sont propres."
                                 ),
                                 html.P(dbc.Button("En savoir plus", color="primary", href="/methodologie")),
                             ]
@@ -232,7 +230,7 @@ layout = html.Div(
                                 dbc.Col(
                                     [
                                         build_figure_container(
-                                            title="Répartition des émissions par direction", id="donut-by-entity"
+                                            title="Répartition des émissions par site", id="donut-by-entity"
                                         )
                                     ],
                                     width=6,
@@ -240,7 +238,7 @@ layout = html.Div(
                                 dbc.Col(
                                     [
                                         build_figure_container(
-                                            title="Répartition des km parcours par direction", id="histogram-by-entity"
+                                            title="Répartition des km parcourus", id="histogram-by-entity"
                                         )
                                     ],
                                     width=6,
@@ -262,7 +260,7 @@ layout = html.Div(
                                 dbc.Col(
                                     [
                                         build_figure_container(
-                                            title="Répartition des émissions par type de véhicule",
+                                            title="Répartition des émissions par type de véhicule (Décret n°2017-24 du 11 janvier 2017)",
                                             id="plot_by_vehicle_type",
                                         )
                                     ],
