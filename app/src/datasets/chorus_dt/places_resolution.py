@@ -19,22 +19,11 @@ tqdm.pandas()
 
 
 def compute_distances(data):
-    data["distance_0"] = np.NaN
-    data["distance_1"] = np.NaN
-    data["distance_2"] = np.NaN
 
-    pairs = [("lieu_depart", "lieu_etape"), ("lieu_etape", "lieu_arrivee"), ("lieu_depart", "lieu_arrivee")]
-
-    for distance_i, (column_0, column_1) in enumerate(pairs):
-        data["distance_%s" % distance_i] = compute_distance_between_points(
-            data["%s_lon" % column_0], data["%s_lat" % column_0], data["%s_lon" % column_1], data["%s_lat" % column_1]
-        )
-    data["distance_0"].fillna(0, inplace=True)
-    data["distance_1"].fillna(0, inplace=True)
-    data["distance_2"].fillna(0, inplace=True)
-
-    # to be modified in later chorus dt fix
-    data["distance"] = data["distance_2"]
+    data["distance"] = compute_distance_between_points(
+        data["lieu_depart_lon"], data["lieu_depart_lat"], data["lieu_arrivee_lon"], data["lieu_arrivee_lat"]
+    )
+    data["distance"] = data["distance"].fillna(0, inplace=True)
 
     return data
 
